@@ -1,0 +1,39 @@
+{
+  "version": "0.1.0",
+  "backends": [
+    {
+      "backend": "clickhouse",
+      "features": [
+        "CommonTableExpressions",
+        "DerivedTables",
+        "Joins",
+        "Windows",
+        "SetOperations",
+        "Aggregates",
+        "DistinctAggregates",
+        "ScalarSubqueries",
+        "InSubqueries",
+        "NamespacedFunctions",
+        "ApproximateAggregates",
+        "Explain",
+        "LimitOffset"
+      ]
+    },
+    {
+      "backend": "postgres",
+      "features": [
+        "CommonTableExpressions",
+        "DerivedTables",
+        "Joins",
+        "Windows",
+        "SetOperations",
+        "Aggregates",
+        "DistinctAggregates",
+        "ScalarSubqueries",
+        "InSubqueries",
+        "Explain",
+        "LimitOffset"
+      ]
+    }
+  ]
+}

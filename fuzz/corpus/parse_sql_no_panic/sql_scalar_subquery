@@ -1,0 +1,1 @@
+SELECT neuron_id, (SELECT COUNT(weight) FROM synapses) AS synapse_count FROM neurons

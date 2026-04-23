@@ -1,0 +1,27 @@
+[package]
+name = "queryfabric"
+description = "Stable facade crate for QueryFabric's portable query compiler"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+homepage.workspace = true
+documentation.workspace = true
+rust-version.workspace = true
+readme = "README.md"
+keywords = ["sql", "compiler", "analytics", "science", "clickhouse"]
+categories = ["database", "science"]
+
+[dependencies]
+queryfabric-adapter-clickhouse = { workspace = true }
+queryfabric-adapter-postgres = { workspace = true }
+queryfabric-catalog = { workspace = true }
+queryfabric-dialect-sql = { workspace = true }
+queryfabric-dialect-syql = { workspace = true }
+queryfabric-ir = { workspace = true }
+queryfabric-opt = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+
+[dev-dependencies]
+proptest = "1"

@@ -1,0 +1,20 @@
+[package]
+name = "queryfabric-adapter-postgres"
+description = "PostgreSQL adapter for QueryFabric"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+homepage.workspace = true
+documentation.workspace = true
+rust-version.workspace = true
+readme = "README.md"
+keywords = ["sql", "postgres", "compiler", "analytics", "science"]
+categories = ["database", "science"]
+
+[dependencies]
+queryfabric-catalog = { workspace = true }
+queryfabric-ir = { workspace = true }
+
+[dev-dependencies]
+queryfabric-dialect-sql = { workspace = true }

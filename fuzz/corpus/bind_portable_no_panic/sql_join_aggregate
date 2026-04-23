@@ -1,0 +1,4 @@
+SELECT n.neuron_id, AVG(s.weight) AS mean_weight
+FROM neurons AS n
+LEFT JOIN synapses AS s ON n.neuron_id = s.target_neuron_id
+GROUP BY n.neuron_id

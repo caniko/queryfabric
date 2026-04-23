@@ -1,0 +1,19 @@
+[package]
+name = "queryfabric-ir"
+description = "Backend-neutral query IR and dialect interfaces"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+homepage.workspace = true
+documentation.workspace = true
+rust-version.workspace = true
+readme = "README.md"
+keywords = ["sql", "compiler", "ir", "analytics", "science"]
+categories = ["compilers", "database", "science"]
+
+[dependencies]
+blake3 = { workspace = true }
+miette = { workspace = true }
+serde = { workspace = true }
+thiserror = { workspace = true }

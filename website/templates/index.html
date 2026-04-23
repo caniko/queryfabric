@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <section class="hero shell">
+    <div class="hero-copy">
+      <p class="eyebrow">{{ section.extra.tagline }}</p>
+      <h1>{{ section.title }}</h1>
+      <p class="subtitle">{{ section.extra.subtitle }}</p>
+      <div class="hero-actions">
+        <a class="button button-primary" href="{{ config.base_url }}/docs/">Get Started</a>
+        <a class="button button-secondary" href="https://codeberg.org/caniko/queryfabric">View Source</a>
+      </div>
+      <div class="stage-list">
+        {% for stage in section.extra.stages %}
+          <span class="stage-pill">{{ stage }}</span>
+        {% endfor %}
+      </div>
+    </div>
+
+    <div class="hero-panel">
+      <div class="panel-label">Compiler Boundary</div>
+      <pre class="code-block"><code>{{ section.extra.hero_code }}</code></pre>
+    </div>
+  </section>
+
+  <section class="section shell">
+    <div class="section-heading">
+      <p class="eyebrow">Why QueryFabric</p>
+      <h2>Portable query compilation without product lock-in</h2>
+      <p>
+        QueryFabric is not a runtime and not a query executor. It is the semantic
+        contract a host can trust before execution begins: typed binding, capability
+        analysis, structured diagnostics, and backend-specific emission.
+      </p>
+    </div>
+    <div class="backend-strip">
+      {% for backend in section.extra.backends %}
+        <span class="backend-chip">{{ backend }}</span>
+      {% endfor %}
+    </div>
+  </section>
+
+  <section class="section shell">
+    <div class="section-heading">
+      <p class="eyebrow">Core Value</p>
+      <h2>What hosts actually need before they run a query</h2>
+    </div>
+    <div class="feature-grid">
+      {% for feature in section.extra.features %}
+        <article class="feature-card">
+          <h3>{{ feature.title }}</h3>
+          <p>{{ feature.body }}</p>
+        </article>
+      {% endfor %}
+    </div>
+  </section>
+
+  <section class="section shell install-section">
+    <div class="section-heading">
+      <p class="eyebrow">Early Adoption</p>
+      <h2>Use the facade crate today</h2>
+      <p>{{ section.extra.install_note }}</p>
+    </div>
+    <div class="install-card">
+      <pre class="code-block"><code>{{ section.extra.install_snippet }}</code></pre>
+      <div class="install-links">
+        <a href="{{ config.base_url }}/docs/">Read the docs</a>
+        <a href="https://codeberg.org/caniko/queryfabric/src/branch/trunk/crates/queryfabric/examples">Browse examples</a>
+        <a href="https://codeberg.org/caniko/queryfabric/src/branch/trunk/conformance/portable-subset.json">See the conformance corpus</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="section shell prose-section">
+    <div class="prose">
+      {{ section.content | safe }}
+    </div>
+  </section>
+{% endblock content %}
