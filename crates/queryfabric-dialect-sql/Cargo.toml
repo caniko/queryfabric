@@ -1,0 +1,17 @@
+[package]
+name = "queryfabric-dialect-sql"
+description = "Generic SQL dialect frontend for QueryFabric"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+homepage.workspace = true
+documentation.workspace = true
+rust-version.workspace = true
+readme = "README.md"
+keywords = ["sql", "parser", "compiler", "analytics", "science"]
+categories = ["database", "parser-implementations", "science"]
+
+[dependencies]
+queryfabric-ir = { workspace = true }
+sqlparser = { workspace = true }

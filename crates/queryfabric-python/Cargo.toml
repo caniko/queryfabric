@@ -1,0 +1,24 @@
+[package]
+name = "queryfabric-python"
+version.workspace = true
+description = "Python bindings for the QueryFabric facade"
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+homepage.workspace = true
+documentation.workspace = true
+rust-version.workspace = true
+
+[lib]
+name = "_queryfabric"
+crate-type = ["cdylib"]
+test = false
+doctest = false
+
+[dependencies]
+queryfabric = { workspace = true }
+pyo3 = { workspace = true }
+pythonize = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+uuid = { workspace = true }

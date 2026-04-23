@@ -1,0 +1,1 @@
+SELECT neuron_id, RANK() OVER (ORDER BY cable_length DESC) AS rk FROM neurons

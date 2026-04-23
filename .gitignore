@@ -1,0 +1,15 @@
+/target
+/fuzz/target
+/fuzz/Cargo.lock
+/fuzz/artifacts
+/fuzz/coverage
+/.direnv
+/.devenv
+/result
+/result-*
+/docs/book
+/website/public
+.DS_Store
+__pycache__/
+*.py[cod]
+*.so

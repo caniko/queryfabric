@@ -1,0 +1,32 @@
+[package]
+name = "queryfabric-fuzz"
+version = "0.0.0"
+publish = false
+edition = "2024"
+
+[package.metadata]
+cargo-fuzz = true
+
+[dependencies]
+libfuzzer-sys = "0.4"
+queryfabric = { path = "../crates/queryfabric" }
+
+[[bin]]
+name = "parse_sql_no_panic"
+path = "fuzz_targets/parse_sql_no_panic.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
+name = "bind_portable_no_panic"
+path = "fuzz_targets/bind_portable_no_panic.rs"
+test = false
+doc = false
+bench = false
+
+[profile.release]
+debug = 1
+
+[workspace]
+members = ["."]

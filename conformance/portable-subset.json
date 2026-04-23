@@ -1,0 +1,698 @@
+{
+  "version": "0.1.0",
+  "cases": [
+    {
+      "id": "simple-scan-filter-project",
+      "query": "SELECT neuron_id FROM neurons WHERE cable_length > 100 LIMIT 5",
+      "required_capabilities": [
+        "LimitOffset"
+      ],
+      "expected_schema": [
+        {
+          "name": "neuron_id",
+          "data_type": "Uuid",
+          "nullable": false
+        }
+      ],
+      "expected_backends": {
+        "clickhouse": "supported",
+        "postgres": "supported"
+      }
+    },
+    {
+      "id": "distinct-order-limit-offset",
+      "query": "SELECT DISTINCT neuron_id FROM neurons ORDER BY neuron_id LIMIT 5 OFFSET 2",
+      "required_capabilities": [
+        "LimitOffset"
+      ],
+      "expected_schema": [
+        {
+          "name": "neuron_id",
+          "data_type": "Uuid",
+          "nullable": false
+        }
+      ],
+      "expected_backends": {
+        "clickhouse": "supported",
+        "postgres": "supported"
+      }
+    },
+    {
+      "id": "aggregate-group-by-having",
+      "query": "SELECT neuron_id, AVG(cable_length) AS mean_len FROM neurons GROUP BY neuron_id HAVING AVG(cable_length) > 100",
+      "required_capabilities": [
+        "Aggregates"
+      ],
+      "expected_schema": [
+        {
+          "name": "neuron_id",
+          "data_type": "Uuid",
+          "nullable": false
+        },
+        {
+          "name": "mean_len",
+          "data_type": "Float64",
+          "nullable": true
+        }
+      ],
+      "expected_backends": {
+        "clickhouse": "supported",
+        "postgres": "supported"
+      }
+    },
+    {
+      "id": "case-expression",
+      "query": "SELECT source_neuron_id, CASE WHEN weight > 1.0 THEN 1 ELSE 0 END AS bucket FROM synapses LIMIT 1",
+      "required_capabilities": [
+        "LimitOffset"
+      ],
+      "expected_schema": [
+        {
+          "name": "source_neuron_id",
+          "data_type": "Uuid",
+          "nullable": false
+        },
+        {
+          "name": "bucket",
+          "data_type": "Int64",
+          "nullable": false
+        }
+      ],
+      "expected_backends": {
+        "clickhouse": "supported",
+        "postgres": "supported"
+      }
+    },
+    {
+      "id": "common-scalar-functions",
+      "query": "SELECT COALESCE(weight, 0.0) AS coalesced, SQRT(weight) AS root, GREATEST(weight, 1.0) AS hi, LEAST(weight, 1.0) AS lo FROM synapses LIMIT 1",
+      "required_capabilities": [
+        "LimitOffset"
+      ],
+      "expected_schema": [
+        {
+          "name": "coalesced",
+          "data_type": "Float64",
+          "nullable": false
+        },
+        {
+          "name": "root",
+          "data_type": "Float64",
+          "nullable": false
+        },
+        {
+          "name": "hi",
+          "data_type": "Float64",
+          "nullable": false
+        },
+        {
+          "name": "lo",
+          "data_type": "Float64",
+          "nullable": false
+        }
+      ],
+      "expected_backends": {
+        "clickhouse": "supported",
+        "postgres": "supported"
+      }
+    },
+    {
+      "id": "coalesce-fallback",
+      "query": "SELECT COALESCE(cable_length, 0.0) AS stabilized_length FROM neurons LIMIT 1",
+      "required_capabilities": [
+        "LimitOffset"
+      ],
+      "expected_schema": [
+        {
+          "name": "stabilized_length",
+          "data_type": "Float64",
+          "nullable": false
+        }
+      ],
+      "expected_backends": {
+        "clickhouse": "supported",
+        "postgres": "supported"
+      }
+    },
+    {
+      "id": "aggregate-family",
+      "query": "SELECT SUM(weight) AS total_weight, AVG(weight) AS mean_weight, MIN(weight) AS min_weight, MAX(weight) AS max_weight FROM synapses",
+      "required_capabilities": [
+        "Aggregates"
+      ],
+      "expected_schema": [
+        {
+          "name": "total_weight",
+          "data_type": "Float64",
+          "nullable": true
+        },
+        {
+          "name": "mean_weight",
+          "data_type": "Float64",
+          "nullable": true
+        },
+        {
+          "name": "min_weight",
+          "data_type": "Float64",
+          "nullable": true
+        },
+        {
+          "name": "max_weight",
+          "data_type": "Float64",
+          "nullable": true
+        }
+      ],
+      "expected_backends": {
+        "clickhouse": "supported",
+        "postgres": "supported"
+      }
+    },
+    {
+      "id": "distinct-aggregate",
+      "query": "SELECT COUNT(DISTINCT target_neuron_id) AS distinct_targets FROM synapses",
+      "required_capabilities": [
+        "Aggregates",
+        "DistinctAggregates"
+      ],
+      "expected_schema": [
+        {
+          "name": "distinct_targets",
+          "data_type": "Int64",
+          "nullable": false
+        }
+      ],
+      "expected_backends": {
+        "clickhouse": "supported",
+        "postgres": "supported"
+      }
+    },
+    {
+      "id": "inner-join",
+      "query": "SELECT n.neuron_id, s.weight FROM neurons AS n INNER JOIN synapses AS s ON n.neuron_id = s.target_neuron_id",
+      "required_capabilities": [
+        "Joins"
+      ],
+      "expected_schema": [
+        {
+          "name": "neuron_id",
+          "data_type": "Uuid",
+          "nullable": false
+        },
+        {
+          "name": "weight",
+          "data_type": "Float64",
+          "nullable": false
+        }
+      ],
+      "expected_backends": {
+        "clickhouse": "supported",
+        "postgres": "supported"
+      }
+    },
+    {
+      "id": "left-join",
+      "query": "SELECT n.neuron_id, s.weight FROM neurons AS n LEFT JOIN synapses AS s ON n.neuron_id = s.target_neuron_id",
+      "required_capabilities": [
+        "Joins"
+      ],
+      "expected_schema": [
+        {
+          "name": "neuron_id",
+          "data_type": "Uuid",
+          "nullable": false
+        },
+        {
+          "name": "weight",
+          "data_type": "Float64",
+          "nullable": true
+        }
+      ],
+      "expected_backends": {
+        "clickhouse": "supported",
+        "postgres": "supported"
+      }
+    },
+    {
+      "id": "right-join",
+      "query": "SELECT n.neuron_id, s.weight FROM neurons AS n RIGHT JOIN synapses AS s ON n.neuron_id = s.target_neuron_id",
+      "required_capabilities": [
+        "Joins"
+      ],
+      "expected_schema": [
+        {
+          "name": "neuron_id",
+          "data_type": "Uuid",
+          "nullable": true
+        },
+        {
+          "name": "weight",
+          "data_type": "Float64",
+          "nullable": false
+        }
+      ],
+      "expected_backends": {
+        "clickhouse": "supported",
+        "postgres": "supported"
+      }
+    },
+    {
+      "id": "full-join",
+      "query": "SELECT n.neuron_id, s.weight FROM neurons AS n FULL JOIN synapses AS s ON n.neuron_id = s.target_neuron_id",
+      "required_capabilities": [
+        "Joins"
+      ],
+      "expected_schema": [
+        {
+          "name": "neuron_id",
+          "data_type": "Uuid",
+          "nullable": true
+        },
+        {
+          "name": "weight",
+          "data_type": "Float64",
+          "nullable": true
+        }
+      ],
+      "expected_backends": {
+        "clickhouse": "supported",
+        "postgres": "supported"
+      }
+    },
+    {
+      "id": "cross-join",
+      "query": "SELECT n.neuron_id, s.weight FROM neurons AS n CROSS JOIN synapses AS s",
+      "required_capabilities": [
+        "Joins"
+      ],
+      "expected_schema": [
+        {
+          "name": "neuron_id",
+          "data_type": "Uuid",
+          "nullable": false
+        },
+        {
+          "name": "weight",
+          "data_type": "Float64",
+          "nullable": false
+        }
+      ],
+      "expected_backends": {
+        "clickhouse": "supported",
+        "postgres": "supported"
+      }
+    },
+    {
+      "id": "derived-subquery",
+      "query": "SELECT derived.neuron_id FROM (SELECT neuron_id FROM neurons) AS derived",
+      "required_capabilities": [
+        "DerivedTables"
+      ],
+      "expected_schema": [
+        {
+          "name": "neuron_id",
+          "data_type": "Uuid",
+          "nullable": false
+        }
+      ],
+      "expected_backends": {
+        "clickhouse": "supported",
+        "postgres": "supported"
+      }
+    },
+    {
+      "id": "non-recursive-cte",
+      "query": "WITH recent AS (SELECT neuron_id FROM neurons) SELECT neuron_id FROM recent",
+      "required_capabilities": [
+        "CommonTableExpressions"
+      ],
+      "expected_schema": [
+        {
+          "name": "neuron_id",
+          "data_type": "Uuid",
+          "nullable": false
+        }
+      ],
+      "expected_backends": {
+        "clickhouse": "supported",
+        "postgres": "supported"
+      }
+    },
+    {
+      "id": "union-all",
+      "query": "SELECT neuron_id FROM neurons UNION ALL SELECT source_neuron_id FROM synapses",
+      "required_capabilities": [
+        "SetOperations"
+      ],
+      "expected_schema": [
+        {
+          "name": "neuron_id",
+          "data_type": "Uuid",
+          "nullable": false
+        }
+      ],
+      "expected_backends": {
+        "clickhouse": "supported",
+        "postgres": "supported"
+      }
+    },
+    {
+      "id": "scalar-subquery",
+      "query": "SELECT neuron_id, (SELECT COUNT(weight) FROM synapses) AS synapse_count FROM neurons",
+      "required_capabilities": [
+        "Aggregates",
+        "ScalarSubqueries"
+      ],
+      "expected_schema": [
+        {
+          "name": "neuron_id",
+          "data_type": "Uuid",
+          "nullable": false
+        },
+        {
+          "name": "synapse_count",
+          "data_type": "Int64",
+          "nullable": true
+        }
+      ],
+      "expected_backends": {
+        "clickhouse": "supported",
+        "postgres": "supported"
+      }
+    },
+    {
+      "id": "in-subquery",
+      "query": "SELECT neuron_id FROM neurons WHERE neuron_id IN (SELECT target_neuron_id FROM synapses)",
+      "required_capabilities": [
+        "InSubqueries"
+      ],
+      "expected_schema": [
+        {
+          "name": "neuron_id",
+          "data_type": "Uuid",
+          "nullable": false
+        }
+      ],
+      "expected_backends": {
+        "clickhouse": "supported",
+        "postgres": "supported"
+      }
+    },
+    {
+      "id": "window-rank",
+      "query": "SELECT neuron_id, RANK() OVER (ORDER BY cable_length DESC) AS rk FROM neurons",
+      "required_capabilities": [
+        "Windows"
+      ],
+      "expected_schema": [
+        {
+          "name": "neuron_id",
+          "data_type": "Uuid",
+          "nullable": false
+        },
+        {
+          "name": "rk",
+          "data_type": "Int64",
+          "nullable": false
+        }
+      ],
+      "expected_backends": {
+        "clickhouse": "supported",
+        "postgres": "supported"
+      }
+    },
+    {
+      "id": "window-dense-rank-row-number",
+      "query": "SELECT neuron_id, DENSE_RANK() OVER (ORDER BY cable_length DESC) AS dr, ROW_NUMBER() OVER (ORDER BY cable_length DESC) AS rn FROM neurons",
+      "required_capabilities": [
+        "Windows"
+      ],
+      "expected_schema": [
+        {
+          "name": "neuron_id",
+          "data_type": "Uuid",
+          "nullable": false
+        },
+        {
+          "name": "dr",
+          "data_type": "Int64",
+          "nullable": false
+        },
+        {
+          "name": "rn",
+          "data_type": "Int64",
+          "nullable": false
+        }
+      ],
+      "expected_backends": {
+        "clickhouse": "supported",
+        "postgres": "supported"
+      }
+    },
+    {
+      "id": "window-lag-lead",
+      "query": "SELECT neuron_id, LAG(cable_length) OVER (ORDER BY cable_length) AS prev_len, LEAD(cable_length) OVER (ORDER BY cable_length) AS next_len FROM neurons",
+      "required_capabilities": [
+        "Windows"
+      ],
+      "expected_schema": [
+        {
+          "name": "neuron_id",
+          "data_type": "Uuid",
+          "nullable": false
+        },
+        {
+          "name": "prev_len",
+          "data_type": "Float64",
+          "nullable": true
+        },
+        {
+          "name": "next_len",
+          "data_type": "Float64",
+          "nullable": true
+        }
+      ],
+      "expected_backends": {
+        "clickhouse": "supported",
+        "postgres": "supported"
+      }
+    },
+    {
+      "id": "window-first-last",
+      "query": "SELECT neuron_id, FIRST_VALUE(cable_length) OVER (ORDER BY cable_length) AS first_len, LAST_VALUE(cable_length) OVER (ORDER BY cable_length) AS last_len FROM neurons",
+      "required_capabilities": [
+        "Windows"
+      ],
+      "expected_schema": [
+        {
+          "name": "neuron_id",
+          "data_type": "Uuid",
+          "nullable": false
+        },
+        {
+          "name": "first_len",
+          "data_type": "Float64",
+          "nullable": true
+        },
+        {
+          "name": "last_len",
+          "data_type": "Float64",
+          "nullable": true
+        }
+      ],
+      "expected_backends": {
+        "clickhouse": "supported",
+        "postgres": "supported"
+      }
+    },
+    {
+      "id": "positional-parameter",
+      "query": "SELECT neuron_id FROM neurons WHERE cable_length > $1",
+      "parameters": {
+        "positional": {
+          "1": {
+            "Float64": "100.0"
+          }
+        }
+      },
+      "expected_schema": [
+        {
+          "name": "neuron_id",
+          "data_type": "Uuid",
+          "nullable": false
+        }
+      ],
+      "expected_backends": {
+        "clickhouse": "supported",
+        "postgres": "supported"
+      }
+    },
+    {
+      "id": "named-parameter",
+      "query": "SELECT neuron_id FROM neurons WHERE cable_length > :min_len",
+      "parameters": {
+        "named": {
+          "min_len": {
+            "Float64": "50.0"
+          }
+        }
+      },
+      "expected_schema": [
+        {
+          "name": "neuron_id",
+          "data_type": "Uuid",
+          "nullable": false
+        }
+      ],
+      "expected_backends": {
+        "clickhouse": "supported",
+        "postgres": "supported"
+      }
+    },
+    {
+      "id": "list-parameter",
+      "query": "SELECT neuron_id FROM neurons WHERE neuron_id IN ($1)",
+      "parameters": {
+        "positional": {
+          "1": {
+            "List": [
+              {
+                "Uuid": "11111111-1111-1111-1111-111111111111"
+              },
+              {
+                "Uuid": "22222222-2222-2222-2222-222222222222"
+              }
+            ]
+          }
+        }
+      },
+      "expected_schema": [
+        {
+          "name": "neuron_id",
+          "data_type": "Uuid",
+          "nullable": false
+        }
+      ],
+      "expected_backends": {
+        "clickhouse": "supported",
+        "postgres": "supported"
+      }
+    },
+    {
+      "id": "clickhouse-only-function",
+      "query": "SELECT ch.avg_merge(cable_length) FROM neurons",
+      "required_capabilities": [
+        "Aggregates",
+        "NamespacedFunctions"
+      ],
+      "expected_backends": {
+        "clickhouse": "supported",
+        "postgres": "rejected"
+      },
+      "expected_backend_error_codes": {
+        "postgres": [
+          "QF21104",
+          "QF21106"
+        ]
+      }
+    },
+    {
+      "id": "clickhouse-approximate-aggregate",
+      "query": "SELECT quantile(cable_length) FROM neurons",
+      "required_capabilities": [
+        "Aggregates",
+        "ApproximateAggregates"
+      ],
+      "expected_backends": {
+        "clickhouse": "supported",
+        "postgres": "rejected"
+      },
+      "expected_backend_error_codes": {
+        "postgres": [
+          "QF21104",
+          "QF21105"
+        ]
+      }
+    },
+    {
+      "id": "clickhouse-settings",
+      "query": "SELECT neuron_id FROM neurons SETTINGS max_threads = 4",
+      "expected_backends": {
+        "clickhouse": "supported",
+        "postgres": "rejected"
+      },
+      "expected_backend_error_codes": {
+        "postgres": [
+          "QF21101"
+        ]
+      }
+    },
+    {
+      "id": "clickhouse-format",
+      "query": "SELECT neuron_id FROM neurons FORMAT JSONCompact",
+      "expected_backends": {
+        "clickhouse": "supported",
+        "postgres": "rejected"
+      },
+      "expected_backend_error_codes": {
+        "postgres": [
+          "QF21102"
+        ]
+      }
+    },
+    {
+      "id": "recursive-cte",
+      "query": "WITH RECURSIVE recent AS (SELECT neuron_id FROM neurons) SELECT neuron_id FROM recent",
+      "expected_backends": {
+        "clickhouse": "rejected",
+        "postgres": "rejected"
+      },
+      "expected_bind_error_codes": [
+        "QF0001"
+      ]
+    },
+    {
+      "id": "unsupported-set-op",
+      "query": "SELECT neuron_id FROM neurons INTERSECT SELECT neuron_id FROM neurons",
+      "expected_backends": {
+        "clickhouse": "rejected",
+        "postgres": "rejected"
+      },
+      "expected_bind_error_codes": [
+        "QF0002"
+      ]
+    },
+    {
+      "id": "correlated-subquery",
+      "query": "SELECT neuron_id FROM neurons AS n WHERE EXISTS (SELECT 1 FROM synapses AS s WHERE s.target_neuron_id = n.neuron_id)",
+      "expected_backends": {
+        "clickhouse": "rejected",
+        "postgres": "rejected"
+      },
+      "expected_bind_error_codes": [
+        "QF0014"
+      ]
+    },
+    {
+      "id": "multi-column-scalar-subquery",
+      "query": "SELECT (SELECT source_neuron_id, target_neuron_id FROM synapses LIMIT 1) AS bad_scalar",
+      "expected_backends": {
+        "clickhouse": "rejected",
+        "postgres": "rejected"
+      },
+      "expected_bind_error_codes": [
+        "QF0023"
+      ]
+    },
+    {
+      "id": "multi-column-in-subquery",
+      "query": "SELECT neuron_id FROM neurons WHERE neuron_id IN (SELECT source_neuron_id, target_neuron_id FROM synapses)",
+      "expected_backends": {
+        "clickhouse": "rejected",
+        "postgres": "rejected"
+      },
+      "expected_bind_error_codes": [
+        "QF0024"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,21 @@
+[package]
+name = "queryfabric-web"
+description = "Web-facing validation and static assets for QueryFabric"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+homepage.workspace = true
+documentation.workspace = true
+rust-version.workspace = true
+readme = "README.md"
+keywords = ["sql", "web", "validation", "analytics", "science"]
+categories = ["web-programming", "database", "science"]
+
+[dependencies]
+queryfabric = { workspace = true }
+queryfabric-catalog = { workspace = true }
+serde = { workspace = true }
+
+[dev-dependencies]
+queryfabric-catalog = { workspace = true }
