@@ -1,9 +1,9 @@
 use std::collections::BTreeSet;
 
 use queryfabric_catalog::{
-    BackendAdapter, BackendAnalysis, BackendFeature, CapabilitySet, Catalog, EmitArtifact,
-    RelationKind, RelationSchema, SqlBackend, analyze_backend_support, emit_sql_artifact,
-    unsupported,
+    BackendAdapter, BackendAnalysis, BackendExecutionLimits, BackendFeature, CapabilitySet,
+    Catalog, EmitArtifact, RelationKind, RelationSchema, ResultDeliveryFormat, SqlBackend,
+    analyze_backend_support, emit_sql_artifact, unsupported,
 };
 use queryfabric_ir::{
     BoundExpr, BoundExprKind, BoundFunctionCall, BoundOrderByExpr, BoundProjectionItem, BoundQuery,
@@ -35,6 +35,22 @@ impl BackendAdapter for ClickHouseAdapter {
             BackendFeature::Explain,
             BackendFeature::LimitOffset,
         ])
+        .with_limits(BackendExecutionLimits {
+            max_rows: None,
+            max_bytes_scanned: None,
+            max_result_bytes: None,
+            max_concurrent_queries: None,
+            interactive_byte_limit: 512 * 1024 * 1024,
+            batch_byte_limit: 16 * 1024 * 1024 * 1024,
+        })
+        .with_result_formats([
+            ResultDeliveryFormat::ArrowIpc,
+            ResultDeliveryFormat::Parquet,
+            ResultDeliveryFormat::Csv,
+            ResultDeliveryFormat::Json,
+        ])
+        .with_async_export(true)
+        .with_federated_execution(true)
     }
 
     fn analyze(&self, query: &BoundQuery, catalog: &dyn Catalog) -> BackendAnalysis {

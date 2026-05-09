@@ -12,8 +12,12 @@ def catalog() -> queryfabric.MemoryCatalog:
         queryfabric.RelationSchema(
             "neurons",
             [
-                queryfabric.ColumnSchema("neuron_id", queryfabric.DataType.uuid(), nullable=False),
-                queryfabric.ColumnSchema("cable_length", queryfabric.DataType.float64()),
+                queryfabric.ColumnSchema(
+                    "neuron_id", queryfabric.DataType.uuid(), nullable=False
+                ),
+                queryfabric.ColumnSchema(
+                    "cable_length", queryfabric.DataType.float64()
+                ),
                 queryfabric.ColumnSchema("species", queryfabric.DataType.utf8()),
             ],
             kind=queryfabric.RelationKind.table(),
@@ -23,7 +27,9 @@ def catalog() -> queryfabric.MemoryCatalog:
 
 
 def test_parse_syql_summary_matches_expected_shape() -> None:
-    parsed = queryfabric.parse_syql("SELECT neuron_id FROM neurons WHERE cable_length > 100 LIMIT 5")
+    parsed = queryfabric.parse_syql(
+        "SELECT neuron_id FROM neurons WHERE cable_length > 100 LIMIT 5"
+    )
     summary = parsed.summary()
     assert summary["primary_relation"] == "neurons"
     assert summary["projected_columns"] == ["neuron_id"]

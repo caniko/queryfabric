@@ -1,6 +1,7 @@
 use queryfabric_catalog::{
-    BackendAdapter, BackendAnalysis, BackendFeature, CapabilitySet, Catalog, EmitArtifact,
-    SqlBackend, analyze_backend_support, emit_sql_artifact, unsupported,
+    BackendAdapter, BackendAnalysis, BackendExecutionLimits, BackendFeature, CapabilitySet,
+    Catalog, EmitArtifact, ResultDeliveryFormat, SqlBackend, analyze_backend_support,
+    emit_sql_artifact, unsupported,
 };
 use queryfabric_ir::{BoundQuery, QueryDiagnostic, Result};
 
@@ -26,6 +27,17 @@ impl BackendAdapter for PostgresAdapter {
             BackendFeature::Explain,
             BackendFeature::LimitOffset,
         ])
+        .with_limits(BackendExecutionLimits {
+            max_rows: None,
+            max_bytes_scanned: None,
+            max_result_bytes: None,
+            max_concurrent_queries: None,
+            interactive_byte_limit: 128 * 1024 * 1024,
+            batch_byte_limit: 4 * 1024 * 1024 * 1024,
+        })
+        .with_result_formats([ResultDeliveryFormat::Csv, ResultDeliveryFormat::Json])
+        .with_async_export(false)
+        .with_federated_execution(false)
     }
 
     fn analyze(&self, query: &BoundQuery, _catalog: &dyn Catalog) -> BackendAnalysis {

@@ -7,6 +7,7 @@ use queryfabric_ir::{
 use serde::{Deserialize, Serialize};
 
 use crate::builtins::{builtin_function_signature, portable_builtin_functions};
+use crate::features::PlanFeatures;
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub enum RelationKind {
@@ -368,17 +369,224 @@ pub enum BackendFeature {
 pub struct CapabilitySet {
     #[serde(default, skip_serializing_if = "BTreeSet::is_empty")]
     pub features: BTreeSet<BackendFeature>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub limits: Option<BackendExecutionLimits>,
+    #[serde(default, skip_serializing_if = "BTreeSet::is_empty")]
+    pub result_formats: BTreeSet<ResultDeliveryFormat>,
+    #[serde(default, skip_serializing_if = "std::ops::Not::not")]
+    pub async_export: bool,
+    #[serde(default, skip_serializing_if = "std::ops::Not::not")]
+    pub federated_execution: bool,
 }
 
 impl CapabilitySet {
     pub fn from_features(features: impl IntoIterator<Item = BackendFeature>) -> Self {
         Self {
             features: features.into_iter().collect(),
+            ..Self::default()
         }
     }
 
     pub fn supports(&self, feature: BackendFeature) -> bool {
         self.features.contains(&feature)
+    }
+
+    pub fn with_limits(mut self, limits: BackendExecutionLimits) -> Self {
+        self.limits = Some(limits);
+        self
+    }
+
+    pub fn with_result_formats(
+        mut self,
+        formats: impl IntoIterator<Item = ResultDeliveryFormat>,
+    ) -> Self {
+        self.result_formats = formats.into_iter().collect();
+        self
+    }
+
+    pub fn with_async_export(mut self, enabled: bool) -> Self {
+        self.async_export = enabled;
+        self
+    }
+
+    pub fn with_federated_execution(mut self, enabled: bool) -> Self {
+        self.federated_execution = enabled;
+        self
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct BackendExecutionLimits {
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub max_rows: Option<u64>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub max_bytes_scanned: Option<u64>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub max_result_bytes: Option<u64>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub max_concurrent_queries: Option<u32>,
+    pub interactive_byte_limit: u64,
+    pub batch_byte_limit: u64,
+}
+
+impl Default for BackendExecutionLimits {
+    fn default() -> Self {
+        Self {
+            max_rows: None,
+            max_bytes_scanned: None,
+            max_result_bytes: None,
+            max_concurrent_queries: None,
+            interactive_byte_limit: 512 * 1024 * 1024,
+            batch_byte_limit: 16 * 1024 * 1024 * 1024,
+        }
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
+pub enum ResultDeliveryFormat {
+    ArrowIpc,
+    Parquet,
+    Csv,
+    Json,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+pub enum ResultDeliveryMode {
+    InteractiveStream,
+    PagedResult,
+    AsyncMaterializedExport,
+    RejectedOverBudget,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct ResultDeliveryDescriptor {
+    pub mode: ResultDeliveryMode,
+    pub format: ResultDeliveryFormat,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub storage_uri: Option<String>,
+    pub row_count: u64,
+    pub byte_count: u64,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub page_count: Option<u32>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub resume_token: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub expires_at_unix_seconds: Option<i64>,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct RelationStatistics {
+    pub relation: String,
+    pub estimated_rows: u64,
+    pub average_row_bytes: u64,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub shard_count: Option<u32>,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct QueryCostInput {
+    pub plan_features: PlanFeatures,
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub relations: Vec<RelationStatistics>,
+    pub selected_columns: u32,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub row_limit: Option<u64>,
+    pub estimated_filter_selectivity_ppm: u32,
+    pub default_row_bytes: u64,
+    pub default_shards: u32,
+    pub backend_capabilities: CapabilitySet,
+}
+
+impl Default for QueryCostInput {
+    fn default() -> Self {
+        Self {
+            plan_features: PlanFeatures::default(),
+            relations: Vec::new(),
+            selected_columns: 16,
+            row_limit: None,
+            estimated_filter_selectivity_ppm: 1_000_000,
+            default_row_bytes: 64,
+            default_shards: 1,
+            backend_capabilities: CapabilitySet::default(),
+        }
+    }
+}
+
+pub trait QueryCostModel: Send + Sync {
+    fn estimate(&self, input: &QueryCostInput) -> QueryCostEstimate;
+}
+
+#[derive(Debug, Clone, Default)]
+pub struct DefaultQueryCostModel;
+
+impl QueryCostModel for DefaultQueryCostModel {
+    fn estimate(&self, input: &QueryCostInput) -> QueryCostEstimate {
+        let relation_rows = input
+            .relations
+            .iter()
+            .map(|relation| relation.estimated_rows)
+            .sum::<u64>()
+            .max(input.row_limit.unwrap_or(1_000_000));
+        let selected_columns = u64::from(input.selected_columns.max(1));
+        let average_row_bytes = input
+            .relations
+            .iter()
+            .map(|relation| relation.average_row_bytes)
+            .max()
+            .unwrap_or(input.default_row_bytes)
+            .max(1);
+        let selectivity_ppm = u64::from(input.estimated_filter_selectivity_ppm.clamp(1, 1_000_000));
+        let mut estimated_rows = relation_rows.saturating_mul(selectivity_ppm) / 1_000_000;
+        if let Some(limit) = input.row_limit {
+            estimated_rows = estimated_rows.min(limit);
+        }
+        estimated_rows = estimated_rows.max(1);
+
+        let estimated_bytes = estimated_rows
+            .saturating_mul(selected_columns)
+            .saturating_mul(average_row_bytes);
+        let estimated_shards = input
+            .relations
+            .iter()
+            .filter_map(|relation| relation.shard_count)
+            .max()
+            .unwrap_or(input.default_shards)
+            .max(1);
+
+        let limits = input
+            .backend_capabilities
+            .limits
+            .clone()
+            .unwrap_or_default();
+        let mut estimate = QueryCostEstimate::classify(
+            estimated_rows,
+            estimated_bytes,
+            estimated_shards,
+            limits.interactive_byte_limit,
+            limits.batch_byte_limit,
+        );
+
+        if input.plan_features.has_joins || input.plan_features.has_windows {
+            estimate.diagnostics.push(
+                "plan contains joins/windows; interactive execution should be treated conservatively"
+                    .to_owned(),
+            );
+            if estimate.timeout_class == QueryTimeoutClass::Interactive {
+                estimate.timeout_class = QueryTimeoutClass::Batch;
+                estimate.execution_mode = ResultDeliveryMode::PagedResult;
+                estimate.async_required = true;
+            }
+        }
+        if limits
+            .max_bytes_scanned
+            .is_some_and(|limit| estimated_bytes > limit)
+            || limits.max_rows.is_some_and(|limit| estimated_rows > limit)
+        {
+            estimate.execution_mode = ResultDeliveryMode::RejectedOverBudget;
+            estimate.async_required = true;
+            estimate.diagnostics.push("estimated query exceeds backend execution limits".to_owned());
+        }
+        estimate
     }
 }
 
@@ -388,6 +596,112 @@ pub enum EstimatedCostClass {
     Medium,
     High,
     Unknown,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+pub enum QueryTimeoutClass {
+    Interactive,
+    Batch,
+    Export,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct QueryCostEstimate {
+    pub estimated_rows: u64,
+    pub estimated_bytes: u64,
+    pub estimated_shards: u32,
+    pub timeout_class: QueryTimeoutClass,
+    pub execution_mode: ResultDeliveryMode,
+    pub async_required: bool,
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub diagnostics: Vec<String>,
+}
+
+impl QueryCostEstimate {
+    pub fn classify(
+        estimated_rows: u64,
+        estimated_bytes: u64,
+        estimated_shards: u32,
+        interactive_byte_limit: u64,
+        export_byte_limit: u64,
+    ) -> Self {
+        let timeout_class = if estimated_bytes <= interactive_byte_limit {
+            QueryTimeoutClass::Interactive
+        } else if estimated_bytes <= export_byte_limit {
+            QueryTimeoutClass::Batch
+        } else {
+            QueryTimeoutClass::Export
+        };
+        let execution_mode = match timeout_class {
+            QueryTimeoutClass::Interactive => ResultDeliveryMode::InteractiveStream,
+            QueryTimeoutClass::Batch => ResultDeliveryMode::PagedResult,
+            QueryTimeoutClass::Export => ResultDeliveryMode::AsyncMaterializedExport,
+        };
+        Self {
+            estimated_rows,
+            estimated_bytes,
+            estimated_shards,
+            timeout_class,
+            execution_mode,
+            async_required: !matches!(timeout_class, QueryTimeoutClass::Interactive),
+            diagnostics: Vec::new(),
+        }
+    }
+}
+
+#[cfg(test)]
+mod cost_tests {
+    use super::*;
+
+    #[test]
+    fn query_cost_classification_tracks_async_boundary() {
+        let interactive = QueryCostEstimate::classify(1_000, 10_000, 1, 1_000_000, 10_000_000);
+        assert_eq!(interactive.timeout_class, QueryTimeoutClass::Interactive);
+        assert_eq!(interactive.execution_mode, ResultDeliveryMode::InteractiveStream);
+        assert!(!interactive.async_required);
+
+        let batch = QueryCostEstimate::classify(1_000_000, 5_000_000, 3, 1_000_000, 10_000_000);
+        assert_eq!(batch.timeout_class, QueryTimeoutClass::Batch);
+        assert_eq!(batch.execution_mode, ResultDeliveryMode::PagedResult);
+        assert!(batch.async_required);
+
+        let export =
+            QueryCostEstimate::classify(1_000_000_000, 50_000_000, 5, 1_000_000, 10_000_000);
+        assert_eq!(export.timeout_class, QueryTimeoutClass::Export);
+        assert_eq!(export.execution_mode, ResultDeliveryMode::AsyncMaterializedExport);
+        assert!(export.async_required);
+    }
+
+    #[test]
+    fn default_cost_model_uses_plan_features_limits_and_relation_statistics() {
+        let input = QueryCostInput {
+            plan_features: PlanFeatures {
+                has_joins: true,
+                ..PlanFeatures::default()
+            },
+            relations: vec![RelationStatistics {
+                relation: "synapses".into(),
+                estimated_rows: 1_000_000,
+                average_row_bytes: 128,
+                shard_count: Some(5),
+            }],
+            selected_columns: 4,
+            row_limit: Some(50_000),
+            estimated_filter_selectivity_ppm: 500_000,
+            backend_capabilities: CapabilitySet::default().with_limits(BackendExecutionLimits {
+                interactive_byte_limit: 1_000_000,
+                batch_byte_limit: 100_000_000,
+                ..BackendExecutionLimits::default()
+            }),
+            ..QueryCostInput::default()
+        };
+        let estimate = DefaultQueryCostModel.estimate(&input);
+        assert_eq!(estimate.estimated_rows, 50_000);
+        assert_eq!(estimate.estimated_shards, 5);
+        assert_eq!(estimate.timeout_class, QueryTimeoutClass::Batch);
+        assert!(estimate.async_required);
+        assert!(!estimate.diagnostics.is_empty());
+    }
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
