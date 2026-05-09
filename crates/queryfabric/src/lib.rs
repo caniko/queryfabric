@@ -43,11 +43,13 @@ pub use self::inspect::{
 pub use queryfabric_adapter_clickhouse::ClickHouseAdapter;
 pub use queryfabric_adapter_postgres::PostgresAdapter;
 pub use queryfabric_catalog::{
-    BackendAdapter, BackendAnalysis, BackendFeature, BackendFunctionMapping, CapabilitySet,
-    Catalog, CatalogDocument, ColumnSchema, EmitArtifact, EstimatedCostClass, FunctionKind,
-    FunctionRegistry, FunctionSignature, FunctionVolatility, MemoryCatalog, OpaqueArtifact,
-    PlanFeatures, RelationKind, RelationSchema, SqlArtifact, TypeCoercionRule, infer_result_schema,
-    inspect_plan,
+    BackendAdapter, BackendAnalysis, BackendExecutionLimits, BackendFeature,
+    BackendFunctionMapping, CapabilitySet, Catalog, CatalogDocument, ColumnSchema,
+    DefaultQueryCostModel, EmitArtifact, EstimatedCostClass, FunctionKind, FunctionRegistry,
+    FunctionSignature, FunctionVolatility, MemoryCatalog, OpaqueArtifact, PlanFeatures,
+    QueryCostEstimate, QueryCostInput, QueryCostModel, QueryTimeoutClass, RelationKind,
+    RelationSchema, RelationStatistics, ResultDeliveryDescriptor, ResultDeliveryFormat,
+    ResultDeliveryMode, SqlArtifact, TypeCoercionRule, infer_result_schema, inspect_plan,
 };
 pub use queryfabric_dialect_sql::{GenericSqlDialect, parse_sql_query};
 pub use queryfabric_dialect_syql::{SyqlDialect, parse_syql};
@@ -72,7 +74,10 @@ pub use queryfabric_opt::{IdentityPass, OptimizationPass, OptimizationPipeline, 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct BackendCapabilityManifest {
     pub backend: String,
+    pub schema_version: u32,
     pub capabilities: CapabilitySet,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub compatibility_family: Option<String>,
 }
 
 /// Stable facade over parse/bind/normalize/analyze/emit.
@@ -212,11 +217,15 @@ pub fn builtin_capability_manifest() -> Vec<BackendCapabilityManifest> {
     vec![
         BackendCapabilityManifest {
             backend: "clickhouse".into(),
+            schema_version: 1,
             capabilities: ClickHouseAdapter.capabilities(),
+            compatibility_family: Some("sql".into()),
         },
         BackendCapabilityManifest {
             backend: "postgres".into(),
+            schema_version: 1,
             capabilities: PostgresAdapter.capabilities(),
+            compatibility_family: Some("sql".into()),
         },
     ]
 }
