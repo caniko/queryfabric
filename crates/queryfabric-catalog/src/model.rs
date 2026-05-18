@@ -584,7 +584,9 @@ impl QueryCostModel for DefaultQueryCostModel {
         {
             estimate.execution_mode = ResultDeliveryMode::RejectedOverBudget;
             estimate.async_required = true;
-            estimate.diagnostics.push("estimated query exceeds backend execution limits".to_owned());
+            estimate
+                .diagnostics
+                .push("estimated query exceeds backend execution limits".to_owned());
         }
         estimate
     }
@@ -657,7 +659,10 @@ mod cost_tests {
     fn query_cost_classification_tracks_async_boundary() {
         let interactive = QueryCostEstimate::classify(1_000, 10_000, 1, 1_000_000, 10_000_000);
         assert_eq!(interactive.timeout_class, QueryTimeoutClass::Interactive);
-        assert_eq!(interactive.execution_mode, ResultDeliveryMode::InteractiveStream);
+        assert_eq!(
+            interactive.execution_mode,
+            ResultDeliveryMode::InteractiveStream
+        );
         assert!(!interactive.async_required);
 
         let batch = QueryCostEstimate::classify(1_000_000, 5_000_000, 3, 1_000_000, 10_000_000);
@@ -668,7 +673,10 @@ mod cost_tests {
         let export =
             QueryCostEstimate::classify(1_000_000_000, 50_000_000, 5, 1_000_000, 10_000_000);
         assert_eq!(export.timeout_class, QueryTimeoutClass::Export);
-        assert_eq!(export.execution_mode, ResultDeliveryMode::AsyncMaterializedExport);
+        assert_eq!(
+            export.execution_mode,
+            ResultDeliveryMode::AsyncMaterializedExport
+        );
         assert!(export.async_required);
     }
 
