@@ -160,6 +160,14 @@ pub trait Catalog: FunctionRegistry + Send + Sync {
     fn snapshot_id(&self) -> CatalogSnapshotId;
     fn resolve_relation(&self, namespace: Option<&str>, name: &str) -> Option<RelationSchema>;
     fn relations(&self) -> Vec<RelationSchema>;
+
+    fn relation_statistics(
+        &self,
+        namespace: Option<&str>,
+        name: &str,
+    ) -> Option<RelationStatistics> {
+        relation_statistics_from_schema(&self.resolve_relation(namespace, name)?)
+    }
 }
 
 #[derive(Debug, Clone)]
@@ -291,8 +299,8 @@ impl Catalog for MemoryCatalog {
 #[cfg(test)]
 mod tests {
     use super::{
-        Catalog, CatalogDocument, ColumnSchema, DataType, FunctionKind, FunctionSignature,
-        FunctionVolatility, MemoryCatalog, RelationKind, RelationSchema,
+        BackendFeature, Catalog, CatalogDocument, ColumnSchema, DataType, FunctionKind,
+        FunctionSignature, FunctionVolatility, MemoryCatalog, RelationKind, RelationSchema,
     };
 
     #[test]
@@ -346,6 +354,14 @@ mod tests {
         assert_eq!(reloaded.snapshot_id().0, "catalog-doc-test");
         assert_eq!(reloaded_document, document);
     }
+
+    #[test]
+    fn isolated_execution_feature_serializes_roundtrips() {
+        let json = serde_json::to_string(&BackendFeature::IsolatedExecution).expect("serialize");
+        assert_eq!(json, "\"IsolatedExecution\"");
+        let decoded: BackendFeature = serde_json::from_str(&json).expect("deserialize");
+        assert_eq!(decoded, BackendFeature::IsolatedExecution);
+    }
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
@@ -363,6 +379,33 @@ pub enum BackendFeature {
     ApproximateAggregates,
     Explain,
     LimitOffset,
+    IsolatedExecution,
+}
+
+#[derive(Debug, Clone, Default, PartialEq, Eq, Serialize, Deserialize)]
+pub struct EstimatedCost {
+    pub memory_bytes: u64,
+    pub rows_scanned: u64,
+    pub partitions_touched: u32,
+    pub wallclock_estimate_ms: u64,
+}
+
+pub trait PlanCostEstimator: Send + Sync {
+    fn estimate(
+        &self,
+        plan: &BoundQuery,
+        catalog: &dyn Catalog,
+    ) -> std::result::Result<EstimatedCost, CostEstimateError>;
+}
+
+#[derive(Debug, thiserror::Error)]
+pub enum CostEstimateError {
+    #[error("estimation unsupported for this backend")]
+    Unsupported,
+    #[error("missing catalog statistics: {0}")]
+    MissingStatistics(String),
+    #[error("estimation failed: {0}")]
+    Backend(String),
 }
 
 #[derive(Debug, Clone, Default, PartialEq, Eq, Serialize, Deserialize)]
@@ -481,6 +524,33 @@ pub struct RelationStatistics {
     pub average_row_bytes: u64,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub shard_count: Option<u32>,
+}
+
+fn relation_statistics_from_schema(relation: &RelationSchema) -> Option<RelationStatistics> {
+    let estimated_rows =
+        metadata_u64(&relation.metadata, &["estimated_rows", "row_count", "rows"])?;
+    Some(RelationStatistics {
+        relation: relation.name.clone(),
+        estimated_rows,
+        average_row_bytes: metadata_u64(
+            &relation.metadata,
+            &["average_row_bytes", "avg_row_bytes", "row_bytes"],
+        )
+        .unwrap_or(64),
+        shard_count: metadata_u32(&relation.metadata, &["shard_count", "shards"]),
+    })
+}
+
+fn metadata_u64(metadata: &BTreeMap<String, String>, keys: &[&str]) -> Option<u64> {
+    keys.iter()
+        .find_map(|key| metadata.get(*key))
+        .and_then(|value| value.parse().ok())
+}
+
+fn metadata_u32(metadata: &BTreeMap<String, String>, keys: &[&str]) -> Option<u32> {
+    keys.iter()
+        .find_map(|key| metadata.get(*key))
+        .and_then(|value| value.parse().ok())
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]

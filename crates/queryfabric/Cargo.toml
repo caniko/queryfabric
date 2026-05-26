@@ -20,6 +20,7 @@ queryfabric-dialect-sql = { workspace = true }
 queryfabric-dialect-syql = { workspace = true }
 queryfabric-ir = { workspace = true }
 queryfabric-opt = { workspace = true }
+queryfabric-runtime = { workspace = true }
 serde = { workspace = true }
 serde_json = { workspace = true }
 

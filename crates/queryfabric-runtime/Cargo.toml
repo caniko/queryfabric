@@ -1,6 +1,6 @@
 [package]
-name = "queryfabric-catalog"
-description = "Catalog and backend interfaces for QueryFabric"
+name = "queryfabric-runtime"
+description = "Runtime dispatch traits for QueryFabric execution backends"
 version.workspace = true
 edition.workspace = true
 license.workspace = true
@@ -9,13 +9,18 @@ homepage.workspace = true
 documentation.workspace = true
 rust-version.workspace = true
 readme = "README.md"
-keywords = ["sql", "catalog", "compiler", "analytics", "science"]
-categories = ["database", "science"]
+keywords = ["sql", "runtime", "analytics", "science"]
+categories = ["database", "science", "asynchronous"]
 
 [dependencies]
+arrow = { workspace = true }
+async-trait = { workspace = true }
+futures = { workspace = true }
+queryfabric-catalog = { workspace = true }
 queryfabric-ir = { workspace = true }
 serde = { workspace = true }
 thiserror = { workspace = true }
+tokio-util = { workspace = true }
 
 [dev-dependencies]
 queryfabric-dialect-sql = { workspace = true }

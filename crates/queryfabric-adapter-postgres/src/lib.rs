@@ -1,7 +1,7 @@
 use queryfabric_catalog::{
     BackendAdapter, BackendAnalysis, BackendExecutionLimits, BackendFeature, CapabilitySet,
-    Catalog, EmitArtifact, ResultDeliveryFormat, SqlBackend, analyze_backend_support,
-    emit_sql_artifact, unsupported,
+    Catalog, CostEstimateError, EmitArtifact, EstimatedCost, PlanCostEstimator,
+    ResultDeliveryFormat, SqlBackend, analyze_backend_support, emit_sql_artifact, unsupported,
 };
 use queryfabric_ir::{BoundQuery, QueryDiagnostic, Result};
 
@@ -61,6 +61,16 @@ impl BackendAdapter for PostgresAdapter {
     }
 }
 
+impl PlanCostEstimator for PostgresAdapter {
+    fn estimate(
+        &self,
+        _: &BoundQuery,
+        _: &dyn Catalog,
+    ) -> std::result::Result<EstimatedCost, CostEstimateError> {
+        Err(CostEstimateError::Unsupported)
+    }
+}
+
 fn diagnostic_summary(diagnostics: &[QueryDiagnostic]) -> String {
     diagnostics
         .iter()
@@ -72,7 +82,8 @@ fn diagnostic_summary(diagnostics: &[QueryDiagnostic]) -> String {
 #[cfg(test)]
 mod tests {
     use queryfabric_catalog::{
-        Catalog, ColumnSchema, MemoryCatalog, RelationKind, RelationSchema, bind_and_validate,
+        BackendAdapter, BackendFeature, Catalog, ColumnSchema, CostEstimateError, MemoryCatalog,
+        PlanCostEstimator, RelationKind, RelationSchema, bind_and_validate,
     };
     use queryfabric_dialect_sql::GenericSqlDialect;
     use queryfabric_ir::{DataType, Dialect, QueryParameters};
@@ -115,5 +126,28 @@ mod tests {
         };
         assert_eq!(sql.dialect, "postgres");
         assert_eq!(sql.text, "SELECT neurons.neuron_id FROM neurons LIMIT 5");
+    }
+
+    #[test]
+    fn does_not_advertise_isolated_execution_capability() {
+        assert!(
+            !PostgresAdapter
+                .capabilities()
+                .supports(BackendFeature::IsolatedExecution)
+        );
+    }
+
+    #[test]
+    fn cost_estimator_reports_unsupported() {
+        let parsed = GenericSqlDialect
+            .parse("SELECT neuron_id FROM neurons LIMIT 5")
+            .expect("parse");
+        let catalog = catalog();
+        let bound =
+            bind_and_validate(&parsed, &catalog, &QueryParameters::default()).expect("bind");
+        let error = PostgresAdapter
+            .estimate(&bound, &catalog)
+            .expect_err("postgres cost estimation should be unsupported");
+        assert!(matches!(error, CostEstimateError::Unsupported));
     }
 }
