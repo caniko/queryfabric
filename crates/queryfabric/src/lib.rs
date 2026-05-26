@@ -45,11 +45,12 @@ pub use queryfabric_adapter_postgres::PostgresAdapter;
 pub use queryfabric_catalog::{
     BackendAdapter, BackendAnalysis, BackendExecutionLimits, BackendFeature,
     BackendFunctionMapping, CapabilitySet, Catalog, CatalogDocument, ColumnSchema,
-    DefaultQueryCostModel, EmitArtifact, EstimatedCostClass, FunctionKind, FunctionRegistry,
-    FunctionSignature, FunctionVolatility, MemoryCatalog, OpaqueArtifact, PlanFeatures,
-    QueryCostEstimate, QueryCostInput, QueryCostModel, QueryTimeoutClass, RelationKind,
-    RelationSchema, RelationStatistics, ResultDeliveryDescriptor, ResultDeliveryFormat,
-    ResultDeliveryMode, SqlArtifact, TypeCoercionRule, infer_result_schema, inspect_plan,
+    CostEstimateError, DefaultQueryCostModel, EmitArtifact, EstimatedCost, EstimatedCostClass,
+    FunctionKind, FunctionRegistry, FunctionSignature, FunctionVolatility, MemoryCatalog,
+    OpaqueArtifact, PlanCostEstimator, PlanFeatures, QueryCostEstimate, QueryCostInput,
+    QueryCostModel, QueryTimeoutClass, RelationKind, RelationSchema, RelationStatistics,
+    ResultDeliveryDescriptor, ResultDeliveryFormat, ResultDeliveryMode, SqlArtifact,
+    TypeCoercionRule, infer_result_schema, inspect_plan,
 };
 pub use queryfabric_dialect_sql::{GenericSqlDialect, parse_sql_query};
 pub use queryfabric_dialect_syql::{SyqlDialect, parse_syql};
@@ -70,6 +71,11 @@ pub use queryfabric_ir::{
     ResultField, ResultSchema,
 };
 pub use queryfabric_opt::{IdentityPass, OptimizationPass, OptimizationPipeline, RewriteAdvisory};
+pub use queryfabric_runtime::{
+    DriverError, ExecutionRuntime, ExecutionRuntimeMode, InteractiveRuntime,
+    IsolatedExecutionDriver, IsolatedJobSpec, ObjectStoreFormat, RecordBatchStream,
+    ResourceRequest, RuntimeError, StorageAccessMode,
+};
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct BackendCapabilityManifest {

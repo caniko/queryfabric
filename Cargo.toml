@@ -4,6 +4,7 @@ members = [
     "crates/queryfabric",
     "crates/queryfabric-ir",
     "crates/queryfabric-catalog",
+    "crates/queryfabric-runtime",
     "crates/queryfabric-opt",
     "crates/queryfabric-dialect-sql",
     "crates/queryfabric-dialect-syql",
@@ -16,7 +17,7 @@ members = [
 exclude = ["fuzz"]
 
 [workspace.package]
-version = "0.1.0"
+version = "0.1.1"
 edition = "2024"
 license = "Apache-2.0"
 repository = "https://codeberg.org/caniko/queryfabric"
@@ -28,21 +29,26 @@ rust-version = "1.85"
 blake3 = "1"
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
+arrow = { version = "58", default-features = false }
+async-trait = "0.1"
+futures = "0.3"
 miette = { version = "7", features = ["fancy"] }
 sqlparser = { version = "0.61", features = ["serde"] }
 thiserror = "2"
+tokio-util = "0.7"
 pyo3 = { version = "0.28", features = ["extension-module"] }
 pythonize = "0.28"
 uuid = { version = "1", features = ["v7"] }
 
-queryfabric = { version = "0.1.0", path = "crates/queryfabric" }
-queryfabric-ir = { version = "0.1.0", path = "crates/queryfabric-ir" }
-queryfabric-catalog = { version = "0.1.0", path = "crates/queryfabric-catalog" }
-queryfabric-opt = { version = "0.1.0", path = "crates/queryfabric-opt" }
-queryfabric-dialect-sql = { version = "0.1.0", path = "crates/queryfabric-dialect-sql" }
-queryfabric-dialect-syql = { version = "0.1.0", path = "crates/queryfabric-dialect-syql" }
-queryfabric-web = { version = "0.1.0", path = "crates/queryfabric-web" }
-queryfabric-leptos = { version = "0.1.0", path = "crates/queryfabric-leptos" }
-queryfabric-adapter-clickhouse = { version = "0.1.0", path = "crates/queryfabric-adapter-clickhouse" }
-queryfabric-adapter-postgres = { version = "0.1.0", path = "crates/queryfabric-adapter-postgres" }
+queryfabric = { version = "0.1.1", path = "crates/queryfabric" }
+queryfabric-ir = { version = "0.1.1", path = "crates/queryfabric-ir" }
+queryfabric-catalog = { version = "0.1.1", path = "crates/queryfabric-catalog" }
+queryfabric-runtime = { version = "0.1.1", path = "crates/queryfabric-runtime" }
+queryfabric-opt = { version = "0.1.1", path = "crates/queryfabric-opt" }
+queryfabric-dialect-sql = { version = "0.1.1", path = "crates/queryfabric-dialect-sql" }
+queryfabric-dialect-syql = { version = "0.1.1", path = "crates/queryfabric-dialect-syql" }
+queryfabric-web = { version = "0.1.1", path = "crates/queryfabric-web" }
+queryfabric-leptos = { version = "0.1.1", path = "crates/queryfabric-leptos" }
+queryfabric-adapter-clickhouse = { version = "0.1.1", path = "crates/queryfabric-adapter-clickhouse" }
+queryfabric-adapter-postgres = { version = "0.1.1", path = "crates/queryfabric-adapter-postgres" }
 leptos = { version = "=0.8.19", default-features = false }
