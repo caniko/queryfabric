@@ -7,9 +7,10 @@ use queryfabric_catalog::{
     unsupported,
 };
 use queryfabric_ir::{
-    BinaryOperator, BoundExpr, BoundExprKind, BoundFunctionCall, BoundOrderByExpr,
+    BinaryOperator, BoundColumnRef, BoundExpr, BoundExprKind, BoundFunctionCall, BoundOrderByExpr,
     BoundProjectionItem, BoundQuery, BoundQueryPlan, BoundRelation, BoundSelect, BoundSetExpr,
-    BoundTableWithJoins, DataType, FunctionRef, LiteralValue, QueryDiagnostic, Result, SyntaxNode,
+    BoundTableWithJoins, DataType, FunctionRef, LiteralValue, QueryDiagnostic, Result, ResultField,
+    ResultSchema, SyntaxNode,
 };
 
 #[derive(Debug, Default, Clone, Copy)]
@@ -36,6 +37,7 @@ impl BackendAdapter for ClickHouseAdapter {
             BackendFeature::Explain,
             BackendFeature::LimitOffset,
             BackendFeature::IsolatedExecution,
+            BackendFeature::UuidToStringInArrowOutput,
         ])
         .with_limits(BackendExecutionLimits {
             max_rows: None,
@@ -58,7 +60,8 @@ impl BackendAdapter for ClickHouseAdapter {
     fn analyze(&self, query: &BoundQuery, catalog: &dyn Catalog) -> BackendAnalysis {
         let mut analysis =
             analyze_backend_support(query, catalog, self.name(), self.capabilities(), true);
-        let (_, mv_summary) = rewrite_query_for_clickhouse(query, catalog);
+        let (_, mv_summary) =
+            rewrite_query_for_clickhouse(query, catalog, self.uuid_arrow_workaround_enabled());
         analysis
             .diagnostics
             .extend(mv_summary.analysis_diagnostics(self.name()));
@@ -75,7 +78,8 @@ impl BackendAdapter for ClickHouseAdapter {
             ));
         }
 
-        let (rewritten_query, mv_summary) = rewrite_query_for_clickhouse(query, catalog);
+        let (rewritten_query, mv_summary) =
+            rewrite_query_for_clickhouse(query, catalog, self.uuid_arrow_workaround_enabled());
         let mut artifact = emit_sql_artifact(&rewritten_query, catalog, SqlBackend::ClickHouse)?;
         if let Some(rewritten_to) = mv_summary.rewritten_to_metadata() {
             artifact
@@ -83,6 +87,13 @@ impl BackendAdapter for ClickHouseAdapter {
                 .insert("clickhouse.rewritten_to".into(), rewritten_to);
         }
         Ok(EmitArtifact::Sql(artifact))
+    }
+}
+
+impl ClickHouseAdapter {
+    fn uuid_arrow_workaround_enabled(&self) -> bool {
+        self.capabilities()
+            .supports(BackendFeature::UuidToStringInArrowOutput)
     }
 }
 
@@ -575,9 +586,15 @@ fn diagnostic_summary(diagnostics: &[QueryDiagnostic]) -> String {
 fn rewrite_query_for_clickhouse(
     query: &BoundQuery,
     catalog: &dyn Catalog,
+    uuid_arrow_workaround_enabled: bool,
 ) -> (BoundQuery, ClickHouseMvSummary) {
     let mut summary = ClickHouseMvSummary::default();
-    let plan = rewrite_query_plan(query.plan(), catalog, &mut summary);
+    let plan = rewrite_query_plan(
+        query.plan(),
+        catalog,
+        &mut summary,
+        uuid_arrow_workaround_enabled,
+    );
     (query.clone().with_plan(plan), summary)
 }
 
@@ -585,36 +602,64 @@ fn rewrite_query_plan(
     plan: &BoundQueryPlan,
     catalog: &dyn Catalog,
     summary: &mut ClickHouseMvSummary,
+    uuid_arrow_workaround_enabled: bool,
 ) -> BoundQueryPlan {
+    let body = rewrite_set_expr(&plan.body, catalog, summary, uuid_arrow_workaround_enabled);
+    let result_schema = result_schema_for_set_expr(&body);
     BoundQueryPlan {
         node: plan.node.clone(),
         ctes: plan
             .ctes
             .iter()
-            .map(|cte| queryfabric_ir::BoundCte {
-                name: cte.name.clone(),
-                columns: cte.columns.clone(),
-                query: Box::new(rewrite_query_plan(&cte.query, catalog, summary)),
-                result_schema: cte.result_schema.clone(),
-                node: cte.node.clone(),
+            .map(|cte| {
+                let query =
+                    rewrite_query_plan(&cte.query, catalog, summary, uuid_arrow_workaround_enabled);
+                queryfabric_ir::BoundCte {
+                    name: cte.name.clone(),
+                    columns: cte.columns.clone(),
+                    result_schema: query.result_schema.clone(),
+                    query: Box::new(query),
+                    node: cte.node.clone(),
+                }
             })
             .collect(),
-        body: rewrite_set_expr(&plan.body, catalog, summary),
+        body,
         order_by: plan
             .order_by
             .iter()
-            .map(|expr| rewrite_order_by_expr(expr, None, false, catalog, summary))
+            .map(|expr| {
+                rewrite_order_by_expr(
+                    expr,
+                    None,
+                    false,
+                    catalog,
+                    summary,
+                    uuid_arrow_workaround_enabled,
+                )
+            })
             .collect(),
-        limit: plan
-            .limit
-            .as_ref()
-            .map(|expr| rewrite_expr(expr, None, false, catalog, summary)),
-        offset: plan
-            .offset
-            .as_ref()
-            .map(|expr| rewrite_expr(expr, None, false, catalog, summary)),
+        limit: plan.limit.as_ref().map(|expr| {
+            rewrite_expr(
+                expr,
+                None,
+                false,
+                catalog,
+                summary,
+                uuid_arrow_workaround_enabled,
+            )
+        }),
+        offset: plan.offset.as_ref().map(|expr| {
+            rewrite_expr(
+                expr,
+                None,
+                false,
+                catalog,
+                summary,
+                uuid_arrow_workaround_enabled,
+            )
+        }),
         backend_clauses: plan.backend_clauses.clone(),
-        result_schema: plan.result_schema.clone(),
+        result_schema,
     }
 }
 
@@ -622,22 +667,30 @@ fn rewrite_set_expr(
     expr: &BoundSetExpr,
     catalog: &dyn Catalog,
     summary: &mut ClickHouseMvSummary,
+    uuid_arrow_workaround_enabled: bool,
 ) -> BoundSetExpr {
     match expr {
-        BoundSetExpr::Select(select) => {
-            BoundSetExpr::Select(Box::new(rewrite_select(select, catalog, summary)))
-        }
+        BoundSetExpr::Select(select) => BoundSetExpr::Select(Box::new(rewrite_select(
+            select,
+            catalog,
+            summary,
+            uuid_arrow_workaround_enabled,
+        ))),
         BoundSetExpr::UnionAll {
             left,
             right,
             node,
-            result_schema,
-        } => BoundSetExpr::UnionAll {
-            left: Box::new(rewrite_set_expr(left, catalog, summary)),
-            right: Box::new(rewrite_set_expr(right, catalog, summary)),
-            node: node.clone(),
-            result_schema: result_schema.clone(),
-        },
+            result_schema: _,
+        } => {
+            let left = rewrite_set_expr(left, catalog, summary, uuid_arrow_workaround_enabled);
+            let right = rewrite_set_expr(right, catalog, summary, uuid_arrow_workaround_enabled);
+            BoundSetExpr::UnionAll {
+                result_schema: result_schema_for_set_expr(&left),
+                left: Box::new(left),
+                right: Box::new(right),
+                node: node.clone(),
+            }
+        }
         BoundSetExpr::Unsupported {
             description,
             node,
@@ -654,58 +707,126 @@ fn rewrite_select(
     select: &BoundSelect,
     catalog: &dyn Catalog,
     summary: &mut ClickHouseMvSummary,
+    uuid_arrow_workaround_enabled: bool,
 ) -> BoundSelect {
     let from: Vec<_> = select
         .from
         .iter()
-        .map(|table| rewrite_table_with_joins(table, catalog, summary))
+        .map(|table| {
+            rewrite_table_with_joins(table, catalog, summary, uuid_arrow_workaround_enabled)
+        })
         .collect();
     let scope = scope_from_from_clause(&from, catalog);
 
-    BoundSelect {
-        distinct: select.distinct,
-        projection: select
-            .projection
-            .iter()
-            .map(|item| match item {
-                BoundProjectionItem::Expr(details) => BoundProjectionItem::expr(
-                    rewrite_expr(&details.expr, Some(&scope), true, catalog, summary),
-                    details.alias.clone(),
-                    details.field.clone(),
+    let projection = select
+        .projection
+        .iter()
+        .flat_map(|item| match item {
+            BoundProjectionItem::Expr(details) => {
+                let rewritten = rewrite_expr(
+                    &details.expr,
+                    Some(&scope),
+                    true,
+                    catalog,
+                    summary,
+                    uuid_arrow_workaround_enabled,
+                );
+                let (expr, wrapped_for_arrow) =
+                    rewrite_uuid_arrow_expr(rewritten, uuid_arrow_workaround_enabled);
+                let field = if wrapped_for_arrow {
+                    string_result_field(&details.field)
+                } else {
+                    details.field.clone()
+                };
+                vec![BoundProjectionItem::expr(
+                    expr,
+                    details
+                        .alias
+                        .clone()
+                        .or_else(|| wrapped_for_arrow.then(|| details.field.name.clone())),
+                    field,
                     details.node.clone(),
-                ),
-                BoundProjectionItem::Wildcard {
-                    qualifier,
-                    fields,
-                    node,
-                } => BoundProjectionItem::Wildcard {
+                )]
+            }
+            BoundProjectionItem::Wildcard {
+                qualifier,
+                fields,
+                node,
+            } => expand_wildcard_projection(
+                qualifier.as_deref(),
+                fields,
+                node,
+                &scope,
+                uuid_arrow_workaround_enabled,
+            )
+            .unwrap_or_else(|| {
+                vec![BoundProjectionItem::Wildcard {
                     qualifier: qualifier.clone(),
                     fields: fields.clone(),
                     node: node.clone(),
-                },
-                BoundProjectionItem::Unsupported { description, node } => {
-                    BoundProjectionItem::Unsupported {
-                        description: description.clone(),
-                        node: node.clone(),
-                    }
-                }
+                }]
+            }),
+            BoundProjectionItem::Unsupported { description, node } => {
+                vec![BoundProjectionItem::Unsupported {
+                    description: description.clone(),
+                    node: node.clone(),
+                }]
+            }
+        })
+        .collect::<Vec<_>>();
+
+    let result_schema = ResultSchema {
+        fields: projection
+            .iter()
+            .flat_map(|item| match item {
+                BoundProjectionItem::Expr(details) => vec![details.field.clone()],
+                BoundProjectionItem::Wildcard { fields, .. } => fields.clone(),
+                BoundProjectionItem::Unsupported { .. } => Vec::new(),
             })
             .collect(),
+        metadata: select.result_schema.metadata.clone(),
+    };
+
+    BoundSelect {
+        distinct: select.distinct,
+        projection,
         from,
-        selection: select
-            .selection
-            .as_ref()
-            .map(|expr| rewrite_expr(expr, Some(&scope), false, catalog, summary)),
+        selection: select.selection.as_ref().map(|expr| {
+            rewrite_expr(
+                expr,
+                Some(&scope),
+                false,
+                catalog,
+                summary,
+                uuid_arrow_workaround_enabled,
+            )
+        }),
         group_by: select
             .group_by
             .iter()
-            .map(|expr| rewrite_expr(expr, Some(&scope), false, catalog, summary))
+            .map(|expr| {
+                let rewritten = rewrite_expr(
+                    expr,
+                    Some(&scope),
+                    false,
+                    catalog,
+                    summary,
+                    uuid_arrow_workaround_enabled,
+                );
+                rewrite_uuid_arrow_expr(rewritten, uuid_arrow_workaround_enabled).0
+            })
             .collect(),
-        having: select
-            .having
-            .as_ref()
-            .map(|expr| rewrite_expr(expr, Some(&scope), true, catalog, summary)),
-        result_schema: select.result_schema.clone(),
+        having: select.having.as_ref().map(|expr| {
+            rewrite_expr(
+                expr,
+                Some(&scope),
+                true,
+                catalog,
+                summary,
+                uuid_arrow_workaround_enabled,
+            )
+        }),
+        result_schema,
         node: select.node.clone(),
     }
 }
@@ -714,19 +835,36 @@ fn rewrite_table_with_joins(
     table: &BoundTableWithJoins,
     catalog: &dyn Catalog,
     summary: &mut ClickHouseMvSummary,
+    uuid_arrow_workaround_enabled: bool,
 ) -> BoundTableWithJoins {
     BoundTableWithJoins {
-        relation: rewrite_relation(&table.relation, catalog, summary),
+        relation: rewrite_relation(
+            &table.relation,
+            catalog,
+            summary,
+            uuid_arrow_workaround_enabled,
+        ),
         joins: table
             .joins
             .iter()
             .map(|join| queryfabric_ir::BoundJoin {
                 kind: join.kind,
-                relation: rewrite_relation(&join.relation, catalog, summary),
-                on: join
-                    .on
-                    .as_ref()
-                    .map(|expr| rewrite_expr(expr, None, false, catalog, summary)),
+                relation: rewrite_relation(
+                    &join.relation,
+                    catalog,
+                    summary,
+                    uuid_arrow_workaround_enabled,
+                ),
+                on: join.on.as_ref().map(|expr| {
+                    rewrite_expr(
+                        expr,
+                        None,
+                        false,
+                        catalog,
+                        summary,
+                        uuid_arrow_workaround_enabled,
+                    )
+                }),
                 node: join.node.clone(),
             })
             .collect(),
@@ -738,6 +876,7 @@ fn rewrite_relation(
     relation: &BoundRelation,
     catalog: &dyn Catalog,
     summary: &mut ClickHouseMvSummary,
+    uuid_arrow_workaround_enabled: bool,
 ) -> BoundRelation {
     match relation {
         BoundRelation::Table { binding, node } => BoundRelation::Table {
@@ -750,7 +889,12 @@ fn rewrite_relation(
             node,
         } => BoundRelation::Derived {
             binding: binding.clone(),
-            query: Box::new(rewrite_query_plan(query, catalog, summary)),
+            query: Box::new(rewrite_query_plan(
+                query,
+                catalog,
+                summary,
+                uuid_arrow_workaround_enabled,
+            )),
             node: node.clone(),
         },
         BoundRelation::NestedJoin {
@@ -763,6 +907,7 @@ fn rewrite_relation(
                 table_with_joins,
                 catalog,
                 summary,
+                uuid_arrow_workaround_enabled,
             )),
             node: node.clone(),
         },
@@ -817,15 +962,125 @@ fn collect_relation_bindings(
     }
 }
 
+fn rewrite_uuid_arrow_expr(
+    expr: BoundExpr,
+    uuid_arrow_workaround_enabled: bool,
+) -> (BoundExpr, bool) {
+    if !uuid_arrow_workaround_enabled
+        || expr.data_type != DataType::Uuid
+        || is_to_string_call(&expr)
+    {
+        return (expr, false);
+    }
+
+    let node = expr.node.clone();
+    let nullable = expr.nullable;
+    (
+        BoundExpr {
+            kind: BoundExprKind::function(BoundFunctionCall {
+                function: FunctionRef {
+                    namespace: None,
+                    name: "toString".into(),
+                },
+                resolved_backend_name: None,
+                args: vec![expr],
+                distinct: false,
+                filter: None,
+                over: None,
+                resolved_signature_name: Some("toString".into()),
+            }),
+            data_type: DataType::Utf8,
+            nullable,
+            node,
+        },
+        true,
+    )
+}
+
+fn expand_wildcard_projection(
+    qualifier: Option<&str>,
+    fields: &[ResultField],
+    node: &SyntaxNode,
+    scope: &SelectScope,
+    uuid_arrow_workaround_enabled: bool,
+) -> Option<Vec<BoundProjectionItem>> {
+    let binding_name = scope.target_binding_name(qualifier)?;
+    Some(
+        fields
+            .iter()
+            .map(|field| {
+                let expr = BoundExpr {
+                    kind: BoundExprKind::Column(BoundColumnRef {
+                        relation: Some(binding_name.to_owned()),
+                        name: field.name.clone(),
+                    }),
+                    data_type: field.data_type.clone(),
+                    nullable: field.nullable,
+                    node: node.clone(),
+                };
+                let (expr, wrapped_for_arrow) =
+                    rewrite_uuid_arrow_expr(expr, uuid_arrow_workaround_enabled);
+                BoundProjectionItem::expr(
+                    expr,
+                    Some(field.name.clone()),
+                    if wrapped_for_arrow {
+                        string_result_field(field)
+                    } else {
+                        field.clone()
+                    },
+                    node.clone(),
+                )
+            })
+            .collect(),
+    )
+}
+
+fn is_to_string_call(expr: &BoundExpr) -> bool {
+    let BoundExprKind::Function(function) = &expr.kind else {
+        return false;
+    };
+    function.function.namespace.is_none()
+        && function.function.name.eq_ignore_ascii_case("toString")
+        && function.args.len() == 1
+        && !function.distinct
+        && function.filter.is_none()
+        && function.over.is_none()
+}
+
+fn string_result_field(field: &ResultField) -> ResultField {
+    ResultField {
+        name: field.name.clone(),
+        data_type: DataType::Utf8,
+        nullable: field.nullable,
+        metadata: field.metadata.clone(),
+    }
+}
+
+fn result_schema_for_set_expr(expr: &BoundSetExpr) -> ResultSchema {
+    match expr {
+        BoundSetExpr::Select(select) => select.result_schema.clone(),
+        BoundSetExpr::UnionAll { result_schema, .. }
+        | BoundSetExpr::Unsupported { result_schema, .. } => result_schema.clone(),
+    }
+}
+
 fn rewrite_order_by_expr(
     expr: &BoundOrderByExpr,
     scope: Option<&SelectScope>,
     allow_column_wrap: bool,
     catalog: &dyn Catalog,
     summary: &mut ClickHouseMvSummary,
+    uuid_arrow_workaround_enabled: bool,
 ) -> BoundOrderByExpr {
     BoundOrderByExpr {
-        expr: rewrite_expr(&expr.expr, scope, allow_column_wrap, catalog, summary),
+        expr: rewrite_expr(
+            &expr.expr,
+            scope,
+            allow_column_wrap,
+            catalog,
+            summary,
+            uuid_arrow_workaround_enabled,
+        ),
         asc: expr.asc,
         nulls_first: expr.nulls_first,
         node: expr.node.clone(),
@@ -838,6 +1093,7 @@ fn rewrite_expr(
     allow_column_wrap: bool,
     catalog: &dyn Catalog,
     summary: &mut ClickHouseMvSummary,
+    uuid_arrow_workaround_enabled: bool,
 ) -> BoundExpr {
     let kind = match &expr.kind {
         BoundExprKind::Column(column) => {
@@ -874,6 +1130,7 @@ fn rewrite_expr(
                 allow_column_wrap,
                 catalog,
                 summary,
+                uuid_arrow_workaround_enabled,
             )),
         },
         BoundExprKind::Binary { op, left, right } => BoundExprKind::Binary {
@@ -884,6 +1141,7 @@ fn rewrite_expr(
                 allow_column_wrap,
                 catalog,
                 summary,
+                uuid_arrow_workaround_enabled,
             )),
             right: Box::new(rewrite_expr(
                 right,
@@ -891,6 +1149,7 @@ fn rewrite_expr(
                 allow_column_wrap,
                 catalog,
                 summary,
+                uuid_arrow_workaround_enabled,
             )),
         },
         BoundExprKind::Function(function) => {
@@ -909,7 +1168,16 @@ fn rewrite_expr(
                 function
                     .args
                     .iter()
-                    .map(|arg| rewrite_expr(arg, scope, allow_column_wrap, catalog, summary))
+                    .map(|arg| {
+                        rewrite_expr(
+                            arg,
+                            scope,
+                            allow_column_wrap,
+                            catalog,
+                            summary,
+                            uuid_arrow_workaround_enabled,
+                        )
+                    })
                     .collect()
             };
             BoundExprKind::function(BoundFunctionCall {
@@ -917,10 +1185,16 @@ fn rewrite_expr(
                 resolved_backend_name: function.resolved_backend_name.clone(),
                 args,
                 distinct: function.distinct,
-                filter: function
-                    .filter
-                    .as_ref()
-                    .map(|expr| Box::new(rewrite_expr(expr, scope, false, catalog, summary))),
+                filter: function.filter.as_ref().map(|expr| {
+                    Box::new(rewrite_expr(
+                        expr,
+                        scope,
+                        false,
+                        catalog,
+                        summary,
+                        uuid_arrow_workaround_enabled,
+                    ))
+                }),
                 over: function
                     .over
                     .as_ref()
@@ -928,12 +1202,30 @@ fn rewrite_expr(
                         partition_by: window
                             .partition_by
                             .iter()
-                            .map(|expr| rewrite_expr(expr, scope, false, catalog, summary))
+                            .map(|expr| {
+                                rewrite_expr(
+                                    expr,
+                                    scope,
+                                    false,
+                                    catalog,
+                                    summary,
+                                    uuid_arrow_workaround_enabled,
+                                )
+                            })
                             .collect(),
                         order_by: window
                             .order_by
                             .iter()
-                            .map(|expr| rewrite_order_by_expr(expr, scope, false, catalog, summary))
+                            .map(|expr| {
+                                rewrite_order_by_expr(
+                                    expr,
+                                    scope,
+                                    false,
+                                    catalog,
+                                    summary,
+                                    uuid_arrow_workaround_enabled,
+                                )
+                            })
                             .collect(),
                         node: window.node.clone(),
                     }),
@@ -952,6 +1244,7 @@ fn rewrite_expr(
                     allow_column_wrap,
                     catalog,
                     summary,
+                    uuid_arrow_workaround_enabled,
                 ))
             }),
             when_then: when_then
@@ -963,6 +1256,7 @@ fn rewrite_expr(
                         allow_column_wrap,
                         catalog,
                         summary,
+                        uuid_arrow_workaround_enabled,
                     ),
                     result: rewrite_expr(
                         &branch.result,
@@ -970,6 +1264,7 @@ fn rewrite_expr(
                         allow_column_wrap,
                         catalog,
                         summary,
+                        uuid_arrow_workaround_enabled,
                     ),
                 })
                 .collect(),
@@ -980,6 +1275,7 @@ fn rewrite_expr(
                     allow_column_wrap,
                     catalog,
                     summary,
+                    uuid_arrow_workaround_enabled,
                 ))
             }),
         },
@@ -993,6 +1289,7 @@ fn rewrite_expr(
                 allow_column_wrap,
                 catalog,
                 summary,
+                uuid_arrow_workaround_enabled,
             )),
             data_type: data_type.clone(),
         },
@@ -1008,6 +1305,7 @@ fn rewrite_expr(
                 allow_column_wrap,
                 catalog,
                 summary,
+                uuid_arrow_workaround_enabled,
             )),
             low: Box::new(rewrite_expr(
                 low,
@@ -1015,6 +1313,7 @@ fn rewrite_expr(
                 allow_column_wrap,
                 catalog,
                 summary,
+                uuid_arrow_workaround_enabled,
             )),
             high: Box::new(rewrite_expr(
                 high,
@@ -1022,6 +1321,7 @@ fn rewrite_expr(
                 allow_column_wrap,
                 catalog,
                 summary,
+                uuid_arrow_workaround_enabled,
             )),
             negated: *negated,
         },
@@ -1036,10 +1336,20 @@ fn rewrite_expr(
                 allow_column_wrap,
                 catalog,
                 summary,
+                uuid_arrow_workaround_enabled,
             )),
             list: list
                 .iter()
-                .map(|item| rewrite_expr(item, scope, allow_column_wrap, catalog, summary))
+                .map(|item| {
+                    rewrite_expr(
+                        item,
+                        scope,
+                        allow_column_wrap,
+                        catalog,
+                        summary,
+                        uuid_arrow_workaround_enabled,
+                    )
+                })
                 .collect(),
             negated: *negated,
         },
@@ -1054,16 +1364,25 @@ fn rewrite_expr(
                 allow_column_wrap,
                 catalog,
                 summary,
+                uuid_arrow_workaround_enabled,
             )),
-            subquery: Box::new(rewrite_query_plan(subquery, catalog, summary)),
+            subquery: Box::new(rewrite_query_plan(
+                subquery,
+                catalog,
+                summary,
+                uuid_arrow_workaround_enabled,
+            )),
             negated: *negated,
         },
-        BoundExprKind::ScalarSubquery(subquery) => {
-            BoundExprKind::ScalarSubquery(Box::new(rewrite_query_plan(subquery, catalog, summary)))
-        }
-        BoundExprKind::Exists(subquery) => {
-            BoundExprKind::Exists(Box::new(rewrite_query_plan(subquery, catalog, summary)))
-        }
+        BoundExprKind::ScalarSubquery(subquery) => BoundExprKind::ScalarSubquery(Box::new(
+            rewrite_query_plan(subquery, catalog, summary, uuid_arrow_workaround_enabled),
+        )),
+        BoundExprKind::Exists(subquery) => BoundExprKind::Exists(Box::new(rewrite_query_plan(
+            subquery,
+            catalog,
+            summary,
+            uuid_arrow_workaround_enabled,
+        ))),
         BoundExprKind::Like {
             expr: input,
             pattern,
@@ -1076,6 +1395,7 @@ fn rewrite_expr(
                 allow_column_wrap,
                 catalog,
                 summary,
+                uuid_arrow_workaround_enabled,
             )),
             pattern: Box::new(rewrite_expr(
                 pattern,
@@ -1083,6 +1403,7 @@ fn rewrite_expr(
                 allow_column_wrap,
                 catalog,
                 summary,
+                uuid_arrow_workaround_enabled,
             )),
             negated: *negated,
             case_insensitive: *case_insensitive,
@@ -1097,19 +1418,38 @@ fn rewrite_expr(
                 allow_column_wrap,
                 catalog,
                 summary,
+                uuid_arrow_workaround_enabled,
             )),
             negated: *negated,
         },
         BoundExprKind::Tuple(items) => BoundExprKind::Tuple(
             items
                 .iter()
-                .map(|item| rewrite_expr(item, scope, allow_column_wrap, catalog, summary))
+                .map(|item| {
+                    rewrite_expr(
+                        item,
+                        scope,
+                        allow_column_wrap,
+                        catalog,
+                        summary,
+                        uuid_arrow_workaround_enabled,
+                    )
+                })
                 .collect(),
         ),
         BoundExprKind::Array(items) => BoundExprKind::Array(
             items
                 .iter()
-                .map(|item| rewrite_expr(item, scope, allow_column_wrap, catalog, summary))
+                .map(|item| {
+                    rewrite_expr(
+                        item,
+                        scope,
+                        allow_column_wrap,
+                        catalog,
+                        summary,
+                        uuid_arrow_workaround_enabled,
+                    )
+                })
                 .collect(),
         ),
     };
@@ -1159,6 +1499,18 @@ impl SelectScope {
             relation_display,
             relation,
         });
+    }
+
+    fn target_binding_name(&self, qualifier: Option<&str>) -> Option<&str> {
+        match qualifier {
+            Some(qualifier) => self
+                .bindings
+                .iter()
+                .find(|binding| binding.binding_name.eq_ignore_ascii_case(qualifier))
+                .map(|binding| binding.binding_name.as_str()),
+            None if self.bindings.len() == 1 => Some(self.bindings[0].binding_name.as_str()),
+            None => None,
+        }
     }
 
     fn resolve_wrapper(&self, relation: Option<&str>, name: &str) -> Option<ResolvedWrapper> {
@@ -1601,9 +1953,10 @@ mod tests {
         };
         assert_eq!(
             sql.text,
-            "SELECT neurons.neuron_id, neurons.cable_length FROM neurons LIMIT 10"
+            "SELECT toString(neurons.neuron_id) AS neuron_id, neurons.cable_length FROM neurons LIMIT 10"
         );
         assert_eq!(sql.result_schema.fields().len(), 2);
+        assert_eq!(sql.result_schema.fields()[0].data_type, DataType::Utf8);
         assert!(sql.metadata.is_empty());
     }
 
@@ -1614,6 +1967,74 @@ mod tests {
                 .capabilities()
                 .supports(BackendFeature::IsolatedExecution)
         );
+    }
+
+    #[test]
+    fn advertises_uuid_arrow_workaround_capability() {
+        assert!(
+            ClickHouseAdapter
+                .capabilities()
+                .supports(BackendFeature::UuidToStringInArrowOutput)
+        );
+    }
+
+    #[test]
+    fn rewrites_uuid_projection_and_group_by_for_arrow_output() {
+        let catalog = catalog();
+        let bound = bind("SELECT neuron_id, count() AS n FROM neurons GROUP BY neuron_id");
+        let artifact = ClickHouseAdapter.emit(&bound, &catalog).expect("emit");
+        let EmitArtifact::Sql(sql) = artifact else {
+            panic!("expected SQL artifact");
+        };
+        assert_eq!(
+            sql.text,
+            "SELECT toString(neurons.neuron_id) AS neuron_id, count(*) AS n FROM neurons GROUP BY toString(neurons.neuron_id)"
+        );
+        assert_eq!(sql.result_schema.fields()[0].data_type, DataType::Utf8);
+        assert_eq!(sql.result_schema.fields()[0].name, "neuron_id");
+    }
+
+    #[test]
+    fn rewrites_uuid_wildcard_projection_for_arrow_output() {
+        let catalog = catalog();
+        let bound = bind("SELECT * FROM neurons");
+        let artifact = ClickHouseAdapter.emit(&bound, &catalog).expect("emit");
+        let EmitArtifact::Sql(sql) = artifact else {
+            panic!("expected SQL artifact");
+        };
+        assert_eq!(
+            sql.text,
+            "SELECT neurons.dataset_id AS dataset_id, toString(neurons.neuron_id) AS neuron_id, neurons.cable_length AS cable_length FROM neurons"
+        );
+        assert_eq!(sql.result_schema.fields()[1].data_type, DataType::Utf8);
+    }
+
+    #[test]
+    fn leaves_non_uuid_projection_unchanged_for_arrow_output() {
+        let catalog = catalog();
+        let bound = bind("SELECT count() AS n FROM neurons");
+        let artifact = ClickHouseAdapter.emit(&bound, &catalog).expect("emit");
+        let EmitArtifact::Sql(sql) = artifact else {
+            panic!("expected SQL artifact");
+        };
+        assert_eq!(sql.text, "SELECT count(*) AS n FROM neurons");
+        assert_eq!(sql.result_schema.fields()[0].data_type, DataType::Int64);
+    }
+
+    #[test]
+    fn preserves_existing_uuid_to_string_cast_without_double_wrap() {
+        let catalog = catalog();
+        let bound = bind("SELECT toString(neuron_id) AS neuron_id FROM neurons");
+        let artifact = ClickHouseAdapter.emit(&bound, &catalog).expect("emit");
+        let EmitArtifact::Sql(sql) = artifact else {
+            panic!("expected SQL artifact");
+        };
+        assert_eq!(
+            sql.text,
+            "SELECT toString(neurons.neuron_id) AS neuron_id FROM neurons"
+        );
+        assert!(!sql.text.contains("toString(toString"), "{}", sql.text);
+        assert_eq!(sql.result_schema.fields()[0].data_type, DataType::Utf8);
     }
 
     #[test]

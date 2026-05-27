@@ -362,6 +362,15 @@ mod tests {
         let decoded: BackendFeature = serde_json::from_str(&json).expect("deserialize");
         assert_eq!(decoded, BackendFeature::IsolatedExecution);
     }
+
+    #[test]
+    fn uuid_arrow_workaround_feature_serializes_roundtrips() {
+        let json =
+            serde_json::to_string(&BackendFeature::UuidToStringInArrowOutput).expect("serialize");
+        assert_eq!(json, "\"UuidToStringInArrowOutput\"");
+        let decoded: BackendFeature = serde_json::from_str(&json).expect("deserialize");
+        assert_eq!(decoded, BackendFeature::UuidToStringInArrowOutput);
+    }
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
@@ -380,6 +389,7 @@ pub enum BackendFeature {
     Explain,
     LimitOffset,
     IsolatedExecution,
+    UuidToStringInArrowOutput,
 }
 
 #[derive(Debug, Clone, Default, PartialEq, Eq, Serialize, Deserialize)]
