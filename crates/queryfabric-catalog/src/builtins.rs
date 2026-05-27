@@ -8,6 +8,7 @@ pub fn portable_builtin_functions() -> Vec<FunctionSignature> {
     vec![
         builtin_scalar("coalesce", DataType::Unknown, true),
         builtin_scalar("sqrt", DataType::Float64, false).with_args(vec![DataType::Float64]),
+        builtin_clickhouse_scalar("toString", DataType::Utf8, false),
         builtin_scalar("greatest", DataType::Unknown, true),
         builtin_scalar("least", DataType::Unknown, true),
         builtin_aggregate("count", DataType::Int64),
@@ -117,6 +118,29 @@ fn builtin_clickhouse_aggregate(name: &str, return_type: DataType) -> FunctionSi
         arg_types: Vec::new(),
         return_type,
         variadic: true,
+        coercions: Vec::new(),
+        backend_mappings: vec![BackendFunctionMapping {
+            backend: "clickhouse".into(),
+            namespace: None,
+            name: name.into(),
+        }],
+        metadata: BTreeMap::new(),
+    }
+}
+
+fn builtin_clickhouse_scalar(
+    name: &str,
+    return_type: DataType,
+    variadic: bool,
+) -> FunctionSignature {
+    FunctionSignature {
+        namespace: None,
+        name: name.into(),
+        kind: FunctionKind::Scalar,
+        volatility: FunctionVolatility::Immutable,
+        arg_types: Vec::new(),
+        return_type,
+        variadic,
         coercions: Vec::new(),
         backend_mappings: vec![BackendFunctionMapping {
             backend: "clickhouse".into(),
