@@ -17,7 +17,8 @@
         "ApproximateAggregates",
         "Explain",
         "LimitOffset",
-        "IsolatedExecution"
+        "IsolatedExecution",
+        "UuidToStringInArrowOutput"
       ]
     },
     {
