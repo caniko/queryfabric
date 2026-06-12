@@ -21,3 +21,4 @@
 - ClickHouse and PostgreSQL adapters for the verified portable subset
 - runnable quickstart, compatibility policy, migration guide, capability manifest,
   and conformance corpus
+- threat model documentation
