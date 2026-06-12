@@ -345,8 +345,8 @@ pub struct DelegationClaims {
     pub email: Email,
     /// Dataset IDs the delegation authorizes access to.
     pub dataset_ids: Vec<Uuid>,
-    /// SynDB table discriminant the delegation authorizes.
-    pub syndb_table: i32,
+    /// QueryFabric table discriminant the delegation authorizes.
+    pub table_id: i32,
 }
 
 /// Mint a short-lived PASETO v4.local delegation token.
@@ -357,7 +357,7 @@ pub struct DelegationClaims {
 pub fn mint_delegation_token(
     user: &AuthUser,
     dataset_ids: &[Uuid],
-    syndb_table: i32,
+    table_id: i32,
     secret: &str,
 ) -> Result<String, AuthError> {
     use rusty_paseto::prelude::*;
@@ -379,51 +379,42 @@ pub fn mint_delegation_token(
         reason: e.to_string(),
     })?;
 
-    let syndb_table_str = syndb_table.to_string();
+    let table_id_str = table_id.to_string();
 
     let token = PasetoBuilder::<V4, Local>::default()
         .set_claim(SubjectClaim::from(user_id_str.as_str()))
+        .set_claim(ExpirationClaim::try_from(expiry_str.as_str()).map_err(|e| {
+            AuthError::TokenParse(format!(
+                "build delegation expiry claim from RFC3339 timestamp {expiry_str:?}: {e}"
+            ))
+        })?)
         .set_claim(
-            ExpirationClaim::try_from(expiry_str.as_str())
-                .map_err(|e| {
-                    AuthError::TokenParse(format!(
-                        "build delegation expiry claim from RFC3339 timestamp {expiry_str:?}: {e}"
-                    ))
-                })?,
+            CustomClaim::try_from(("email", user.email.as_str())).map_err(|e| {
+                AuthError::TokenParse(format!(
+                    "build delegation claim 'email' from authenticated user {}: {e}",
+                    user.email
+                ))
+            })?,
+        )
+        .set_claim(CustomClaim::try_from(("scope", "delegation")).map_err(|e| {
+            AuthError::TokenParse(format!(
+                "build delegation claim 'scope' with value \"delegation\": {e}"
+            ))
+        })?)
+        .set_claim(
+            CustomClaim::try_from(("dataset_ids", dataset_ids_json.as_str())).map_err(|e| {
+                AuthError::TokenParse(format!(
+                    "build delegation claim 'dataset_ids' for {} dataset ids: {e}",
+                    dataset_ids.len()
+                ))
+            })?,
         )
         .set_claim(
-            CustomClaim::try_from(("email", user.email.as_str()))
-                .map_err(|e| {
-                    AuthError::TokenParse(format!(
-                        "build delegation claim 'email' from authenticated user {}: {e}",
-                        user.email
-                    ))
-                })?,
-        )
-        .set_claim(
-            CustomClaim::try_from(("scope", "delegation"))
-                .map_err(|e| {
-                    AuthError::TokenParse(format!(
-                        "build delegation claim 'scope' with value \"delegation\": {e}"
-                    ))
-                })?,
-        )
-        .set_claim(
-            CustomClaim::try_from(("dataset_ids", dataset_ids_json.as_str()))
-                .map_err(|e| {
-                    AuthError::TokenParse(format!(
-                        "build delegation claim 'dataset_ids' for {} dataset ids: {e}",
-                        dataset_ids.len()
-                    ))
-                })?,
-        )
-        .set_claim(
-            CustomClaim::try_from(("syndb_table", syndb_table_str.as_str()))
-                .map_err(|e| {
-                    AuthError::TokenParse(format!(
-                        "build delegation claim 'syndb_table' from table discriminant {syndb_table}: {e}"
-                    ))
-                })?,
+            CustomClaim::try_from(("table_id", table_id_str.as_str())).map_err(|e| {
+                AuthError::TokenParse(format!(
+                    "build delegation claim 'table_id' from table discriminant {table_id}: {e}"
+                ))
+            })?,
         )
         .build(&key)
         .map_err(|e| {
@@ -437,7 +428,7 @@ pub fn mint_delegation_token(
     tracing::debug!(
         user_id = %user.id,
         dataset_count = dataset_ids.len(),
-        syndb_table,
+        table_id,
         "Delegation token minted"
     );
 
@@ -485,22 +476,20 @@ pub fn validate_delegation_token(token: &str, secret: &str) -> Result<Delegation
             reason: e.to_string(),
         })?;
 
-    let syndb_table_str = claims["syndb_table"]
+    let table_id_str = claims["table_id"]
         .as_str()
-        .ok_or_else(|| AuthError::MissingDelegationClaim("syndb_table".to_owned()))?;
-    let syndb_table: i32 = syndb_table_str
-        .parse()
-        .map_err(
-            |e: std::num::ParseIntError| AuthError::InvalidDelegationClaim {
-                field: "syndb_table".to_owned(),
-                reason: e.to_string(),
-            },
-        )?;
+        .ok_or_else(|| AuthError::MissingDelegationClaim("table_id".to_owned()))?;
+    let table_id: i32 = table_id_str.parse().map_err(|e: std::num::ParseIntError| {
+        AuthError::InvalidDelegationClaim {
+            field: "table_id".to_owned(),
+            reason: e.to_string(),
+        }
+    })?;
 
     tracing::debug!(
         user_id = %sub,
         dataset_count = dataset_ids.len(),
-        syndb_table,
+        table_id,
         "Delegation token validated"
     );
 
@@ -508,7 +497,7 @@ pub fn validate_delegation_token(token: &str, secret: &str) -> Result<Delegation
         sub,
         email,
         dataset_ids,
-        syndb_table,
+        table_id,
     })
 }
 

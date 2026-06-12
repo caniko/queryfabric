@@ -13,7 +13,7 @@ The corpus is seeded from:
 
 ## Usage
 
-Enter the SynDB devshell from the repository root so `cargo-fuzz` is on `PATH`:
+Enter the QueryFabric devshell from the repository root so `cargo-fuzz` is on `PATH`:
 
 ```bash
 nix develop . -c bash

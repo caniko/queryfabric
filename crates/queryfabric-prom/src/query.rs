@@ -256,16 +256,16 @@ mod tests {
 
     #[test]
     fn registered_query_metrics_render_help_and_type_without_observations() {
-        let registry = MetricsRegistry::with_prefix("syndb");
+        let registry = MetricsRegistry::with_prefix("queryfabric");
         let _query_metrics = QueryMetrics::register(&registry);
 
         let text = registry.render().expect("render metrics");
-        assert!(text.contains("# HELP syndb_query_duration_seconds"));
-        assert!(text.contains("# TYPE syndb_query_duration_seconds histogram"));
-        assert!(text.contains("# HELP syndb_query_memory_bytes"));
-        assert!(text.contains("# TYPE syndb_query_memory_bytes histogram"));
-        assert!(text.contains("# HELP syndb_query_rows_read"));
-        assert!(text.contains("# TYPE syndb_query_rows_read histogram"));
-        assert!(!text.contains("syndb_query_duration_seconds_count{"));
+        assert!(text.contains("# HELP queryfabric_query_duration_seconds"));
+        assert!(text.contains("# TYPE queryfabric_query_duration_seconds histogram"));
+        assert!(text.contains("# HELP queryfabric_query_memory_bytes"));
+        assert!(text.contains("# TYPE queryfabric_query_memory_bytes histogram"));
+        assert!(text.contains("# HELP queryfabric_query_rows_read"));
+        assert!(text.contains("# TYPE queryfabric_query_rows_read histogram"));
+        assert!(!text.contains("queryfabric_query_duration_seconds_count{"));
     }
 }

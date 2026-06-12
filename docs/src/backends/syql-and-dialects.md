@@ -7,7 +7,7 @@ core, not as the public identity of the project.
 
 The generic SQL dialect is the neutral baseline. It is the dialect you should
 start with if you are embedding QueryFabric into a new host that does not need
-SynDB-specific syntax.
+host-specific syntax.
 
 ## SyQL Layering
 

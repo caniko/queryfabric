@@ -2,7 +2,7 @@
 
 The catalog is the portability layer.
 
-QueryFabric does not assume PostgreSQL catalogs, SynDB metadata tables, or any
+QueryFabric does not assume PostgreSQL catalogs, QueryFabric metadata tables, or any
 other product-specific schema store. It only requires a host to present neutral
 relation and function information through the catalog contracts.
 

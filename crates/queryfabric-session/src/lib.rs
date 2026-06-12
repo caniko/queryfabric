@@ -9,10 +9,6 @@
 use serde::{Deserialize, Serialize};
 use strum::{Display, EnumString};
 
-pub mod cookie;
-
-pub use cookie::{SESSION_COOKIE_NAME, clear_web_session_cookie_value, web_session_cookie_value};
-
 /// Cookie SameSite policy.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, Display, EnumString)]
 #[serde(rename_all = "lowercase")]
@@ -91,12 +87,18 @@ mod tests {
     #[test]
     fn session_cookie_value_respects_security_flags() {
         assert_eq!(
-            session_cookie_value("syndb_session", Some("abc"), 60, CookieSameSite::Lax, false),
-            "syndb_session=abc; Path=/; HttpOnly; SameSite=lax; Max-Age=60"
+            session_cookie_value(
+                "queryfabric_session",
+                Some("abc"),
+                60,
+                CookieSameSite::Lax,
+                false
+            ),
+            "queryfabric_session=abc; Path=/; HttpOnly; SameSite=lax; Max-Age=60"
         );
         assert_eq!(
-            clear_session_cookie_value("syndb_session", CookieSameSite::None, true),
-            "syndb_session=; Path=/; HttpOnly; SameSite=none; Max-Age=0; Secure"
+            clear_session_cookie_value("queryfabric_session", CookieSameSite::None, true),
+            "queryfabric_session=; Path=/; HttpOnly; SameSite=none; Max-Age=0; Secure"
         );
     }
 }

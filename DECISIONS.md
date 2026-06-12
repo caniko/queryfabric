@@ -10,7 +10,7 @@ custom SQL AST. This keeps the new surface neutral and reduces migration risk.
 `SCOPE`, `DOWNLOAD`, tracing IDs, and similar host directives are represented as
 `ExecutionHints`, not as relational operators.
 
-## D003: Keep host execution in SynDB
+## D003: Keep host execution outside QueryFabric
 
 QueryFabric emits SQL or a DataFusion `LogicalPlan`. It does not execute queries,
 manage auth, or own job orchestration.
@@ -57,15 +57,15 @@ Crates scaffolded for the extraction (bodies land in the noted phases):
 - Phase 05 (sovereignty): `queryfabric-provenance`, `queryfabric-access`,
   `queryfabric-portability`, `queryfabric-tenancy`, `queryfabric-store`.
 
-## D005: Utility crates deliberately left in SynDB
+## D005: Utility crates deliberately included in QueryFabric
 
-Phase 02 moved the domain-neutral utility crates out of SynDB's
-`crates/owned/` but deliberately skipped `meta-stats`, `iso-continent`, and
-`latency-stats` (too niche or domain-flavoured to justify a neutral home).
+Phase 02 included the domain-neutral utility crates here but deliberately
+skipped `meta-stats`, `iso-continent`, and `latency-stats` (too niche or
+domain-flavoured to justify a neutral home).
 `prov-activity` and `datacite-types` were also not moved here: they feed the
 sovereignty layer and are generalised — not relocated — in Phase 05.
-SynDB's `priority-job-runner` was folded into `queryfabric-job-queue` as the
-`priority` module rather than becoming its own crate (it is a thin,
+The previous priority job runner was folded into `queryfabric-job-queue` as
+the `priority` module rather than becoming its own crate (it is a thin,
 single-consumer companion of the job queue).
 
 ## D006: The demonstrator is a host, not a library feature
