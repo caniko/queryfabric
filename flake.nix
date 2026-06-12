@@ -111,5 +111,20 @@
           '';
         };
       }
-    );
+    )
+    // {
+      nixosModules = {
+        default = self.nixosModules.queryfabric;
+        queryfabric = {
+          pkgs,
+          lib,
+          ...
+        }: {
+          imports = [./nix/modules/queryfabric.nix];
+          services.queryfabric.package =
+            lib.mkDefault
+            self.packages.${pkgs.stdenv.hostPlatform.system}.queryfabric-demo;
+        };
+      };
+    };
 }
