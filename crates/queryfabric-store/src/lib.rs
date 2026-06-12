@@ -45,6 +45,45 @@ pub enum StoreError {
         #[source]
         source: opendal::Error,
     },
+    /// The backend configuration was rejected before any operation ran.
+    #[error("object store configuration rejected: {source}")]
+    Configuration {
+        /// OpenDAL error.
+        #[source]
+        source: opendal::Error,
+    },
+}
+
+/// Configuration for any S3-compatible backend (AWS S3, MinIO, Garage).
+#[cfg(feature = "s3")]
+#[derive(Clone)]
+pub struct S3Config {
+    /// Bucket holding all objects.
+    pub bucket: String,
+    /// Endpoint URL; `None` uses the backend's default (AWS).
+    pub endpoint: Option<String>,
+    /// Region; many S3-compatible stores accept any value here.
+    pub region: Option<String>,
+    /// Access key id.
+    pub access_key_id: String,
+    /// Secret access key.
+    pub secret_access_key: String,
+    /// Path prefix all objects live under, when set.
+    pub root: Option<String>,
+}
+
+#[cfg(feature = "s3")]
+impl std::fmt::Debug for S3Config {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("S3Config")
+            .field("bucket", &self.bucket)
+            .field("endpoint", &self.endpoint)
+            .field("region", &self.region)
+            .field("access_key_id", &self.access_key_id)
+            .field("secret_access_key", &"<redacted>")
+            .field("root", &self.root)
+            .finish()
+    }
 }
 
 /// Object storage over any OpenDAL backend.
@@ -68,6 +107,28 @@ impl ObjectStore {
             .expect("memory backend has no fallible configuration")
             .finish();
         Self::new(op)
+    }
+
+    /// A store over any S3-compatible backend.
+    #[cfg(feature = "s3")]
+    pub fn s3(config: S3Config) -> Result<Self, StoreError> {
+        let mut builder = opendal::services::S3::default()
+            .bucket(&config.bucket)
+            .access_key_id(&config.access_key_id)
+            .secret_access_key(&config.secret_access_key);
+        if let Some(endpoint) = &config.endpoint {
+            builder = builder.endpoint(endpoint);
+        }
+        if let Some(region) = &config.region {
+            builder = builder.region(region);
+        }
+        if let Some(root) = &config.root {
+            builder = builder.root(root);
+        }
+        let op = Operator::new(builder)
+            .map_err(|source| StoreError::Configuration { source })?
+            .finish();
+        Ok(Self::new(op))
     }
 
     /// The wrapped operator, for operations this facade does not cover.
