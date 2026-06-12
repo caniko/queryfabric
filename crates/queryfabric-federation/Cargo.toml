@@ -1,6 +1,6 @@
 [package]
 name = "queryfabric-federation"
-description = "Federated locality, routing, schema sync, and actors"
+description = "Generic federation layer: resource locality, routing, schema-sync protocol, and host-parametrised hub/cluster actors"
 version.workspace = true
 edition.workspace = true
 license.workspace = true
@@ -10,3 +10,15 @@ documentation.workspace = true
 rust-version.workspace = true
 
 [dependencies]
+async-trait = { workspace = true }
+chrono = { workspace = true }
+papaya = { workspace = true }
+queryfabric-cluster = { workspace = true }
+queryfabric-contract = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+thespis = { workspace = true }
+thiserror = { workspace = true }
+tokio = { workspace = true }
+tracing = { workspace = true }
+uuid = { workspace = true }
