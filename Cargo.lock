@@ -1828,6 +1828,10 @@ dependencies = [
 ]
 
 [[package]]
+name = "queryfabric-access"
+version = "0.1.1"
+
+[[package]]
 name = "queryfabric-adapter-clickhouse"
 version = "0.1.1"
 dependencies = [
@@ -1849,11 +1853,38 @@ dependencies = [
 name = "queryfabric-catalog"
 version = "0.1.1"
 dependencies = [
+ "queryfabric-contract",
  "queryfabric-dialect-sql",
  "queryfabric-ir",
  "serde",
  "serde_json",
  "thiserror 2.0.18",
+]
+
+[[package]]
+name = "queryfabric-cli-toolbelt"
+version = "0.1.1"
+
+[[package]]
+name = "queryfabric-cluster"
+version = "0.1.1"
+
+[[package]]
+name = "queryfabric-cmd-runner"
+version = "0.1.1"
+
+[[package]]
+name = "queryfabric-content-hash"
+version = "0.1.1"
+
+[[package]]
+name = "queryfabric-contract"
+version = "0.1.1"
+dependencies = [
+ "async-trait",
+ "serde",
+ "serde_json",
+ "uuid",
 ]
 
 [[package]]
@@ -1873,6 +1904,22 @@ dependencies = [
 ]
 
 [[package]]
+name = "queryfabric-federation"
+version = "0.1.1"
+
+[[package]]
+name = "queryfabric-fetch"
+version = "0.1.1"
+
+[[package]]
+name = "queryfabric-flight-cache"
+version = "0.1.1"
+
+[[package]]
+name = "queryfabric-flight-pool"
+version = "0.1.1"
+
+[[package]]
 name = "queryfabric-ir"
 version = "0.1.1"
 dependencies = [
@@ -1883,11 +1930,19 @@ dependencies = [
 ]
 
 [[package]]
+name = "queryfabric-job-queue"
+version = "0.1.1"
+
+[[package]]
 name = "queryfabric-leptos"
 version = "0.1.1"
 dependencies = [
  "leptos",
 ]
+
+[[package]]
+name = "queryfabric-namespace-uuid"
+version = "0.1.1"
 
 [[package]]
 name = "queryfabric-opt"
@@ -1897,6 +1952,26 @@ dependencies = [
  "queryfabric-dialect-sql",
  "queryfabric-ir",
 ]
+
+[[package]]
+name = "queryfabric-paseto"
+version = "0.1.1"
+
+[[package]]
+name = "queryfabric-portability"
+version = "0.1.1"
+
+[[package]]
+name = "queryfabric-problem-details"
+version = "0.1.1"
+
+[[package]]
+name = "queryfabric-prom"
+version = "0.1.1"
+
+[[package]]
+name = "queryfabric-provenance"
+version = "0.1.1"
 
 [[package]]
 name = "queryfabric-python"
@@ -1925,6 +2000,26 @@ dependencies = [
  "thiserror 2.0.18",
  "tokio-util",
 ]
+
+[[package]]
+name = "queryfabric-session"
+version = "0.1.1"
+
+[[package]]
+name = "queryfabric-store"
+version = "0.1.1"
+
+[[package]]
+name = "queryfabric-tcp-tuned"
+version = "0.1.1"
+
+[[package]]
+name = "queryfabric-tenancy"
+version = "0.1.1"
+
+[[package]]
+name = "queryfabric-test-rig"
+version = "0.1.1"
 
 [[package]]
 name = "queryfabric-web"
@@ -2759,6 +2854,7 @@ checksum = "ddd74a9687298c6858e9b88ec8935ec45d22e8fd5e6394fa1bd4e99a87789c76"
 dependencies = [
  "getrandom 0.4.2",
  "js-sys",
+ "serde_core",
  "wasm-bindgen",
 ]
 

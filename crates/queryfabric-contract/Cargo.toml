@@ -1,0 +1,20 @@
+[package]
+name = "queryfabric-contract"
+description = "Domain-neutral contract traits for resource identity, provenance, access control, and statistics injection"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+homepage.workspace = true
+documentation.workspace = true
+rust-version.workspace = true
+keywords = ["contract", "provenance", "access-control", "analytics", "science"]
+categories = ["database", "science"]
+
+[dependencies]
+async-trait = { workspace = true }
+serde = { workspace = true }
+uuid = { workspace = true, features = ["serde"] }
+
+[dev-dependencies]
+serde_json = { workspace = true }

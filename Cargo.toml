@@ -13,6 +13,28 @@ members = [
     "crates/queryfabric-adapter-clickhouse",
     "crates/queryfabric-adapter-postgres",
     "crates/queryfabric-python",
+    "crates/queryfabric-contract",
+    "crates/queryfabric-paseto",
+    "crates/queryfabric-session",
+    "crates/queryfabric-problem-details",
+    "crates/queryfabric-namespace-uuid",
+    "crates/queryfabric-flight-pool",
+    "crates/queryfabric-flight-cache",
+    "crates/queryfabric-tcp-tuned",
+    "crates/queryfabric-job-queue",
+    "crates/queryfabric-prom",
+    "crates/queryfabric-content-hash",
+    "crates/queryfabric-fetch",
+    "crates/queryfabric-cli-toolbelt",
+    "crates/queryfabric-cmd-runner",
+    "crates/queryfabric-test-rig",
+    "crates/queryfabric-cluster",
+    "crates/queryfabric-federation",
+    "crates/queryfabric-provenance",
+    "crates/queryfabric-access",
+    "crates/queryfabric-portability",
+    "crates/queryfabric-tenancy",
+    "crates/queryfabric-store",
 ]
 exclude = ["fuzz"]
 
@@ -51,4 +73,26 @@ queryfabric-web = { version = "0.1.1", path = "crates/queryfabric-web" }
 queryfabric-leptos = { version = "0.1.1", path = "crates/queryfabric-leptos" }
 queryfabric-adapter-clickhouse = { version = "0.1.1", path = "crates/queryfabric-adapter-clickhouse" }
 queryfabric-adapter-postgres = { version = "0.1.1", path = "crates/queryfabric-adapter-postgres" }
+queryfabric-contract = { version = "0.1.1", path = "crates/queryfabric-contract" }
+queryfabric-paseto = { version = "0.1.1", path = "crates/queryfabric-paseto" }
+queryfabric-session = { version = "0.1.1", path = "crates/queryfabric-session" }
+queryfabric-problem-details = { version = "0.1.1", path = "crates/queryfabric-problem-details" }
+queryfabric-namespace-uuid = { version = "0.1.1", path = "crates/queryfabric-namespace-uuid" }
+queryfabric-flight-pool = { version = "0.1.1", path = "crates/queryfabric-flight-pool" }
+queryfabric-flight-cache = { version = "0.1.1", path = "crates/queryfabric-flight-cache" }
+queryfabric-tcp-tuned = { version = "0.1.1", path = "crates/queryfabric-tcp-tuned" }
+queryfabric-job-queue = { version = "0.1.1", path = "crates/queryfabric-job-queue" }
+queryfabric-prom = { version = "0.1.1", path = "crates/queryfabric-prom" }
+queryfabric-content-hash = { version = "0.1.1", path = "crates/queryfabric-content-hash" }
+queryfabric-fetch = { version = "0.1.1", path = "crates/queryfabric-fetch" }
+queryfabric-cli-toolbelt = { version = "0.1.1", path = "crates/queryfabric-cli-toolbelt" }
+queryfabric-cmd-runner = { version = "0.1.1", path = "crates/queryfabric-cmd-runner" }
+queryfabric-test-rig = { version = "0.1.1", path = "crates/queryfabric-test-rig" }
+queryfabric-cluster = { version = "0.1.1", path = "crates/queryfabric-cluster" }
+queryfabric-federation = { version = "0.1.1", path = "crates/queryfabric-federation" }
+queryfabric-provenance = { version = "0.1.1", path = "crates/queryfabric-provenance" }
+queryfabric-access = { version = "0.1.1", path = "crates/queryfabric-access" }
+queryfabric-portability = { version = "0.1.1", path = "crates/queryfabric-portability" }
+queryfabric-tenancy = { version = "0.1.1", path = "crates/queryfabric-tenancy" }
+queryfabric-store = { version = "0.1.1", path = "crates/queryfabric-store" }
 leptos = { version = "=0.8.19", default-features = false }
