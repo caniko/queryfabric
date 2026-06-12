@@ -388,8 +388,8 @@ mod tests {
     fn collects_positional_and_named_placeholders() {
         let parsed = GenericSqlDialect
             .parse(
-                "SELECT neuron_id FROM neurons \
-                 WHERE cable_length > $2 \
+                "SELECT record_id FROM records \
+                 WHERE score > $2 \
                  AND dataset_id IN (:ids) \
                  ORDER BY greatest(:lo, $1) DESC",
             )
@@ -405,17 +405,17 @@ mod tests {
     #[test]
     fn inspect_query_resolves_parameterized_limit() {
         let parsed = GenericSqlDialect
-            .parse("SELECT neuron_id FROM neurons WHERE cable_length > 100 LIMIT $1")
+            .parse("SELECT record_id FROM records WHERE score > 100 LIMIT $1")
             .expect("parse");
         let mut parameters = QueryParameters::default();
         parameters.insert_positional(1, ParameterValue::Int64(7));
 
         let summary = inspect_query(&parsed, Some(&parameters));
 
-        assert_eq!(summary.primary_relation.as_deref(), Some("neurons"));
+        assert_eq!(summary.primary_relation.as_deref(), Some("records"));
         assert_eq!(
             summary.projected_columns,
-            Some(vec!["neuron_id".to_owned()])
+            Some(vec!["record_id".to_owned()])
         );
         assert_eq!(summary.predicate_count, 1);
         assert_eq!(summary.row_limit, Some(7));
@@ -426,7 +426,7 @@ mod tests {
     #[test]
     fn inspect_query_preserves_syql_metadata_defaults() {
         let parsed = SyqlDialect
-            .parse("FROM neurons WHERE cable_length > 100 SCOPE remote DOWNLOAD csv")
+            .parse("FROM records WHERE score > 100 SCOPE remote DOWNLOAD csv")
             .expect("parse");
 
         let summary = inspect_query(&parsed, None);

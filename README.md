@@ -25,7 +25,7 @@ crate. Internal crates remain modular, but they are not the public promise.
 
 - host routing and fan-out
 - auth and job orchestration
-- SynDB-specific ontology and metadata resolution
+- host-specific ontology and metadata resolution
 - backend execution itself
 
 ClickHouse-specific materialized-view aggregate wrapping and advisory diagnostics
@@ -67,16 +67,16 @@ use queryfabric::{
 
 let compiler = QueryCompiler::default();
 let parsed = compiler
-    .parse(&GenericSqlDialect, "SELECT neuron_id FROM neurons LIMIT 5")?;
+    .parse(&GenericSqlDialect, "SELECT record_id FROM records LIMIT 5")?;
 
 let mut catalog = MemoryCatalog::default();
 catalog.register_relation(RelationSchema {
     namespace: None,
-    name: "neurons".into(),
+    name: "records".into(),
     aliases: Vec::new(),
     kind: RelationKind::Table,
     columns: vec![ColumnSchema {
-        name: "neuron_id".into(),
+        name: "record_id".into(),
         data_type: DataType::Uuid,
         nullable: false,
         metadata: Default::default(),
@@ -87,8 +87,8 @@ catalog.register_relation(RelationSchema {
 let bound = bind_and_validate_query(&parsed, &catalog, &QueryParameters::default())?;
 let artifact = compiler.emit(&bound, &ClickHouseAdapter, &catalog)?;
 let sql = artifact.as_sql().unwrap();
-assert!(sql.text.contains("FROM neurons"));
-assert!(sql.text.contains("neuron_id"));
+assert!(sql.text.contains("FROM records"));
+assert!(sql.text.contains("record_id"));
 # Ok::<(), queryfabric::QueryFabricError>(())
 ```
 
@@ -110,7 +110,7 @@ and emit.
 ## Repository Guide
 
 - [`COMPATIBILITY.md`](COMPATIBILITY.md): semver, MSRV, backend matrix, support policy
-- [`MIGRATION.md`](MIGRATION.md): moving from SynDB-internal usage to standalone QueryFabric
+- [`MIGRATION.md`](MIGRATION.md): moving from host-internal usage to standalone QueryFabric
 - [`docs/`](docs/): mdBook documentation for Codeberg Pages and local browsing
 - [`website/`](website/): Zola landing site for the public project homepage
 - [`fuzz/README.md`](fuzz/README.md): parser and binder fuzz harnesses plus seed corpora
@@ -118,13 +118,13 @@ and emit.
   machine-readable built-in backend capabilities
 - [`conformance/portable-subset.json`](conformance/portable-subset.json):
   public conformance corpus for the portable subset
-- [`examples/syndb/README.md`](examples/syndb/README.md): SynDB host integration notes
+- [`examples/host/README.md`](examples/host/README.md): host integration notes
 - [`scripts/release.sh`](scripts/release.sh): staged release helper for local checks,
   crates.io publication order, and local tagging
 
 ## Fuzzing
 
-Use the SynDB devshell so `cargo-fuzz` is available, then build or run the
+Use the QueryFabric devshell so `cargo-fuzz` is available, then build or run the
 targets from the `fuzz/` directory:
 
 ```bash

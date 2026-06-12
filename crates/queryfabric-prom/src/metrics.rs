@@ -1,4 +1,4 @@
-//! Prometheus/OpenMetrics instrumentation shared across SynDB services.
+//! Prometheus/OpenMetrics instrumentation shared across QueryFabric services.
 //!
 //! Built on top of the current crate, which supplies the
 //! histogram bucket presets and the `MetricsRegistry` wrapper.
@@ -107,9 +107,9 @@ pub struct BuildInfoLabels {
     pub version: String,
 }
 
-/// Lazily initialized metric registry plus all SynDB metric families.
+/// Lazily initialized metric registry plus all QueryFabric metric families.
 #[derive(Debug)]
-pub struct SynDbMetrics {
+pub struct QueryFabricMetrics {
     registry: MetricsRegistry,
     http_requests: Family<HttpLabels, Counter>,
     http_duration_seconds: Family<HttpLabels, Histogram>,
@@ -140,12 +140,12 @@ pub struct SynDbMetrics {
     build_info: Family<BuildInfoLabels, Gauge>,
 }
 
-/// Global singleton containing the shared SynDB metrics registry.
-pub static METRICS: LazyLock<SynDbMetrics> = LazyLock::new(SynDbMetrics::new);
+/// Global singleton containing the shared QueryFabric metrics registry.
+pub static METRICS: LazyLock<QueryFabricMetrics> = LazyLock::new(QueryFabricMetrics::new);
 
-impl SynDbMetrics {
+impl QueryFabricMetrics {
     fn new() -> Self {
-        let registry = MetricsRegistry::with_prefix("syndb");
+        let registry = MetricsRegistry::with_prefix("queryfabric");
         let http_requests = Family::<HttpLabels, Counter>::default();
         let http_duration_seconds =
             Family::<HttpLabels, Histogram>::new_with_constructor(latency_histogram);
@@ -308,7 +308,7 @@ impl SynDbMetrics {
         );
         registry.register(
             "build_info",
-            "SynDB service build information.",
+            "QueryFabric service build information.",
             build_info.clone(),
         );
 

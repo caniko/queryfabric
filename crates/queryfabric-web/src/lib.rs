@@ -79,18 +79,18 @@ mod tests {
         let mut catalog = MemoryCatalog::default();
         catalog.register_relation(RelationSchema {
             namespace: None,
-            name: "neurons".into(),
-            aliases: vec!["n".into()],
+            name: "records".into(),
+            aliases: vec!["r".into()],
             kind: RelationKind::Table,
             columns: vec![
                 ColumnSchema {
-                    name: "neuron_id".into(),
+                    name: "record_id".into(),
                     data_type: DataType::Uuid,
                     nullable: false,
                     metadata: Default::default(),
                 },
                 ColumnSchema {
-                    name: "cable_length".into(),
+                    name: "score".into(),
                     data_type: DataType::Float64,
                     nullable: true,
                     metadata: Default::default(),
@@ -103,14 +103,11 @@ mod tests {
 
     #[test]
     fn validate_syql_reports_table_and_predicate_count() {
-        let response = validate_syql(
-            "FROM neurons WHERE cable_length > 10 AND cable_length < 20",
-            &catalog(),
-        );
+        let response = validate_syql("FROM records WHERE score > 10 AND score < 20", &catalog());
 
         assert!(response.valid);
         assert_eq!(response.error, None);
-        assert_eq!(response.table.as_deref(), Some("neurons"));
+        assert_eq!(response.table.as_deref(), Some("records"));
         assert_eq!(response.predicate_count, 2);
     }
 

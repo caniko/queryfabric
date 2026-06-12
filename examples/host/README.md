@@ -1,11 +1,11 @@
-# SynDB Host Integration
+# QueryFabric Host Integration
 
-SynDB is the reference host application for the SyQL dialect, but it is not
-the definition of QueryFabric's public scope.
+A host application can use QueryFabric for SyQL parsing and portable query
+compilation without defining QueryFabric's public scope.
 
-SynDB remains responsible for:
+The host remains responsible for:
 
-- metadata resolution against PostgreSQL and SynDB-specific catalogs
+- metadata resolution against PostgreSQL and host-specific catalogs
 - backend routing policy
 - auth and access control
 - async job submission
@@ -13,13 +13,13 @@ SynDB remains responsible for:
 - metadata-driven relation routing and execution policy
 
 ClickHouse adapter-specific materialized-view wrapping and advisories are part
-of QueryFabric now; SynDB still decides when and why a given relation should be
+of QueryFabric; the host still decides when and why a given relation should be
 queried.
 
 The intended integration shape is:
 
 1. parse SyQL through `queryfabric-dialect-syql`
-2. bind through a SynDB-owned `Catalog` implementation
+2. bind through a host-owned `Catalog` implementation
 3. analyze candidate backends
 4. choose backend in host policy
 5. execute the emitted artifact outside QueryFabric

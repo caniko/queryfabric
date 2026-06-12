@@ -47,14 +47,14 @@ mod tests {
 
     #[test]
     fn finds_close_identifier_matches() {
-        let candidates = ["cell_type", "cable_length", "volume"];
+        let candidates = ["cell_type", "score", "volume"];
         let suggestions = top_similar("celle_type", candidates.iter().copied(), 3);
         assert!(suggestions.contains(&"cell_type"));
     }
 
     #[test]
     fn ignores_unrelated_identifiers() {
-        let candidates = ["cell_type", "cable_length", "volume"];
+        let candidates = ["cell_type", "score", "volume"];
         let suggestions = top_similar("zz", candidates.iter().copied(), 3);
         assert!(suggestions.is_empty());
     }

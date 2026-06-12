@@ -48,37 +48,37 @@ pub fn portable_subset_seed() -> PortableSubsetCorpus {
         version: env!("CARGO_PKG_VERSION").into(),
         cases: vec![
             case("simple-scan-filter-project")
-                .query("SELECT neuron_id FROM neurons WHERE cable_length > 100 LIMIT 5")
+                .query("SELECT record_id FROM records WHERE score > 100 LIMIT 5")
                 .capabilities(["LimitOffset"])
-                .schema([field("neuron_id", DataType::Uuid, false)])
+                .schema([field("record_id", DataType::Uuid, false)])
                 .backends("supported", "supported")
                 .build(),
             case("distinct-order-limit-offset")
-                .query("SELECT DISTINCT neuron_id FROM neurons ORDER BY neuron_id LIMIT 5 OFFSET 2")
+                .query("SELECT DISTINCT record_id FROM records ORDER BY record_id LIMIT 5 OFFSET 2")
                 .capabilities(["LimitOffset"])
-                .schema([field("neuron_id", DataType::Uuid, false)])
+                .schema([field("record_id", DataType::Uuid, false)])
                 .backends("supported", "supported")
                 .build(),
             case("aggregate-group-by-having")
-                .query("SELECT neuron_id, AVG(cable_length) AS mean_len FROM neurons GROUP BY neuron_id HAVING AVG(cable_length) > 100")
+                .query("SELECT record_id, AVG(score) AS mean_score FROM records GROUP BY record_id HAVING AVG(score) > 100")
                 .capabilities(["Aggregates"])
                 .schema([
-                    field("neuron_id", DataType::Uuid, false),
-                    field("mean_len", DataType::Float64, true),
+                    field("record_id", DataType::Uuid, false),
+                    field("mean_score", DataType::Float64, true),
                 ])
                 .backends("supported", "supported")
                 .build(),
             case("case-expression")
-                .query("SELECT source_neuron_id, CASE WHEN weight > 1.0 THEN 1 ELSE 0 END AS bucket FROM synapses LIMIT 1")
+                .query("SELECT source_record_id, CASE WHEN weight > 1.0 THEN 1 ELSE 0 END AS bucket FROM links LIMIT 1")
                 .capabilities(["LimitOffset"])
                 .schema([
-                    field("source_neuron_id", DataType::Uuid, false),
+                    field("source_record_id", DataType::Uuid, false),
                     field("bucket", DataType::Int64, false),
                 ])
                 .backends("supported", "supported")
                 .build(),
             case("common-scalar-functions")
-                .query("SELECT COALESCE(weight, 0.0) AS coalesced, SQRT(weight) AS root, GREATEST(weight, 1.0) AS hi, LEAST(weight, 1.0) AS lo FROM synapses LIMIT 1")
+                .query("SELECT COALESCE(weight, 0.0) AS coalesced, SQRT(weight) AS root, GREATEST(weight, 1.0) AS hi, LEAST(weight, 1.0) AS lo FROM links LIMIT 1")
                 .capabilities(["LimitOffset"])
                 .schema([
                     field("coalesced", DataType::Float64, false),
@@ -89,13 +89,13 @@ pub fn portable_subset_seed() -> PortableSubsetCorpus {
                 .backends("supported", "supported")
                 .build(),
             case("coalesce-fallback")
-                .query("SELECT COALESCE(cable_length, 0.0) AS stabilized_length FROM neurons LIMIT 1")
+                .query("SELECT COALESCE(score, 0.0) AS stabilized_score FROM records LIMIT 1")
                 .capabilities(["LimitOffset"])
-                .schema([field("stabilized_length", DataType::Float64, false)])
+                .schema([field("stabilized_score", DataType::Float64, false)])
                 .backends("supported", "supported")
                 .build(),
             case("aggregate-family")
-                .query("SELECT SUM(weight) AS total_weight, AVG(weight) AS mean_weight, MIN(weight) AS min_weight, MAX(weight) AS max_weight FROM synapses")
+                .query("SELECT SUM(weight) AS total_weight, AVG(weight) AS mean_weight, MIN(weight) AS min_weight, MAX(weight) AS max_weight FROM links")
                 .capabilities(["Aggregates"])
                 .schema([
                     field("total_weight", DataType::Float64, true),
@@ -106,142 +106,142 @@ pub fn portable_subset_seed() -> PortableSubsetCorpus {
                 .backends("supported", "supported")
                 .build(),
             case("distinct-aggregate")
-                .query("SELECT COUNT(DISTINCT target_neuron_id) AS distinct_targets FROM synapses")
+                .query("SELECT COUNT(DISTINCT target_record_id) AS distinct_targets FROM links")
                 .capabilities(["Aggregates", "DistinctAggregates"])
                 .schema([field("distinct_targets", DataType::Int64, false)])
                 .backends("supported", "supported")
                 .build(),
             case("inner-join")
-                .query("SELECT n.neuron_id, s.weight FROM neurons AS n INNER JOIN synapses AS s ON n.neuron_id = s.target_neuron_id")
+                .query("SELECT r.record_id, l.weight FROM records AS r INNER JOIN links AS l ON r.record_id = l.target_record_id")
                 .capabilities(["Joins"])
                 .schema([
-                    field("neuron_id", DataType::Uuid, false),
+                    field("record_id", DataType::Uuid, false),
                     field("weight", DataType::Float64, false),
                 ])
                 .backends("supported", "supported")
                 .build(),
             case("left-join")
-                .query("SELECT n.neuron_id, s.weight FROM neurons AS n LEFT JOIN synapses AS s ON n.neuron_id = s.target_neuron_id")
+                .query("SELECT r.record_id, l.weight FROM records AS r LEFT JOIN links AS l ON r.record_id = l.target_record_id")
                 .capabilities(["Joins"])
                 .schema([
-                    field("neuron_id", DataType::Uuid, false),
+                    field("record_id", DataType::Uuid, false),
                     field("weight", DataType::Float64, true),
                 ])
                 .backends("supported", "supported")
                 .build(),
             case("right-join")
-                .query("SELECT n.neuron_id, s.weight FROM neurons AS n RIGHT JOIN synapses AS s ON n.neuron_id = s.target_neuron_id")
+                .query("SELECT r.record_id, l.weight FROM records AS r RIGHT JOIN links AS l ON r.record_id = l.target_record_id")
                 .capabilities(["Joins"])
                 .schema([
-                    field("neuron_id", DataType::Uuid, true),
+                    field("record_id", DataType::Uuid, true),
                     field("weight", DataType::Float64, false),
                 ])
                 .backends("supported", "supported")
                 .build(),
             case("full-join")
-                .query("SELECT n.neuron_id, s.weight FROM neurons AS n FULL JOIN synapses AS s ON n.neuron_id = s.target_neuron_id")
+                .query("SELECT r.record_id, l.weight FROM records AS r FULL JOIN links AS l ON r.record_id = l.target_record_id")
                 .capabilities(["Joins"])
                 .schema([
-                    field("neuron_id", DataType::Uuid, true),
+                    field("record_id", DataType::Uuid, true),
                     field("weight", DataType::Float64, true),
                 ])
                 .backends("supported", "supported")
                 .build(),
             case("cross-join")
-                .query("SELECT n.neuron_id, s.weight FROM neurons AS n CROSS JOIN synapses AS s")
+                .query("SELECT r.record_id, l.weight FROM records AS r CROSS JOIN links AS l")
                 .capabilities(["Joins"])
                 .schema([
-                    field("neuron_id", DataType::Uuid, false),
+                    field("record_id", DataType::Uuid, false),
                     field("weight", DataType::Float64, false),
                 ])
                 .backends("supported", "supported")
                 .build(),
             case("derived-subquery")
-                .query("SELECT derived.neuron_id FROM (SELECT neuron_id FROM neurons) AS derived")
+                .query("SELECT derived.record_id FROM (SELECT record_id FROM records) AS derived")
                 .capabilities(["DerivedTables"])
-                .schema([field("neuron_id", DataType::Uuid, false)])
+                .schema([field("record_id", DataType::Uuid, false)])
                 .backends("supported", "supported")
                 .build(),
             case("non-recursive-cte")
-                .query("WITH recent AS (SELECT neuron_id FROM neurons) SELECT neuron_id FROM recent")
+                .query("WITH recent AS (SELECT record_id FROM records) SELECT record_id FROM recent")
                 .capabilities(["CommonTableExpressions"])
-                .schema([field("neuron_id", DataType::Uuid, false)])
+                .schema([field("record_id", DataType::Uuid, false)])
                 .backends("supported", "supported")
                 .build(),
             case("union-all")
-                .query("SELECT neuron_id FROM neurons UNION ALL SELECT source_neuron_id FROM synapses")
+                .query("SELECT record_id FROM records UNION ALL SELECT source_record_id FROM links")
                 .capabilities(["SetOperations"])
-                .schema([field("neuron_id", DataType::Uuid, false)])
+                .schema([field("record_id", DataType::Uuid, false)])
                 .backends("supported", "supported")
                 .build(),
             case("scalar-subquery")
-                .query("SELECT neuron_id, (SELECT COUNT(weight) FROM synapses) AS synapse_count FROM neurons")
+                .query("SELECT record_id, (SELECT COUNT(weight) FROM links) AS link_count FROM records")
                 .capabilities(["Aggregates", "ScalarSubqueries"])
                 .schema([
-                    field("neuron_id", DataType::Uuid, false),
-                    field("synapse_count", DataType::Int64, true),
+                    field("record_id", DataType::Uuid, false),
+                    field("link_count", DataType::Int64, true),
                 ])
                 .backends("supported", "supported")
                 .build(),
             case("in-subquery")
-                .query("SELECT neuron_id FROM neurons WHERE neuron_id IN (SELECT target_neuron_id FROM synapses)")
+                .query("SELECT record_id FROM records WHERE record_id IN (SELECT target_record_id FROM links)")
                 .capabilities(["InSubqueries"])
-                .schema([field("neuron_id", DataType::Uuid, false)])
+                .schema([field("record_id", DataType::Uuid, false)])
                 .backends("supported", "supported")
                 .build(),
             case("window-rank")
-                .query("SELECT neuron_id, RANK() OVER (ORDER BY cable_length DESC) AS rk FROM neurons")
+                .query("SELECT record_id, RANK() OVER (ORDER BY score DESC) AS rk FROM records")
                 .capabilities(["Windows"])
                 .schema([
-                    field("neuron_id", DataType::Uuid, false),
+                    field("record_id", DataType::Uuid, false),
                     field("rk", DataType::Int64, false),
                 ])
                 .backends("supported", "supported")
                 .build(),
             case("window-dense-rank-row-number")
-                .query("SELECT neuron_id, DENSE_RANK() OVER (ORDER BY cable_length DESC) AS dr, ROW_NUMBER() OVER (ORDER BY cable_length DESC) AS rn FROM neurons")
+                .query("SELECT record_id, DENSE_RANK() OVER (ORDER BY score DESC) AS dr, ROW_NUMBER() OVER (ORDER BY score DESC) AS rn FROM records")
                 .capabilities(["Windows"])
                 .schema([
-                    field("neuron_id", DataType::Uuid, false),
+                    field("record_id", DataType::Uuid, false),
                     field("dr", DataType::Int64, false),
                     field("rn", DataType::Int64, false),
                 ])
                 .backends("supported", "supported")
                 .build(),
             case("window-lag-lead")
-                .query("SELECT neuron_id, LAG(cable_length) OVER (ORDER BY cable_length) AS prev_len, LEAD(cable_length) OVER (ORDER BY cable_length) AS next_len FROM neurons")
+                .query("SELECT record_id, LAG(score) OVER (ORDER BY score) AS prev_score, LEAD(score) OVER (ORDER BY score) AS next_score FROM records")
                 .capabilities(["Windows"])
                 .schema([
-                    field("neuron_id", DataType::Uuid, false),
-                    field("prev_len", DataType::Float64, true),
-                    field("next_len", DataType::Float64, true),
+                    field("record_id", DataType::Uuid, false),
+                    field("prev_score", DataType::Float64, true),
+                    field("next_score", DataType::Float64, true),
                 ])
                 .backends("supported", "supported")
                 .build(),
             case("window-first-last")
-                .query("SELECT neuron_id, FIRST_VALUE(cable_length) OVER (ORDER BY cable_length) AS first_len, LAST_VALUE(cable_length) OVER (ORDER BY cable_length) AS last_len FROM neurons")
+                .query("SELECT record_id, FIRST_VALUE(score) OVER (ORDER BY score) AS first_score, LAST_VALUE(score) OVER (ORDER BY score) AS last_score FROM records")
                 .capabilities(["Windows"])
                 .schema([
-                    field("neuron_id", DataType::Uuid, false),
-                    field("first_len", DataType::Float64, true),
-                    field("last_len", DataType::Float64, true),
+                    field("record_id", DataType::Uuid, false),
+                    field("first_score", DataType::Float64, true),
+                    field("last_score", DataType::Float64, true),
                 ])
                 .backends("supported", "supported")
                 .build(),
             case("positional-parameter")
-                .query("SELECT neuron_id FROM neurons WHERE cable_length > $1")
+                .query("SELECT record_id FROM records WHERE score > $1")
                 .parameters(positional_float(1, "100.0"))
-                .schema([field("neuron_id", DataType::Uuid, false)])
+                .schema([field("record_id", DataType::Uuid, false)])
                 .backends("supported", "supported")
                 .build(),
             case("named-parameter")
-                .query("SELECT neuron_id FROM neurons WHERE cable_length > :min_len")
+                .query("SELECT record_id FROM records WHERE score > :min_len")
                 .parameters(named_float("min_len", "50.0"))
-                .schema([field("neuron_id", DataType::Uuid, false)])
+                .schema([field("record_id", DataType::Uuid, false)])
                 .backends("supported", "supported")
                 .build(),
             case("list-parameter")
-                .query("SELECT neuron_id FROM neurons WHERE neuron_id IN ($1)")
+                .query("SELECT record_id FROM records WHERE record_id IN ($1)")
                 .parameters(positional_uuid_list(
                     1,
                     &[
@@ -249,53 +249,53 @@ pub fn portable_subset_seed() -> PortableSubsetCorpus {
                         "22222222-2222-2222-2222-222222222222",
                     ],
                 ))
-                .schema([field("neuron_id", DataType::Uuid, false)])
+                .schema([field("record_id", DataType::Uuid, false)])
                 .backends("supported", "supported")
                 .build(),
             case("clickhouse-only-function")
-                .query("SELECT ch.avg_merge(cable_length) FROM neurons")
+                .query("SELECT ch.avg_merge(score) FROM records")
                 .capabilities(["Aggregates", "NamespacedFunctions"])
                 .backends("supported", "rejected")
                 .backend_errors([], ["QF21104", "QF21106"])
                 .build(),
             case("clickhouse-approximate-aggregate")
-                .query("SELECT quantile(cable_length) FROM neurons")
+                .query("SELECT quantile(score) FROM records")
                 .capabilities(["Aggregates", "ApproximateAggregates"])
                 .backends("supported", "rejected")
                 .backend_errors([], ["QF21104", "QF21105"])
                 .build(),
             case("clickhouse-settings")
-                .query("SELECT neuron_id FROM neurons SETTINGS max_threads = 4")
+                .query("SELECT record_id FROM records SETTINGS max_threads = 4")
                 .backends("supported", "rejected")
                 .backend_errors([], ["QF21101"])
                 .build(),
             case("clickhouse-format")
-                .query("SELECT neuron_id FROM neurons FORMAT JSONCompact")
+                .query("SELECT record_id FROM records FORMAT JSONCompact")
                 .backends("supported", "rejected")
                 .backend_errors([], ["QF21102"])
                 .build(),
             case("recursive-cte")
-                .query("WITH RECURSIVE recent AS (SELECT neuron_id FROM neurons) SELECT neuron_id FROM recent")
+                .query("WITH RECURSIVE recent AS (SELECT record_id FROM records) SELECT record_id FROM recent")
                 .backends("rejected", "rejected")
                 .bind_errors(["QF0001"])
                 .build(),
             case("unsupported-set-op")
-                .query("SELECT neuron_id FROM neurons INTERSECT SELECT neuron_id FROM neurons")
+                .query("SELECT record_id FROM records INTERSECT SELECT record_id FROM records")
                 .backends("rejected", "rejected")
                 .bind_errors(["QF0002"])
                 .build(),
             case("correlated-subquery")
-                .query("SELECT neuron_id FROM neurons AS n WHERE EXISTS (SELECT 1 FROM synapses AS s WHERE s.target_neuron_id = n.neuron_id)")
+                .query("SELECT record_id FROM records AS r WHERE EXISTS (SELECT 1 FROM links AS l WHERE l.target_record_id = r.record_id)")
                 .backends("rejected", "rejected")
                 .bind_errors(["QF0014"])
                 .build(),
             case("multi-column-scalar-subquery")
-                .query("SELECT (SELECT source_neuron_id, target_neuron_id FROM synapses LIMIT 1) AS bad_scalar")
+                .query("SELECT (SELECT source_record_id, target_record_id FROM links LIMIT 1) AS bad_scalar")
                 .backends("rejected", "rejected")
                 .bind_errors(["QF0023"])
                 .build(),
             case("multi-column-in-subquery")
-                .query("SELECT neuron_id FROM neurons WHERE neuron_id IN (SELECT source_neuron_id, target_neuron_id FROM synapses)")
+                .query("SELECT record_id FROM records WHERE record_id IN (SELECT source_record_id, target_record_id FROM links)")
                 .backends("rejected", "rejected")
                 .bind_errors(["QF0024"])
                 .build(),

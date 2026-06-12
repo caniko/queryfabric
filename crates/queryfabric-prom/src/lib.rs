@@ -13,7 +13,7 @@ use prometheus_client::encoding::text::encode;
 use prometheus_client::metrics::histogram::{Histogram, exponential_buckets};
 use prometheus_client::registry::Registry;
 
-/// SynDB service-level metric families and recording helpers.
+/// QueryFabric service-level metric families and recording helpers.
 pub mod metrics;
 /// Query-planning metric families and labels.
 pub mod query;

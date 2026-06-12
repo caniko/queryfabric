@@ -17,25 +17,25 @@ fn main() -> Result<(), queryfabric::QueryFabricError> {
     let compiler = QueryCompiler::default();
     let parsed = compiler.parse(
         &GenericSqlDialect,
-        "SELECT neuron_id, cable_length FROM neurons WHERE cable_length > $1 LIMIT 5",
+        "SELECT record_id, score FROM records WHERE score > $1 LIMIT 5",
     )?;
 
     let mut catalog = MemoryCatalog::default();
     catalog.set_snapshot_id("quickstart-catalog");
     catalog.register_relation(RelationSchema {
         namespace: None,
-        name: "neurons".into(),
-        aliases: vec!["n".into()],
+        name: "records".into(),
+        aliases: vec!["r".into()],
         kind: RelationKind::Table,
         columns: vec![
             ColumnSchema {
-                name: "neuron_id".into(),
+                name: "record_id".into(),
                 data_type: DataType::Uuid,
                 nullable: false,
                 metadata: Default::default(),
             },
             ColumnSchema {
-                name: "cable_length".into(),
+                name: "score".into(),
                 data_type: DataType::Float64,
                 nullable: true,
                 metadata: Default::default(),

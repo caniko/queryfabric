@@ -13,11 +13,11 @@ fn sql_and_syql_bind_to_equivalent_canonical_sql() {
     let sql = compiler
         .parse(
             &GenericSqlDialect,
-            "SELECT * FROM neurons WHERE cable_length > 100",
+            "SELECT * FROM records WHERE score > 100",
         )
         .expect("sql parse");
     let syql = compiler
-        .parse(&SyqlDialect, "FROM neurons WHERE cable_length > 100")
+        .parse(&SyqlDialect, "FROM records WHERE score > 100")
         .expect("syql parse");
     assert_eq!(sql.canonical_sql(), syql.canonical_sql());
 }
@@ -26,7 +26,7 @@ fn sql_and_syql_bind_to_equivalent_canonical_sql() {
 fn compiler_emits_postgres_sql_and_keeps_provenance() {
     let compiler = QueryCompiler::default();
     let parsed = compiler
-        .parse(&GenericSqlDialect, "SELECT neuron_id FROM neurons LIMIT 5")
+        .parse(&GenericSqlDialect, "SELECT record_id FROM records LIMIT 5")
         .expect("parse");
     let bound =
         bind_and_validate_query(&parsed, &catalog(), &QueryParameters::default()).expect("bind");
@@ -50,7 +50,7 @@ fn compiler_emits_postgres_sql_and_keeps_provenance() {
 fn compiler_supports_count_star() {
     let compiler = QueryCompiler::default();
     let parsed = compiler
-        .parse(&GenericSqlDialect, "SELECT COUNT(*) AS n FROM neurons")
+        .parse(&GenericSqlDialect, "SELECT COUNT(*) AS n FROM records")
         .expect("parse");
     let bound =
         bind_and_validate_query(&parsed, &catalog(), &QueryParameters::default()).expect("bind");
@@ -58,13 +58,13 @@ fn compiler_supports_count_star() {
         .emit(&bound, &ClickHouseAdapter, &catalog())
         .expect("emit");
     let clickhouse_sql = clickhouse.as_sql().expect("sql artifact");
-    assert_eq!(clickhouse_sql.text, "SELECT count(*) AS n FROM neurons");
+    assert_eq!(clickhouse_sql.text, "SELECT count(*) AS n FROM records");
 
     let postgres = compiler
         .emit(&bound, &PostgresAdapter, &catalog())
         .expect("emit");
     let postgres_sql = postgres.as_sql().expect("sql artifact");
-    assert_eq!(postgres_sql.text, "SELECT count(*) AS n FROM neurons");
+    assert_eq!(postgres_sql.text, "SELECT count(*) AS n FROM records");
 }
 
 #[test]

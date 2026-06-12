@@ -12,16 +12,16 @@ fn sql_and_syql_portable_queries_bind_equivalently() {
     let compiler = QueryCompiler::default();
     let cases = [
         (
-            "SELECT * FROM neurons WHERE cable_length > 100 LIMIT 5",
-            "FROM neurons WHERE cable_length > 100 LIMIT 5",
+            "SELECT * FROM records WHERE score > 100 LIMIT 5",
+            "FROM records WHERE score > 100 LIMIT 5",
         ),
         (
-            "SELECT neuron_id, RANK() OVER (ORDER BY cable_length DESC) AS rk FROM neurons",
-            "SELECT neuron_id, RANK() OVER (ORDER BY cable_length DESC) AS rk FROM neurons",
+            "SELECT record_id, RANK() OVER (ORDER BY score DESC) AS rk FROM records",
+            "SELECT record_id, RANK() OVER (ORDER BY score DESC) AS rk FROM records",
         ),
         (
-            "SELECT neuron_id FROM neurons ORDER BY neuron_id LIMIT 3 OFFSET 1",
-            "SELECT neuron_id FROM neurons ORDER BY neuron_id LIMIT 3 OFFSET 1 SCOPE remote DOWNLOAD csv",
+            "SELECT record_id FROM records ORDER BY record_id LIMIT 3 OFFSET 1",
+            "SELECT record_id FROM records ORDER BY record_id LIMIT 3 OFFSET 1 SCOPE remote DOWNLOAD csv",
         ),
     ];
 

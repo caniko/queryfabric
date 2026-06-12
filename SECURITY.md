@@ -11,4 +11,4 @@ Security reports for QueryFabric should focus on:
 - provenance or schema metadata mismatches that could mislead downstream users
 
 Until standalone governance is fully established, coordinate disclosures through
-the SynDB maintainers.
+the QueryFabric maintainers.

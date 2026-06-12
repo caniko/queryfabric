@@ -1,5 +1,5 @@
 EXPLAIN
-FROM neurons
-WHERE cable_length > 10
+FROM records
+WHERE score > 10
 SCOPE remote
 DOWNLOAD csv

@@ -9,18 +9,18 @@ fn catalog() -> impl Catalog {
     catalog.set_snapshot_id("snapshot-2026-04-18");
     catalog.register_relation(RelationSchema {
         namespace: None,
-        name: "neurons".into(),
-        aliases: vec!["n".into()],
+        name: "records".into(),
+        aliases: vec!["r".into()],
         kind: RelationKind::Table,
         columns: vec![
             ColumnSchema {
-                name: "neuron_id".into(),
+                name: "record_id".into(),
                 data_type: DataType::Uuid,
                 nullable: false,
                 metadata: Default::default(),
             },
             ColumnSchema {
-                name: "cable_length".into(),
+                name: "score".into(),
                 data_type: DataType::Float64,
                 nullable: true,
                 metadata: Default::default(),
@@ -35,7 +35,7 @@ fn catalog() -> impl Catalog {
 fn strict_bind_unknown_relation_returns_diagnostics() {
     let compiler = QueryCompiler::default();
     let parsed = compiler
-        .parse(&GenericSqlDialect, "SELECT neuron_id FROM missing_table")
+        .parse(&GenericSqlDialect, "SELECT record_id FROM missing_table")
         .expect("parse");
 
     let error = bind_and_validate_query(&parsed, &catalog(), &QueryParameters::default())
@@ -44,7 +44,7 @@ fn strict_bind_unknown_relation_returns_diagnostics() {
 
     assert_eq!(
         details.source_sql.as_deref(),
-        Some("SELECT neuron_id FROM missing_table")
+        Some("SELECT record_id FROM missing_table")
     );
     assert_eq!(details.dialect.as_deref(), Some("sql"));
     assert!(details.diagnostics.iter().any(|diag| diag.code == "QF0005"));
@@ -62,7 +62,7 @@ fn strict_bind_unknown_relation_returns_diagnostics() {
 fn strict_bind_rejects_unresolved_parameter_contracts() {
     let compiler = QueryCompiler::default();
     let parsed = compiler
-        .parse(&GenericSqlDialect, "SELECT $1 FROM neurons")
+        .parse(&GenericSqlDialect, "SELECT $1 FROM records")
         .expect("parse");
 
     let error = bind_and_validate_query(&parsed, &catalog(), &QueryParameters::default())
@@ -78,7 +78,7 @@ fn strict_bind_rejects_parameter_value_type_mismatch() {
     let parsed = compiler
         .parse(
             &GenericSqlDialect,
-            "SELECT neuron_id FROM neurons WHERE cable_length > $1",
+            "SELECT record_id FROM records WHERE score > $1",
         )
         .expect("parse");
 
@@ -95,7 +95,7 @@ fn strict_bind_rejects_parameter_value_type_mismatch() {
 fn strict_bind_unknown_column_includes_suggestion_remediation() {
     let compiler = QueryCompiler::default();
     let parsed = compiler
-        .parse(&GenericSqlDialect, "SELECT cable_lenght FROM neurons")
+        .parse(&GenericSqlDialect, "SELECT scroe FROM records")
         .expect("parse");
 
     let error = bind_and_validate_query(&parsed, &catalog(), &QueryParameters::default())
@@ -110,7 +110,7 @@ fn strict_bind_unknown_column_includes_suggestion_remediation() {
         .remediation
         .as_deref()
         .expect("suggestion remediation");
-    assert!(remediation.contains("cable_length"));
+    assert!(remediation.contains("score"));
 }
 
 #[test]
@@ -119,7 +119,7 @@ fn warning_only_backend_specific_function_still_binds() {
     let parsed = compiler
         .parse(
             &GenericSqlDialect,
-            "SELECT ch.avg_merge(cable_length) FROM neurons",
+            "SELECT ch.avg_merge(score) FROM records",
         )
         .expect("parse");
 
@@ -134,7 +134,7 @@ fn emission_uses_backend_native_placeholders() {
     let parsed = compiler
         .parse(
             &GenericSqlDialect,
-            "SELECT neuron_id FROM neurons WHERE cable_length > $1",
+            "SELECT record_id FROM records WHERE score > $1",
         )
         .expect("parse");
 
@@ -164,7 +164,7 @@ fn named_parameter_binds_and_emits() {
     let parsed = compiler
         .parse(
             &GenericSqlDialect,
-            "SELECT neuron_id FROM neurons WHERE cable_length > :min_len",
+            "SELECT record_id FROM records WHERE score > :min_len",
         )
         .expect("parse");
 
@@ -190,7 +190,7 @@ fn list_parameter_emits_backend_specific_in_form() {
     let parsed = compiler
         .parse(
             &GenericSqlDialect,
-            "SELECT neuron_id FROM neurons WHERE neuron_id IN ($1)",
+            "SELECT record_id FROM records WHERE record_id IN ($1)",
         )
         .expect("parse");
 
@@ -224,7 +224,7 @@ fn inspect_parameters_reports_query_contract() {
     let parsed = compiler
         .parse(
             &GenericSqlDialect,
-            "SELECT neuron_id FROM neurons WHERE cable_length > $2 AND neuron_id IN ($1)",
+            "SELECT record_id FROM records WHERE score > $2 AND record_id IN ($1)",
         )
         .expect("parse");
     let summary = inspect_parameters(&parsed);
@@ -238,7 +238,7 @@ fn strict_bind_rejects_multi_column_scalar_subqueries() {
     let parsed = compiler
         .parse(
             &GenericSqlDialect,
-            "SELECT (SELECT neuron_id, cable_length FROM neurons LIMIT 1) AS bad_scalar",
+            "SELECT (SELECT record_id, score FROM records LIMIT 1) AS bad_scalar",
         )
         .expect("parse");
 
@@ -254,7 +254,7 @@ fn strict_bind_rejects_multi_column_in_subqueries() {
     let parsed = compiler
         .parse(
             &GenericSqlDialect,
-            "SELECT neuron_id FROM neurons WHERE neuron_id IN (SELECT source_neuron_id, target_neuron_id FROM synapses)",
+            "SELECT record_id FROM records WHERE record_id IN (SELECT source_record_id, target_record_id FROM links)",
         )
         .expect("parse");
 

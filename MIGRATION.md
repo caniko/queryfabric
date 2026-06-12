@@ -1,17 +1,17 @@
 # Migration Guide
 
-## From SynDB-internal `syndb-ql` usage to standalone QueryFabric
+## From host-internal query usage to standalone QueryFabric
 
-The old SynDB flow mixed parsing, metadata semantics, and ClickHouse-specific
- compilation. QueryFabric splits the portable parts out.
+The old host-internal flow mixed parsing, metadata semantics, and
+ClickHouse-specific compilation. QueryFabric splits the portable parts out.
 
 ## Old Shape
 
-Typical SynDB-internal usage looked like:
+Typical host-internal usage looked like:
 
 1. parse SyQL
-2. validate against SynDB-specific rules
-3. resolve metadata and planning through SynDB storage
+2. validate against host-specific rules
+3. resolve metadata and planning through host storage
 4. compile to ClickHouse SQL
 
 ## New Shape
@@ -31,7 +31,7 @@ The standalone portable flow is:
 - typed parameters and result schemas are first-class public contracts
 - provenance receipts are attached to analysis and emission
 
-## Host Responsibilities That Stay in SynDB
+## Host Responsibilities That Stay Outside QueryFabric
 
 - metadata resolution against PostgreSQL
 - backend routing policy

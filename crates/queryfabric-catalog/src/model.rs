@@ -350,11 +350,11 @@ mod tests {
         catalog.set_snapshot_id("catalog-doc-test");
         catalog.register_relation(RelationSchema {
             namespace: None,
-            name: "neurons".into(),
-            aliases: vec!["n".into()],
+            name: "records".into(),
+            aliases: vec!["r".into()],
             kind: RelationKind::Table,
             columns: vec![ColumnSchema {
-                name: "neuron_id".into(),
+                name: "record_id".into(),
                 data_type: DataType::Uuid,
                 nullable: false,
                 metadata: Default::default(),
@@ -380,7 +380,7 @@ mod tests {
             document
                 .relations
                 .iter()
-                .any(|relation| relation.name == "neurons")
+                .any(|relation| relation.name == "records")
         );
         assert!(
             document
@@ -809,7 +809,7 @@ mod cost_tests {
                 ..PlanFeatures::default()
             },
             relations: vec![RelationStatistics {
-                relation: "synapses".into(),
+                relation: "links".into(),
                 estimated_rows: 1_000_000,
                 average_row_bytes: 128,
                 shard_count: Some(5),

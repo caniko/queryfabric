@@ -149,7 +149,7 @@ run_check() {
   (
     cd packages/queryfabric
     uv run python -c \
-      "import queryfabric; parsed = queryfabric.parse_syql('FROM neurons'); assert parsed.table == 'neurons'"
+      "import queryfabric; parsed = queryfabric.parse_syql('FROM records'); assert parsed.table == 'records'"
   )
 
   log "uv run pytest (queryfabric Python package)"

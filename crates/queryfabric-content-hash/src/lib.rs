@@ -3,7 +3,7 @@
 //! Combines per-file streaming blake3 hashes with their filenames into a
 //! single hex digest. The `metadata_prefix` parameter excludes hash sidecar
 //! files from the digest (so storing the result in the directory doesn't
-//! invalidate it). For SynDB callers, the prefix is `.syndb-`.
+//! invalidate it). For QueryFabric callers, the prefix is `.queryfabric-`.
 
 #![warn(missing_docs)]
 
@@ -72,7 +72,7 @@ pub fn hash_file(path: &Path) -> Result<blake3::Hash> {
 
 /// Collect all hashable files in `dir`, sorted by filename.
 ///
-/// Skips files whose name begins with `metadata_prefix` (e.g. `.syndb-`).
+/// Skips files whose name begins with `metadata_prefix` (e.g. `.queryfabric-`).
 ///
 /// # Errors
 /// Returns [`HashError::FileNotFound`] when `dir` cannot be read.

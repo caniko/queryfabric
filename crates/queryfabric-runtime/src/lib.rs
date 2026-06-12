@@ -70,7 +70,7 @@ mod tests {
                 snapshot_class: "csi-snap".into(),
             },
             StorageAccessMode::ObjectStore {
-                uri: "s3://syndb-search/query.parquet".into(),
+                uri: "s3://queryfabric-search/query.parquet".into(),
                 format: ObjectStoreFormat::Parquet,
             },
         ];
@@ -97,11 +97,11 @@ mod tests {
         let mut catalog = MemoryCatalog::default();
         catalog.register_relation(RelationSchema {
             namespace: None,
-            name: "neurons".into(),
+            name: "records".into(),
             aliases: Vec::new(),
             kind: RelationKind::Table,
             columns: vec![ColumnSchema {
-                name: "neuron_id".into(),
+                name: "record_id".into(),
                 data_type: DataType::Uuid,
                 nullable: false,
                 metadata: Default::default(),
@@ -109,7 +109,7 @@ mod tests {
             metadata: Default::default(),
         });
         let parsed = GenericSqlDialect
-            .parse("SELECT neuron_id FROM neurons")
+            .parse("SELECT record_id FROM records")
             .expect("parse");
         let query =
             bind_and_validate(&parsed, &catalog, &QueryParameters::default()).expect("bind query");
@@ -137,11 +137,11 @@ mod tests {
         let mut catalog = MemoryCatalog::default();
         catalog.register_relation(RelationSchema {
             namespace: None,
-            name: "neurons".into(),
+            name: "records".into(),
             aliases: Vec::new(),
             kind: RelationKind::Table,
             columns: vec![ColumnSchema {
-                name: "neuron_id".into(),
+                name: "record_id".into(),
                 data_type: DataType::Uuid,
                 nullable: false,
                 metadata: Default::default(),
@@ -149,7 +149,7 @@ mod tests {
             metadata: Default::default(),
         });
         let parsed = GenericSqlDialect
-            .parse("SELECT neuron_id FROM neurons")
+            .parse("SELECT record_id FROM records")
             .expect("parse");
         let query =
             bind_and_validate(&parsed, &catalog, &QueryParameters::default()).expect("bind query");

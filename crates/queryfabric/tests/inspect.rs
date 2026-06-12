@@ -11,7 +11,7 @@ fn inspect_query_reports_portable_shape_and_parameterized_limit() {
     let parsed = QueryCompiler::default()
         .parse(
             &GenericSqlDialect,
-            "SELECT neuron_id FROM neurons WHERE cable_length > 100 LIMIT $1",
+            "SELECT record_id FROM records WHERE score > 100 LIMIT $1",
         )
         .expect("parse");
     let mut parameters = QueryParameters::default();
@@ -19,10 +19,10 @@ fn inspect_query_reports_portable_shape_and_parameterized_limit() {
 
     let summary = inspect_query(&parsed, Some(&parameters));
 
-    assert_eq!(summary.primary_relation.as_deref(), Some("neurons"));
+    assert_eq!(summary.primary_relation.as_deref(), Some("records"));
     assert_eq!(
         summary.projected_columns,
-        Some(vec!["neuron_id".to_owned()])
+        Some(vec!["record_id".to_owned()])
     );
     assert_eq!(summary.predicate_count, 1);
     assert_eq!(summary.row_limit, Some(9));
@@ -35,7 +35,7 @@ fn inspect_query_preserves_syql_scope_and_download_metadata() {
     let parsed = QueryCompiler::default()
         .parse(
             &SyqlDialect,
-            "FROM neurons WHERE cable_length > 100 SCOPE remote DOWNLOAD csv",
+            "FROM records WHERE score > 100 SCOPE remote DOWNLOAD csv",
         )
         .expect("parse");
 

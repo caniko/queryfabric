@@ -86,7 +86,11 @@ pub fn station_metadata_jsonld(station: &StationSpec) -> Value {
 
 /// Citation facts for a station dataset.
 #[must_use]
-pub fn station_citation(station: &StationSpec, base_url: &str, doi: Option<String>) -> CitationInput {
+pub fn station_citation(
+    station: &StationSpec,
+    base_url: &str,
+    doi: Option<String>,
+) -> CitationInput {
     CitationInput {
         id: station.id().simple().to_string(),
         title: format!("{} air-quality readings", station.name),
@@ -224,9 +228,7 @@ pub async fn export_station(
 pub async fn seed_provenance(provenance: &dyn ProvenanceStore) -> Result<(), ProvenanceError> {
     for station in &STATIONS {
         let resource = station.resource();
-        let existing = provenance
-            .history(resource, &Default::default())
-            .await?;
+        let existing = provenance.history(resource, &Default::default()).await?;
         if !existing.entries.is_empty() {
             continue;
         }
@@ -236,10 +238,7 @@ pub async fn seed_provenance(provenance: &dyn ProvenanceStore) -> Result<(), Pro
                 resource,
                 actor: None,
                 activity: Activity::Created.into(),
-                description: Some(format!(
-                    "{} registered in {}",
-                    station.name, station.city
-                )),
+                description: Some(format!("{} registered in {}", station.name, station.city)),
                 occurred_at_unix_ms: SEED_EPOCH_MS,
             })
             .await?;

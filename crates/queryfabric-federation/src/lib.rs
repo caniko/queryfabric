@@ -10,7 +10,7 @@
 //!
 //! The wire-visible message set, kept stable for hosts migrating from a
 //! domain-specific protocol (field-shape mapping from the originating
-//! SynDB protocol in parentheses):
+//! QueryFabric protocol in parentheses):
 //!
 //! | Message | Direction | Reply | Notes |
 //! |---|---|---|---|

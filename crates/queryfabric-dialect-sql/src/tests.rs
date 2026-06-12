@@ -5,20 +5,20 @@ use queryfabric_ir::Dialect;
 fn parses_plain_select_and_lowers_syntax() {
     let dialect = GenericSqlDialect;
     let query = dialect
-        .parse("SELECT neuron_id FROM neurons LIMIT 10")
+        .parse("SELECT record_id FROM records LIMIT 10")
         .expect("parse");
     assert_eq!(
         query.rendered_sql(),
-        "SELECT neuron_id FROM neurons LIMIT 10"
+        "SELECT record_id FROM records LIMIT 10"
     );
     assert!(query.syntax().node.span.is_some());
 }
 
 #[test]
 fn preserves_explain_flag() {
-    let query = parse_sql_query("EXPLAIN SELECT * FROM neurons").expect("parse");
+    let query = parse_sql_query("EXPLAIN SELECT * FROM records").expect("parse");
     assert!(query.explain());
-    assert_eq!(query.rendered_sql(), "SELECT * FROM neurons");
+    assert_eq!(query.rendered_sql(), "SELECT * FROM records");
 }
 
 #[test]

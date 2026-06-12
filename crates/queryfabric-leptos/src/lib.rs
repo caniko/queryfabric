@@ -13,7 +13,7 @@ pub fn SyqlEditor(
     let class = class.unwrap_or_else(|| "form-control syql-editor".to_owned());
     let id = id.unwrap_or_else(|| "syql-query".to_owned());
     let name = name.unwrap_or_else(|| "query".to_owned());
-    let value = value.unwrap_or_else(|| "FROM neurons LIMIT 10".to_owned());
+    let value = value.unwrap_or_else(|| "FROM records LIMIT 10".to_owned());
     let rows = rows.unwrap_or(12);
     let catalog_url = catalog_url.unwrap_or_else(|| "/static/queryfabric_catalog.json".to_owned());
     let validate_url = validate_url.unwrap_or_else(|| "/_ui/query/syql/validate".to_owned());
@@ -62,7 +62,7 @@ mod tests {
         assert!(html.contains("data-queryfabric-syql-editor"));
         assert!(html.contains("data-queryfabric-catalog-url=\"/static/queryfabric_catalog.json\""));
         assert!(html.contains("data-queryfabric-validate-url=\"/_ui/query/syql/validate\""));
-        assert!(html.contains(">FROM neurons LIMIT 10<"));
+        assert!(html.contains(">FROM records LIMIT 10<"));
     }
 
     #[test]

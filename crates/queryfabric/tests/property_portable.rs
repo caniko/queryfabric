@@ -106,7 +106,7 @@ enum WindowKind {
 #[derive(Debug, Clone, Copy)]
 enum SubqueryKind {
     ScalarMaxWeight,
-    InTargetNeuronIds,
+    InTargetRecordIds,
 }
 
 #[derive(Debug, Clone)]
@@ -146,18 +146,18 @@ fn catalog() -> MemoryCatalog {
     catalog.set_snapshot_id("property-portable");
     catalog.register_relation(RelationSchema {
         namespace: None,
-        name: "neurons".into(),
-        aliases: vec!["n".into()],
+        name: "records".into(),
+        aliases: vec!["r".into()],
         kind: RelationKind::Table,
         columns: vec![
             ColumnSchema {
-                name: "neuron_id".into(),
+                name: "record_id".into(),
                 data_type: DataType::Uuid,
                 nullable: false,
                 metadata: Default::default(),
             },
             ColumnSchema {
-                name: "cable_length".into(),
+                name: "score".into(),
                 data_type: DataType::Float64,
                 nullable: true,
                 metadata: Default::default(),
@@ -173,18 +173,18 @@ fn catalog() -> MemoryCatalog {
     });
     catalog.register_relation(RelationSchema {
         namespace: None,
-        name: "synapses".into(),
-        aliases: vec!["s".into()],
+        name: "links".into(),
+        aliases: vec!["l".into()],
         kind: RelationKind::Table,
         columns: vec![
             ColumnSchema {
-                name: "source_neuron_id".into(),
+                name: "source_record_id".into(),
                 data_type: DataType::Uuid,
                 nullable: false,
                 metadata: Default::default(),
             },
             ColumnSchema {
-                name: "target_neuron_id".into(),
+                name: "target_record_id".into(),
                 data_type: DataType::Uuid,
                 nullable: false,
                 metadata: Default::default(),
@@ -217,9 +217,9 @@ fn sort_direction_strategy() -> impl Strategy<Value = SortDirection> {
 fn scan_case_strategy() -> impl Strategy<Value = ScanCase> {
     let projection = prop_oneof![
         Just(ScanProjection::Star),
-        Just(ScanProjection::Columns(vec!["neuron_id"])),
-        Just(ScanProjection::Columns(vec!["cable_length"])),
-        Just(ScanProjection::Columns(vec!["neuron_id", "cable_length"])),
+        Just(ScanProjection::Columns(vec!["record_id"])),
+        Just(ScanProjection::Columns(vec!["score"])),
+        Just(ScanProjection::Columns(vec!["record_id", "score"])),
         (0i64..200).prop_map(|threshold| ScanProjection::CaseBucket { threshold }),
     ];
     let filter = prop_oneof![
@@ -235,9 +235,9 @@ fn scan_case_strategy() -> impl Strategy<Value = ScanCase> {
         filter,
         prop_oneof![
             Just(None),
-            (Just("neuron_id"), sort_direction_strategy())
+            (Just("record_id"), sort_direction_strategy())
                 .prop_map(|(column, direction)| Some((column, direction))),
-            (Just("cable_length"), sort_direction_strategy())
+            (Just("score"), sort_direction_strategy())
                 .prop_map(|(column, direction)| Some((column, direction))),
         ],
         any::<bool>(),
@@ -334,7 +334,7 @@ fn portable_case_strategy() -> impl Strategy<Value = PortableCase> {
         }),
         1 => prop_oneof![
             Just(SubqueryKind::ScalarMaxWeight),
-            Just(SubqueryKind::InTargetNeuronIds),
+            Just(SubqueryKind::InTargetRecordIds),
         ]
         .prop_map(|kind| PortableCase::Subquery { kind }),
     ]
@@ -353,14 +353,14 @@ fn render_scan(case: &ScanCase, syql: bool) -> (String, QueryParameters) {
     let use_shorthand = syql && matches!(case.projection, ScanProjection::Star) && !case.distinct;
 
     if use_shorthand {
-        sql.push_str("FROM neurons");
+        sql.push_str("FROM records");
     } else {
         sql.push_str("SELECT ");
         if case.distinct {
             sql.push_str("DISTINCT ");
         }
         sql.push_str(&render_scan_projection(&case.projection));
-        sql.push_str(" FROM neurons");
+        sql.push_str(" FROM records");
     }
     if !matches!(case.filter, FilterSpec::None) {
         sql.push_str(" WHERE ");
@@ -387,9 +387,9 @@ fn render_scan_projection(projection: &ScanProjection) -> String {
     match projection {
         ScanProjection::Star => "*".into(),
         ScanProjection::Columns(columns) => columns.join(", "),
-        ScanProjection::CaseBucket { threshold } => format!(
-            "CASE WHEN cable_length > {threshold} THEN 'high' ELSE 'low' END AS length_bucket"
-        ),
+        ScanProjection::CaseBucket { threshold } => {
+            format!("CASE WHEN score > {threshold} THEN 'high' ELSE 'low' END AS score_bucket")
+        }
     }
 }
 
@@ -397,10 +397,10 @@ fn render_filter(filter: &FilterSpec) -> String {
     match filter {
         FilterSpec::None => unreachable!("render_filter is only called for active filters"),
         FilterSpec::Literal { op, threshold } => {
-            format!("cable_length {} {threshold}", op.render())
+            format!("score {} {threshold}", op.render())
         }
-        FilterSpec::Parameter { op, .. } => format!("cable_length {} $1", op.render()),
-        FilterSpec::Between { low, high } => format!("cable_length BETWEEN {low} AND {high}"),
+        FilterSpec::Parameter { op, .. } => format!("score {} $1", op.render()),
+        FilterSpec::Between { low, high } => format!("score BETWEEN {low} AND {high}"),
     }
 }
 
@@ -409,17 +409,17 @@ fn render_join(
     threshold: i64,
     limit: Option<u32>,
 ) -> (String, QueryParameters) {
-    let mut sql = String::from("SELECT n.neuron_id, s.weight FROM neurons AS n ");
+    let mut sql = String::from("SELECT r.record_id, l.weight FROM records AS r ");
     sql.push_str(kind.render());
-    sql.push_str(" synapses AS s");
+    sql.push_str(" links AS l");
     if !matches!(kind, JoinKindSpec::Cross) {
-        sql.push_str(" ON n.neuron_id = s.target_neuron_id");
+        sql.push_str(" ON r.record_id = l.target_record_id");
     }
     sql.push_str(" WHERE ");
     if matches!(kind, JoinKindSpec::Cross) {
-        sql.push_str("n.neuron_id = s.target_neuron_id AND ");
+        sql.push_str("r.record_id = l.target_record_id AND ");
     }
-    sql.push_str(&format!("s.weight > {threshold}"));
+    sql.push_str(&format!("l.weight > {threshold}"));
     if let Some(limit) = limit {
         sql.push_str(&format!(" LIMIT {limit}"));
     }
@@ -428,15 +428,15 @@ fn render_join(
 
 fn render_aggregate(kind: AggregateKind, threshold: i64) -> (String, QueryParameters) {
     let aggregate = match kind {
-        AggregateKind::Count { distinct: true } => "COUNT(DISTINCT s.target_neuron_id)".to_string(),
-        AggregateKind::Count { distinct: false } => "COUNT(s.target_neuron_id)".to_string(),
-        AggregateKind::Sum => "SUM(s.weight)".to_string(),
-        AggregateKind::Avg => "AVG(s.weight)".to_string(),
-        AggregateKind::Min => "MIN(s.weight)".to_string(),
-        AggregateKind::Max => "MAX(s.weight)".to_string(),
+        AggregateKind::Count { distinct: true } => "COUNT(DISTINCT l.target_record_id)".to_string(),
+        AggregateKind::Count { distinct: false } => "COUNT(l.target_record_id)".to_string(),
+        AggregateKind::Sum => "SUM(l.weight)".to_string(),
+        AggregateKind::Avg => "AVG(l.weight)".to_string(),
+        AggregateKind::Min => "MIN(l.weight)".to_string(),
+        AggregateKind::Max => "MAX(l.weight)".to_string(),
     };
     let sql = format!(
-        "SELECT n.neuron_id, {aggregate} AS aggregate_value FROM neurons AS n INNER JOIN synapses AS s ON n.neuron_id = s.target_neuron_id GROUP BY n.neuron_id HAVING {aggregate} > {threshold}"
+        "SELECT r.record_id, {aggregate} AS aggregate_value FROM records AS r INNER JOIN links AS l ON r.record_id = l.target_record_id GROUP BY r.record_id HAVING {aggregate} > {threshold}"
     );
     (sql, QueryParameters::default())
 }
@@ -444,7 +444,7 @@ fn render_aggregate(kind: AggregateKind, threshold: i64) -> (String, QueryParame
 fn render_derived(threshold: i64) -> (String, QueryParameters) {
     (
         format!(
-            "SELECT derived.neuron_id FROM (SELECT neuron_id, cable_length FROM neurons WHERE cable_length > {threshold}) AS derived"
+            "SELECT derived.record_id FROM (SELECT record_id, score FROM records WHERE score > {threshold}) AS derived"
         ),
         QueryParameters::default(),
     )
@@ -452,7 +452,7 @@ fn render_derived(threshold: i64) -> (String, QueryParameters) {
 
 fn render_cte(threshold: i64, limit: Option<u32>) -> (String, QueryParameters) {
     let mut sql = format!(
-        "WITH recent AS (SELECT neuron_id, cable_length FROM neurons WHERE cable_length > {threshold}) SELECT neuron_id FROM recent"
+        "WITH recent AS (SELECT record_id, score FROM records WHERE score > {threshold}) SELECT record_id FROM recent"
     );
     if let Some(limit) = limit {
         sql.push_str(&format!(" LIMIT {limit}"));
@@ -462,19 +462,17 @@ fn render_cte(threshold: i64, limit: Option<u32>) -> (String, QueryParameters) {
 
 fn render_window(kind: WindowKind, limit: Option<u32>) -> (String, QueryParameters) {
     let window_expr = match kind {
-        WindowKind::Rank => "RANK() OVER (ORDER BY cable_length DESC) AS rank_pos".to_string(),
-        WindowKind::Lag => "LAG(cable_length) OVER (ORDER BY cable_length) AS prev_len".to_string(),
-        WindowKind::Lead => {
-            "LEAD(cable_length) OVER (ORDER BY cable_length) AS next_len".to_string()
-        }
+        WindowKind::Rank => "RANK() OVER (ORDER BY score DESC) AS rank_pos".to_string(),
+        WindowKind::Lag => "LAG(score) OVER (ORDER BY score) AS prev_score".to_string(),
+        WindowKind::Lead => "LEAD(score) OVER (ORDER BY score) AS next_score".to_string(),
         WindowKind::FirstValue => {
-            "FIRST_VALUE(cable_length) OVER (ORDER BY cable_length) AS first_len".to_string()
+            "FIRST_VALUE(score) OVER (ORDER BY score) AS first_score".to_string()
         }
         WindowKind::LastValue => {
-            "LAST_VALUE(cable_length) OVER (ORDER BY cable_length) AS last_len".to_string()
+            "LAST_VALUE(score) OVER (ORDER BY score) AS last_score".to_string()
         }
     };
-    let mut sql = format!("SELECT neuron_id, {window_expr} FROM neurons");
+    let mut sql = format!("SELECT record_id, {window_expr} FROM records");
     if let Some(limit) = limit {
         sql.push_str(&format!(" LIMIT {limit}"));
     }
@@ -484,7 +482,7 @@ fn render_window(kind: WindowKind, limit: Option<u32>) -> (String, QueryParamete
 fn render_union_all(left_threshold: i64, right_threshold: i64) -> (String, QueryParameters) {
     (
         format!(
-            "SELECT neuron_id FROM neurons WHERE cable_length > {left_threshold} UNION ALL SELECT target_neuron_id FROM synapses WHERE weight > {right_threshold}"
+            "SELECT record_id FROM records WHERE score > {left_threshold} UNION ALL SELECT target_record_id FROM links WHERE weight > {right_threshold}"
         ),
         QueryParameters::default(),
     )
@@ -493,12 +491,11 @@ fn render_union_all(left_threshold: i64, right_threshold: i64) -> (String, Query
 fn render_subquery(kind: SubqueryKind) -> (String, QueryParameters) {
     match kind {
         SubqueryKind::ScalarMaxWeight => (
-            "SELECT neuron_id, (SELECT MAX(weight) FROM synapses) AS max_weight FROM neurons"
-                .into(),
+            "SELECT record_id, (SELECT MAX(weight) FROM links) AS max_weight FROM records".into(),
             QueryParameters::default(),
         ),
-        SubqueryKind::InTargetNeuronIds => (
-            "SELECT neuron_id FROM neurons WHERE neuron_id IN (SELECT target_neuron_id FROM synapses)"
+        SubqueryKind::InTargetRecordIds => (
+            "SELECT record_id FROM records WHERE record_id IN (SELECT target_record_id FROM links)"
                 .into(),
             QueryParameters::default(),
         ),

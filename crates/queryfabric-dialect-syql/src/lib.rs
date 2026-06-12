@@ -153,7 +153,7 @@ mod tests {
     #[test]
     fn parses_from_first_and_directive_metadata() {
         let query = parse_syql(
-            "EXPLAIN\nFROM neurons\nWHERE cable_length > 100\nSCOPE federation\nDOWNLOAD parquet",
+            "EXPLAIN\nFROM records\nWHERE score > 100\nSCOPE federation\nDOWNLOAD parquet",
         )
         .expect("parse");
         assert!(query.explain());
@@ -165,19 +165,19 @@ mod tests {
             query.dialect_metadata().get("syql.download"),
             Some("parquet")
         );
-        assert!(query.rendered_sql().starts_with("SELECT * FROM neurons"));
+        assert!(query.rendered_sql().starts_with("SELECT * FROM records"));
         assert!(query.syntax().node.span.is_some());
     }
 
     #[test]
     fn parses_inline_trailing_directives() {
-        let query = parse_syql("FROM neurons WHERE cable_length > 100 SCOPE remote DOWNLOAD csv")
-            .expect("parse");
+        let query =
+            parse_syql("FROM records WHERE score > 100 SCOPE remote DOWNLOAD csv").expect("parse");
         assert_eq!(query.dialect_metadata().get("syql.scope"), Some("remote"));
         assert_eq!(query.dialect_metadata().get("syql.download"), Some("csv"));
         assert_eq!(
             query.rendered_sql(),
-            "SELECT * FROM neurons WHERE cable_length > 100"
+            "SELECT * FROM records WHERE score > 100"
         );
     }
 }
