@@ -4,7 +4,7 @@ use serde_json::Value;
 /// Hex-encoded BLAKE3 digest of `bytes`.
 #[must_use]
 pub fn content_hash_hex(bytes: &[u8]) -> String {
-    blake3::hash(bytes).to_hex().to_string()
+    queryfabric_content_hash::hash_bytes(bytes)
 }
 
 /// Integrity manifest for one stored artifact of a resource.

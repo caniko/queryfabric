@@ -4583,8 +4583,8 @@ name = "queryfabric-portability"
 version = "0.1.1"
 dependencies = [
  "async-trait",
- "blake3",
  "queryfabric-access",
+ "queryfabric-content-hash",
  "queryfabric-contract",
  "queryfabric-provenance",
  "serde",
