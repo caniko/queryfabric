@@ -17,7 +17,7 @@ mod provenance;
 mod stats;
 
 pub use access::{AccessDecision, AccessOutcome, AccessPolicy, Subject};
-pub use cluster::{ClusterProbe, ProbeStatus};
+pub use cluster::{ClusterProbe, Health, ProbeResult};
 pub use identity::{NodeId, ResourceRef};
 pub use provenance::{Activity, DomainActivity};
 pub use stats::{RelationStats, StatisticsSource};

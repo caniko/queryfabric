@@ -4186,9 +4186,14 @@ version = "0.1.1"
 name = "queryfabric-adapter-clickhouse"
 version = "0.1.1"
 dependencies = [
+ "arrow",
+ "async-trait",
+ "futures",
  "queryfabric-catalog",
  "queryfabric-dialect-sql",
  "queryfabric-ir",
+ "queryfabric-runtime",
+ "tokio-util",
 ]
 
 [[package]]
@@ -4210,6 +4215,7 @@ dependencies = [
  "serde",
  "serde_json",
  "thiserror 2.0.18",
+ "uuid",
 ]
 
 [[package]]
@@ -4290,6 +4296,20 @@ dependencies = [
 [[package]]
 name = "queryfabric-federation"
 version = "0.1.1"
+dependencies = [
+ "async-trait",
+ "chrono",
+ "papaya",
+ "queryfabric-cluster",
+ "queryfabric-contract",
+ "serde",
+ "serde_json",
+ "thespis",
+ "thiserror 2.0.18",
+ "tokio",
+ "tracing",
+ "uuid",
+]
 
 [[package]]
 name = "queryfabric-fetch"
@@ -4436,15 +4456,19 @@ name = "queryfabric-runtime"
 version = "0.1.1"
 dependencies = [
  "arrow",
+ "arrow-flight",
  "async-trait",
  "futures",
  "queryfabric-catalog",
+ "queryfabric-contract",
  "queryfabric-dialect-sql",
  "queryfabric-ir",
  "serde",
  "serde_json",
  "thiserror 2.0.18",
  "tokio-util",
+ "tonic",
+ "uuid",
 ]
 
 [[package]]

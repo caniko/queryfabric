@@ -35,8 +35,11 @@ The four contract traits (plus their carrier types):
   Option<RelationStats>` lets the host inject live row/byte estimates into the
   catalog cost model (wired in Phase 04 via
   `queryfabric_catalog::relation_statistics_from_source`).
-- **Cluster health** — `ClusterProbe::probe_node(NodeId) -> ProbeStatus`,
-  implemented by `queryfabric-cluster` in Phase 03.
+- **Cluster health** — `ClusterProbe<C, H>::probe(node, handle) ->
+  ProbeResult<Output>` over the wire-stable `Health` vocabulary
+  (`healthy | degraded | unreachable | unknown`), plus an
+  `on_successful_sweep` hook. Driven by the `HealthMonitorActor` in
+  `queryfabric-cluster` (Phase 03); the host supplies the probe impl.
 
 Identity is carried by two distinct UUID newtypes — `ResourceRef { namespace,
 id }` for queryable resources and `NodeId` for federation nodes — so the two
