@@ -1,0 +1,12 @@
+[package]
+name = "queryfabric-job-queue"
+description = "Background job queue"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+homepage.workspace = true
+documentation.workspace = true
+rust-version.workspace = true
+
+[dependencies]

@@ -1,0 +1,12 @@
+[package]
+name = "queryfabric-flight-pool"
+description = "Arrow Flight connection pooling"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+homepage.workspace = true
+documentation.workspace = true
+rust-version.workspace = true
+
+[dependencies]

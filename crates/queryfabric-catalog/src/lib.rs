@@ -3,6 +3,7 @@ mod builtins;
 mod features;
 mod model;
 mod render;
+mod stats_source;
 
 pub use bind::{bind_and_validate, infer_result_schema, unsupported};
 pub use features::{PlanFeatures, inspect_plan};
@@ -16,3 +17,4 @@ pub use model::{
     ResultDeliveryFormat, ResultDeliveryMode, SqlArtifact, TypeCoercionRule,
 };
 pub use render::{SqlBackend, analyze_backend_support, emit_sql_artifact};
+pub use stats_source::relation_statistics_from_source;
