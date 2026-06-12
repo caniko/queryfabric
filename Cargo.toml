@@ -35,6 +35,7 @@ members = [
     "crates/queryfabric-portability",
     "crates/queryfabric-tenancy",
     "crates/queryfabric-store",
+    "crates/queryfabric-demo",
 ]
 exclude = ["fuzz"]
 
