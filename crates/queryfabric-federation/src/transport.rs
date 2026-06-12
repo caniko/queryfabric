@@ -177,16 +177,16 @@ impl<T: FederationTransport> ClusterProbe<NodeId, ClusterRemoteHandle> for Trans
         };
         match self.transport.health_ping(&handle, ping).await {
             Ok(pong) => {
-                if let Ok(reply) = self.transport.get_flight_endpoint(&handle).await {
-                    if !reply.endpoint.is_empty() {
-                        let guard = self.cluster_refs.guard();
-                        let refreshed = ClusterRemoteHandle {
-                            flight_endpoint: Some(reply.endpoint),
-                            flight_tls: reply.tls,
-                            ..handle
-                        };
-                        self.cluster_refs.insert(node, refreshed, &guard);
-                    }
+                if let Ok(reply) = self.transport.get_flight_endpoint(&handle).await
+                    && !reply.endpoint.is_empty()
+                {
+                    let guard = self.cluster_refs.guard();
+                    let refreshed = ClusterRemoteHandle {
+                        flight_endpoint: Some(reply.endpoint),
+                        flight_tls: reply.tls,
+                        ..handle
+                    };
+                    self.cluster_refs.insert(node, refreshed, &guard);
                 }
                 ProbeResult {
                     health: pong.status,

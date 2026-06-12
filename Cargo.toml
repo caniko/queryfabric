@@ -45,7 +45,7 @@ license = "Apache-2.0"
 repository = "https://codeberg.org/caniko/queryfabric"
 homepage = "https://codeberg.org/caniko/queryfabric"
 documentation = "https://docs.rs/queryfabric"
-rust-version = "1.85"
+rust-version = "1.88"
 
 [workspace.dependencies]
 blake3 = "1"
