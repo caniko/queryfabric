@@ -6,9 +6,7 @@
 //! (PM2.5, NO₂, ozone). All identifiers and values are deterministic so
 //! seeding is idempotent and bundle hashes are reproducible.
 
-use queryfabric::{
-    ColumnSchema, DataType, MemoryCatalog, RelationKind, RelationSchema,
-};
+use queryfabric::{ColumnSchema, DataType, MemoryCatalog, RelationKind, RelationSchema};
 use queryfabric_contract::ResourceRef;
 use queryfabric_namespace_uuid::NamespacedIds;
 use uuid::Uuid;
@@ -223,8 +221,7 @@ mod tests {
     fn station_ids_are_deterministic() {
         let first = STATIONS[0].id();
         assert_eq!(first, StationIds::from_str_key(STATIONS[0].code));
-        let ids: std::collections::HashSet<Uuid> =
-            STATIONS.iter().map(StationSpec::id).collect();
+        let ids: std::collections::HashSet<Uuid> = STATIONS.iter().map(StationSpec::id).collect();
         assert_eq!(ids.len(), STATIONS.len(), "station ids must be unique");
     }
 

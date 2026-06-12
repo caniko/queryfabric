@@ -165,19 +165,17 @@ impl DemoConfig {
     pub fn from_env() -> Result<Self, ConfigError> {
         let listen_raw =
             env_var("QFDEMO_LISTEN_ADDR").unwrap_or_else(|| "127.0.0.1:8780".to_owned());
-        let listen_addr: SocketAddr =
-            listen_raw
-                .parse()
-                .map_err(|_| ConfigError::Invalid {
-                    name: "QFDEMO_LISTEN_ADDR",
-                    value: listen_raw.clone(),
-                    expected: "a socket address such as 127.0.0.1:8780",
-                })?;
+        let listen_addr: SocketAddr = listen_raw.parse().map_err(|_| ConfigError::Invalid {
+            name: "QFDEMO_LISTEN_ADDR",
+            value: listen_raw.clone(),
+            expected: "a socket address such as 127.0.0.1:8780",
+        })?;
 
-        let database_url = env_or_file("QFDEMO_DATABASE_URL", "QFDEMO_DATABASE_URL_FILE")?
-            .ok_or(ConfigError::Missing {
+        let database_url = env_or_file("QFDEMO_DATABASE_URL", "QFDEMO_DATABASE_URL_FILE")?.ok_or(
+            ConfigError::Missing {
                 name: "QFDEMO_DATABASE_URL",
-            })?;
+            },
+        )?;
 
         let db_wait_secs = match env_var("QFDEMO_DB_WAIT_SECS") {
             None => 60,
@@ -188,8 +186,8 @@ impl DemoConfig {
             })?,
         };
 
-        let public_base_url = env_var("QFDEMO_PUBLIC_BASE_URL")
-            .unwrap_or_else(|| format!("http://{listen_addr}"));
+        let public_base_url =
+            env_var("QFDEMO_PUBLIC_BASE_URL").unwrap_or_else(|| format!("http://{listen_addr}"));
 
         let backend = env_var("QFDEMO_STORE_BACKEND").unwrap_or_else(|| "memory".to_owned());
         let store = match backend.as_str() {

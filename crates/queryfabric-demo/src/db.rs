@@ -196,13 +196,11 @@ fn cell_to_json(row: &Row, index: usize) -> Value {
         Type::UUID => row
             .try_get::<_, Option<uuid::Uuid>>(index)
             .map(|cell| cell.map_or(Value::Null, |v| Value::String(v.to_string()))),
-        Type::TIMESTAMP => row
-            .try_get::<_, Option<NaiveDateTime>>(index)
-            .map(|cell| {
-                cell.map_or(Value::Null, |v| {
-                    Value::String(v.format("%Y-%m-%dT%H:%M:%S").to_string())
-                })
-            }),
+        Type::TIMESTAMP => row.try_get::<_, Option<NaiveDateTime>>(index).map(|cell| {
+            cell.map_or(Value::Null, |v| {
+                Value::String(v.format("%Y-%m-%dT%H:%M:%S").to_string())
+            })
+        }),
         Type::TIMESTAMPTZ => row
             .try_get::<_, Option<DateTime<Utc>>>(index)
             .map(|cell| cell.map_or(Value::Null, |v| Value::String(v.to_rfc3339()))),
