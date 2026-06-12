@@ -386,28 +386,27 @@ impl<'a> SqlRenderer<'a> {
                 list,
                 negated,
             } => {
-                if let [only] = list.as_slice() {
-                    if let BoundExprKind::Parameter(reference) = &only.kind {
-                        if self.parameter_schema(reference)?.data_type.is_list() {
-                            return match self.backend {
-                                SqlBackend::Postgres => {
-                                    let op = if *negated { "<> ALL" } else { "= ANY" };
-                                    Ok(format!(
-                                        "{} {}({})",
-                                        self.render_expr(expr)?,
-                                        op,
-                                        self.render_parameter(reference)?
-                                    ))
-                                }
-                                SqlBackend::ClickHouse => Ok(format!(
-                                    "{} {}IN {}",
-                                    self.render_expr(expr)?,
-                                    if *negated { "NOT " } else { "" },
-                                    self.render_parameter(reference)?
-                                )),
-                            };
+                if let [only] = list.as_slice()
+                    && let BoundExprKind::Parameter(reference) = &only.kind
+                    && self.parameter_schema(reference)?.data_type.is_list()
+                {
+                    return match self.backend {
+                        SqlBackend::Postgres => {
+                            let op = if *negated { "<> ALL" } else { "= ANY" };
+                            Ok(format!(
+                                "{} {}({})",
+                                self.render_expr(expr)?,
+                                op,
+                                self.render_parameter(reference)?
+                            ))
                         }
-                    }
+                        SqlBackend::ClickHouse => Ok(format!(
+                            "{} {}IN {}",
+                            self.render_expr(expr)?,
+                            if *negated { "NOT " } else { "" },
+                            self.render_parameter(reference)?
+                        )),
+                    };
                 }
                 Ok(format!(
                     "{} {}IN ({})",
