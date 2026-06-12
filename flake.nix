@@ -88,6 +88,21 @@
           default = site;
         };
 
+        checks =
+          {
+            # Fast gate: the demonstrator builds (and its unit tests pass)
+            # on every check run.
+            inherit queryfabric-demo;
+          }
+          // lib.optionalAttrs pkgs.stdenv.hostPlatform.isLinux {
+            # Heavy gate: boot a VM with Postgres + MinIO + the NixOS
+            # module and drive query/export/GDPR end-to-end.
+            selfhost = import ./nix/tests/selfhost.nix {
+              inherit pkgs;
+              nixosModule = self.nixosModules.queryfabric;
+            };
+          };
+
         devShells.default = pkgs.mkShell {
           packages = with pkgs; [
             cargo
