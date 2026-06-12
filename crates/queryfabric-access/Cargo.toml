@@ -1,6 +1,6 @@
 [package]
 name = "queryfabric-access"
-description = "Access-control policy evaluation"
+description = "Access-control tiers and GDPR data-rights operations over generic resources"
 version.workspace = true
 edition.workspace = true
 license.workspace = true
@@ -10,3 +10,13 @@ documentation.workspace = true
 rust-version.workspace = true
 
 [dependencies]
+async-trait = { workspace = true }
+queryfabric-contract = { workspace = true }
+queryfabric-provenance = { workspace = true }
+serde = { workspace = true }
+thiserror = { workspace = true }
+uuid = { workspace = true, features = ["serde", "v7"] }
+
+[dev-dependencies]
+serde_json = { workspace = true }
+tokio = { version = "1", default-features = false, features = ["macros", "rt"] }

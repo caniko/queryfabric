@@ -16,6 +16,7 @@ pub enum Activity {
     Deleted {
         reason: String,
     },
+    Restored,
     Accessed {
         rows: u64,
     },
@@ -38,6 +39,28 @@ pub enum Activity {
         location: String,
         content_hash: String,
     },
+}
+
+impl Activity {
+    /// Stable low-cardinality tag identifying the activity kind.
+    ///
+    /// Matches the serde `activity` tag; persistent stores index on this
+    /// (e.g. a `LowCardinality(String)` column) so it must never change for
+    /// an existing variant.
+    #[must_use]
+    pub const fn tag(&self) -> &'static str {
+        match self {
+            Self::Created => "created",
+            Self::Deleted { .. } => "deleted",
+            Self::Restored => "restored",
+            Self::Accessed { .. } => "accessed",
+            Self::Modified { .. } => "modified",
+            Self::OwnershipTransferred { .. } => "ownership_transferred",
+            Self::ContentHashRecorded { .. } => "content_hash_recorded",
+            Self::FederationFlow { .. } => "federation_flow",
+            Self::BackupAnchor { .. } => "backup_anchor",
+        }
+    }
 }
 
 /// Extension hook for host-specific provenance activities.
