@@ -1,6 +1,6 @@
 [package]
 name = "queryfabric-portability"
-description = "Data portability export and import"
+description = "Portable export bundles, DOI minting, and artifact manifests for generic resources"
 version.workspace = true
 edition.workspace = true
 license.workspace = true
@@ -10,3 +10,15 @@ documentation.workspace = true
 rust-version.workspace = true
 
 [dependencies]
+async-trait = { workspace = true }
+blake3 = { workspace = true }
+queryfabric-access = { workspace = true }
+queryfabric-contract = { workspace = true }
+queryfabric-provenance = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+thiserror = { workspace = true }
+uuid = { workspace = true, features = ["serde"] }
+
+[dev-dependencies]
+tokio = { version = "1", default-features = false, features = ["macros", "rt"] }
