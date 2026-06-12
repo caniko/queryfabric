@@ -175,6 +175,7 @@ pub struct MemoryCatalog {
     snapshot_id: CatalogSnapshotId,
     relations: BTreeMap<(Option<String>, String), RelationSchema>,
     functions: BTreeMap<(Option<String>, String), FunctionSignature>,
+    statistics: BTreeMap<(Option<String>, String), RelationStatistics>,
 }
 
 impl Default for MemoryCatalog {
@@ -183,6 +184,7 @@ impl Default for MemoryCatalog {
             snapshot_id: CatalogSnapshotId("memory-catalog".into()),
             relations: BTreeMap::new(),
             functions: BTreeMap::new(),
+            statistics: BTreeMap::new(),
         }
     }
 }
@@ -205,6 +207,7 @@ impl MemoryCatalog {
             snapshot_id: document.snapshot_id,
             relations: BTreeMap::new(),
             functions: BTreeMap::new(),
+            statistics: BTreeMap::new(),
         };
 
         for relation in document.relations {
@@ -226,6 +229,28 @@ impl MemoryCatalog {
             ),
             relation,
         );
+    }
+
+    /// Inject live statistics for a relation, overriding any estimate derived
+    /// from schema metadata. This is the host-facing cost hook: refresh these
+    /// whenever the backing store changes and the cost model picks them up on
+    /// the next estimate.
+    pub fn set_relation_statistics(
+        &mut self,
+        namespace: Option<&str>,
+        name: &str,
+        statistics: RelationStatistics,
+    ) {
+        let key = self
+            .resolve_relation(namespace, name)
+            .map(|relation| {
+                (
+                    relation.namespace.clone(),
+                    relation.name.to_ascii_lowercase(),
+                )
+            })
+            .unwrap_or_else(|| (namespace.map(str::to_owned), name.to_ascii_lowercase()));
+        self.statistics.insert(key, statistics);
     }
 
     pub fn register_function(&mut self, signature: FunctionSignature) {
@@ -293,6 +318,22 @@ impl Catalog for MemoryCatalog {
 
     fn relations(&self) -> Vec<RelationSchema> {
         self.relations.values().cloned().collect()
+    }
+
+    fn relation_statistics(
+        &self,
+        namespace: Option<&str>,
+        name: &str,
+    ) -> Option<RelationStatistics> {
+        let relation = self.resolve_relation(namespace, name)?;
+        let key = (
+            relation.namespace.clone(),
+            relation.name.to_ascii_lowercase(),
+        );
+        if let Some(statistics) = self.statistics.get(&key) {
+            return Some(statistics.clone());
+        }
+        relation_statistics_from_schema(&relation)
     }
 }
 

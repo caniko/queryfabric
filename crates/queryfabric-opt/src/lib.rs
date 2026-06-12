@@ -1,6 +1,8 @@
 use queryfabric_catalog::Catalog;
 use queryfabric_ir::{BoundQuery, QueryDiagnostic, Result};
 
+pub mod federation;
+pub mod jobs;
 mod syntax;
 
 /// Conservative rewrite advisory emitted by normalization passes.
