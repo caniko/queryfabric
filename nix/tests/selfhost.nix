@@ -9,47 +9,52 @@
 pkgs.testers.runNixOSTest {
   name = "queryfabric-selfhost";
 
-  nodes.machine = {lib, ...}: {
-    imports = [nixosModule];
+  nodes.machine =
+    { lib, ... }:
+    {
+      imports = [ nixosModule ];
 
-    virtualisation.memorySize = 2048;
-    virtualisation.cores = 2;
+      virtualisation.memorySize = 2048;
+      virtualisation.cores = 2;
 
-    services.postgresql = {
-      enable = true;
-      enableTCPIP = true;
-    };
-
-    services.minio = {
-      enable = true;
-      # Test-harness credentials for the VM's MinIO; the assertion below
-      # only concerns the queryfabric unit, whose secrets are runtime files.
-      rootCredentialsFile = pkgs.writeText "minio-root-credentials" ''
-        MINIO_ROOT_USER=qfminio
-        MINIO_ROOT_PASSWORD=qfminio-secret-key
-      '';
-    };
-
-    services.queryfabric = {
-      enable = true;
-      listenAddress = "127.0.0.1";
-      port = 8780;
-      database.urlFile = "/root/qfdemo-db-url";
-      store = {
-        backend = "s3";
-        endpoint = "http://127.0.0.1:9000";
-        bucket = "queryfabric";
-        credentialsFile = "/root/qfdemo-store-creds";
+      services.postgresql = {
+        enable = true;
+        enableTCPIP = true;
       };
-      federation.enable = true;
+
+      services.minio = {
+        enable = true;
+        # Test-harness credentials for the VM's MinIO; the assertion below
+        # only concerns the queryfabric unit, whose secrets are runtime files.
+        rootCredentialsFile = pkgs.writeText "minio-root-credentials" ''
+          MINIO_ROOT_USER=qfminio
+          MINIO_ROOT_PASSWORD=qfminio-secret-key
+        '';
+      };
+
+      services.queryfabric = {
+        enable = true;
+        listenAddress = "127.0.0.1";
+        port = 8780;
+        database.urlFile = "/root/qfdemo-db-url";
+        store = {
+          backend = "s3";
+          endpoint = "http://127.0.0.1:9000";
+          bucket = "queryfabric";
+          credentialsFile = "/root/qfdemo-store-creds";
+        };
+        federation.enable = true;
+      };
+
+      # Secrets are written by the test script after boot; do not start the
+      # service before they exist.
+      systemd.services.queryfabric.wantedBy = lib.mkForce [ ];
+
+      environment.systemPackages = [
+        pkgs.curl
+        pkgs.minio-client
+      ];
     };
-
-    # Secrets are written by the test script after boot; do not start the
-    # service before they exist.
-    systemd.services.queryfabric.wantedBy = lib.mkForce [];
-
-    environment.systemPackages = [pkgs.curl pkgs.minio-client];
-  };
 
   testScript = ''
     import json
