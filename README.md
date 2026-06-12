@@ -1,6 +1,8 @@
 # QueryFabric
 
 QueryFabric is a portable analytical query compiler for scientific platforms.
+It also provides a data-sovereignty and query-portability layer for self-hosted
+and federated services.
 It gives hosts a stable semantic boundary for:
 
 - parsing SQL or downstream dialects such as SyQL into `ParsedQuery`
@@ -34,6 +36,25 @@ metadata-driven policy which relation to query in the first place.
 
 SyQL directives such as `SCOPE` and `DOWNLOAD` are preserved as opaque
 dialect metadata rather than neutral core semantics.
+
+## Why this matters for self-hosting
+
+- [`crates/queryfabric-access`](crates/queryfabric-access): GDPR Art. 15, 16,
+  and 17 traits for access, rectification, and erasure against generic
+  resources.
+- [`crates/queryfabric-portability`](crates/queryfabric-portability):
+  content-addressed export bundles, provenance records, citation metadata, and
+  DOI minting.
+- [`crates/queryfabric-tenancy`](crates/queryfabric-tenancy): multi-tenant
+  accounts, collections, and groups so hosts can keep ownership and isolation
+  outside the compiler core.
+- [`crates/queryfabric-federation`](crates/queryfabric-federation) and
+  [`crates/queryfabric-cluster`](crates/queryfabric-cluster): wire-stable
+  libp2p federation, routing, and health messaging between nodes.
+- [`nix/modules/queryfabric.nix`](nix/modules/queryfabric.nix) and
+  [`nix/tests/selfhost.nix`](nix/tests/selfhost.nix): hardened NixOS
+  deployment wiring with secrets kept out of the store and covered by an
+  end-to-end VM test.
 
 ## Verified Portable Subset
 

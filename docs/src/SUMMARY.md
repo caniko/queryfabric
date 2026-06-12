@@ -12,6 +12,7 @@
 - [Compiler Stages](./concepts/compiler-stages.md)
 - [Catalogs and Schemas](./concepts/catalogs-and-schemas.md)
 - [Capabilities and Diagnostics](./concepts/capabilities-and-diagnostics.md)
+- [Self-Hosting and Data Sovereignty](./concepts/self-hosting-and-data-sovereignty.md)
 
 # Backends
 

@@ -60,3 +60,27 @@ QueryFabric is the portability boundary between analytical query text and
 backend execution. It exists for hosts that need reproducibility, capability
 checks, typed schemas, and backend diagnostics before they ever send SQL to a
 database.
+
+## Data sovereignty for self-hosted services
+
+QueryFabric gives operators a library-backed way to keep data rights,
+portability, tenancy, and federation outside the service's own schema and job
+logic.
+
+- [`crates/queryfabric-access`](https://codeberg.org/caniko/queryfabric/src/branch/trunk/crates/queryfabric-access): answer access,
+  rectification, and erasure requests over generic resources without baking
+  those rules into the host database schema.
+- [`crates/queryfabric-portability`](https://codeberg.org/caniko/queryfabric/src/branch/trunk/crates/queryfabric-portability):
+  create content-addressed export bundles with provenance and DOI metadata so
+  a user can take a verifiable copy elsewhere.
+- [`crates/queryfabric-tenancy`](https://codeberg.org/caniko/queryfabric/src/branch/trunk/crates/queryfabric-tenancy): keep accounts,
+  collections, and groups separate so one deployment can safely serve multiple
+  tenants.
+- [`crates/queryfabric-federation`](https://codeberg.org/caniko/queryfabric/src/branch/trunk/crates/queryfabric-federation) and
+  [`crates/queryfabric-cluster`](https://codeberg.org/caniko/queryfabric/src/branch/trunk/crates/queryfabric-cluster): announce
+  nodes, route requests, and exchange stable federation messages across hosts
+  over libp2p.
+- [`nix/modules/queryfabric.nix`](https://codeberg.org/caniko/queryfabric/src/branch/trunk/nix/modules/queryfabric.nix) and
+  [`nix/tests/selfhost.nix`](https://codeberg.org/caniko/queryfabric/src/branch/trunk/nix/tests/selfhost.nix): deploy the stack as a
+  hardened NixOS service, with secrets kept out of the store and checked in a
+  VM test.
