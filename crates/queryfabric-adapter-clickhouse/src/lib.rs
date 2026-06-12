@@ -13,6 +13,10 @@ use queryfabric_ir::{
     ResultSchema, SyntaxNode,
 };
 
+mod runtime;
+
+pub use runtime::{ClickHouseArrowTransport, ClickHouseRuntime};
+
 #[derive(Debug, Default, Clone, Copy)]
 pub struct ClickHouseAdapter;
 

@@ -17,4 +17,4 @@ pub use model::{
     ResultDeliveryFormat, ResultDeliveryMode, SqlArtifact, TypeCoercionRule,
 };
 pub use render::{SqlBackend, analyze_backend_support, emit_sql_artifact};
-pub use stats_source::relation_statistics_from_source;
+pub use stats_source::{StatisticsOverlayCatalog, relation_statistics_from_source};

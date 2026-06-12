@@ -13,8 +13,13 @@ keywords = ["sql", "clickhouse", "compiler", "analytics", "science"]
 categories = ["database", "science"]
 
 [dependencies]
+arrow = { workspace = true }
+async-trait = { workspace = true }
+futures = { workspace = true }
 queryfabric-catalog = { workspace = true }
 queryfabric-ir = { workspace = true }
+queryfabric-runtime = { workspace = true }
+tokio-util = { workspace = true }
 
 [dev-dependencies]
 queryfabric-dialect-sql = { workspace = true }
