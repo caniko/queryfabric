@@ -4,18 +4,40 @@
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
     flake-utils.url = "github:numtide/flake-utils";
+    crane.url = "github:ipetkov/crane";
   };
 
   outputs = {
     self,
     nixpkgs,
     flake-utils,
+    crane,
     ...
   }:
     flake-utils.lib.eachDefaultSystem (
       system: let
         pkgs = import nixpkgs {inherit system;};
         lib = pkgs.lib;
+        craneLib = crane.mkLib pkgs;
+
+        queryfabric-demo = craneLib.buildPackage {
+          pname = "queryfabric-demo";
+          version = "0.1.1";
+          src = lib.fileset.toSource {
+            root = ./.;
+            fileset = lib.fileset.unions [
+              (craneLib.fileset.commonCargoSources ./.)
+              ./crates/queryfabric-demo/src/index.html
+            ];
+          };
+          strictDeps = true;
+          cargoExtraArgs = "-p queryfabric-demo";
+          meta = {
+            description = "QueryFabric self-host demonstrator service";
+            license = lib.licenses.asl20;
+            mainProgram = "queryfabric-demo";
+          };
+        };
 
         website = pkgs.stdenv.mkDerivation {
           pname = "queryfabric-website";
@@ -62,7 +84,7 @@
         '';
       in {
         packages = {
-          inherit website docs site;
+          inherit website docs site queryfabric-demo;
           default = site;
         };
 
