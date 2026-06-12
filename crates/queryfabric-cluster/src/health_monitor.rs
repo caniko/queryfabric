@@ -101,13 +101,12 @@ impl CircuitState {
 
     /// Attempt transition from Open to HalfOpen when cooldown expires.
     pub fn maybe_transition_to_half_open(&mut self, config: CircuitConfig) {
-        if self.phase == CircuitPhase::Open {
-            if let Some(opened) = self.opened_at {
-                if opened.elapsed() >= config.cooldown {
-                    debug!("Circuit transitioning Open -> HalfOpen");
-                    self.phase = CircuitPhase::HalfOpen;
-                }
-            }
+        if self.phase == CircuitPhase::Open
+            && let Some(opened) = self.opened_at
+            && opened.elapsed() >= config.cooldown
+        {
+            debug!("Circuit transitioning Open -> HalfOpen");
+            self.phase = CircuitPhase::HalfOpen;
         }
     }
 
@@ -391,14 +390,14 @@ where
         msg: ResetCircuitBreaker<C>,
         _ctx: &mut Context<Self, Self::Reply>,
     ) -> Self::Reply {
-        if let Some(circuit) = self.circuits.get_mut(&msg.0) {
-            if circuit.phase != CircuitPhase::Closed {
-                info!(
-                    old_phase = ?circuit.phase,
-                    "Circuit breaker reset on cluster registration"
-                );
-                *circuit = CircuitState::new();
-            }
+        if let Some(circuit) = self.circuits.get_mut(&msg.0)
+            && circuit.phase != CircuitPhase::Closed
+        {
+            info!(
+                old_phase = ?circuit.phase,
+                "Circuit breaker reset on cluster registration"
+            );
+            *circuit = CircuitState::new();
         }
         let guard = self.health_cache.guard();
         self.health_cache.remove(&msg.0, &guard);

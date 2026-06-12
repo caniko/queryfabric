@@ -337,17 +337,17 @@ impl Binder<'_> {
     ) -> BoundRelation {
         match relation {
             SyntaxRelation::Table { name, alias, node } => {
-                if name.namespace.is_none() {
-                    if let Some(binding) = ctes.get(&name.name.to_ascii_lowercase()) {
-                        let mut binding = binding.clone();
-                        if let Some(alias) = alias {
-                            binding.binding_name = alias.clone();
-                        }
-                        return BoundRelation::Table {
-                            binding,
-                            node: node.clone(),
-                        };
+                if name.namespace.is_none()
+                    && let Some(binding) = ctes.get(&name.name.to_ascii_lowercase())
+                {
+                    let mut binding = binding.clone();
+                    if let Some(alias) = alias {
+                        binding.binding_name = alias.clone();
                     }
+                    return BoundRelation::Table {
+                        binding,
+                        node: node.clone(),
+                    };
                 }
                 match self
                     .catalog
