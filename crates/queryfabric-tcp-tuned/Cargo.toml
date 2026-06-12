@@ -1,6 +1,6 @@
 [package]
 name = "queryfabric-tcp-tuned"
-description = "Tuned TCP listener and socket configuration"
+description = "TCP listener with performance-tuned socket options for high-throughput streaming servers"
 version.workspace = true
 edition.workspace = true
 license.workspace = true
@@ -10,3 +10,4 @@ documentation.workspace = true
 rust-version.workspace = true
 
 [dependencies]
+socket2 = "0.6"

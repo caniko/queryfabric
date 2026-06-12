@@ -49,6 +49,26 @@ rust-version = "1.85"
 
 [workspace.dependencies]
 blake3 = "1"
+chrono = { version = "0.4", default-features = false, features = [
+    "std",
+    "clock",
+    "serde",
+] }
+fernet = { version = "0.2", default-features = false, features = ["rustcrypto"] }
+libp2p-identity = "0.2"
+papaya = "0.2"
+secrecy = { version = "0.10", features = ["serde"] }
+thespis = { git = "https://codeberg.org/caniko/rs-thespis.git", features = [
+    "remote",
+    "serde-codec",
+] }
+tokio = { version = "1", default-features = false, features = [
+    "rt-multi-thread",
+    "macros",
+    "sync",
+    "time",
+] }
+tracing = "0.1"
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 arrow = { version = "58", default-features = false }
