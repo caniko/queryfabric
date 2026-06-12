@@ -581,7 +581,7 @@ mod tests {
     fn rewrites_nested_limit_and_binary_children() {
         let parsed = GenericSqlDialect
             .parse(
-                "SELECT neuron_id FROM (SELECT neuron_id FROM neurons WHERE cable_length > 5 LIMIT 5) n LIMIT 5",
+                "SELECT record_id FROM (SELECT record_id FROM records WHERE score > 5 LIMIT 5) n LIMIT 5",
             )
             .expect("parse");
         let mut transformer = LimitZeroingTransformer;
@@ -617,7 +617,7 @@ mod tests {
     #[test]
     fn selection_overrides_replace_matching_select_selection_only() {
         let parsed = GenericSqlDialect
-            .parse("SELECT neuron_id FROM neurons WHERE cable_length > 5")
+            .parse("SELECT record_id FROM records WHERE score > 5")
             .expect("parse");
         let select = match &parsed.syntax().body {
             SyntaxSetExpr::Select(select) => select,
@@ -645,7 +645,7 @@ mod tests {
     fn flatten_and_rebuild_boolean_and_preserve_conjuncts() {
         let parsed = GenericSqlDialect
             .parse(
-                "SELECT neuron_id FROM neurons WHERE species = 'mouse' AND cable_length > 5 AND neuron_id IS NOT NULL",
+                "SELECT record_id FROM records WHERE species = 'mouse' AND score > 5 AND record_id IS NOT NULL",
             )
             .expect("parse");
         let select = match &parsed.syntax().body {

@@ -1,4 +1,4 @@
-SELECT n.neuron_id, AVG(s.weight) AS mean_weight
-FROM neurons AS n
-LEFT JOIN synapses AS s ON n.neuron_id = s.target_neuron_id
-GROUP BY n.neuron_id
+SELECT n.record_id, AVG(s.weight) AS mean_weight
+FROM records AS n
+LEFT JOIN links AS s ON n.record_id = s.target_record_id
+GROUP BY n.record_id

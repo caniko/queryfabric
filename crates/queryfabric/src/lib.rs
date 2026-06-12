@@ -8,16 +8,16 @@
 //!
 //! let dialect = GenericSqlDialect;
 //! let compiler = QueryCompiler::default();
-//! let parsed = compiler.parse(&dialect, "SELECT neuron_id FROM neurons LIMIT 5").unwrap();
+//! let parsed = compiler.parse(&dialect, "SELECT record_id FROM records LIMIT 5").unwrap();
 //!
 //! let mut catalog = MemoryCatalog::default();
 //! catalog.register_relation(RelationSchema {
 //!     namespace: None,
-//!     name: "neurons".into(),
+//!     name: "records".into(),
 //!     aliases: Vec::new(),
 //!     kind: RelationKind::Table,
 //!     columns: vec![ColumnSchema {
-//!         name: "neuron_id".into(),
+//!         name: "record_id".into(),
 //!         data_type: DataType::Uuid,
 //!         nullable: false,
 //!         metadata: Default::default(),
@@ -28,8 +28,8 @@
 //! let bound = bind_and_validate_query(&parsed, &catalog, &QueryParameters::default()).unwrap();
 //! let artifact = compiler.emit(&bound, &ClickHouseAdapter, &catalog).unwrap();
 //! let sql = artifact.as_sql().unwrap();
-//! assert!(sql.text.contains("FROM neurons"));
-//! assert!(sql.text.contains("neuron_id"));
+//! assert!(sql.text.contains("FROM records"));
+//! assert!(sql.text.contains("record_id"));
 //! ```
 
 use serde::{Deserialize, Serialize};
@@ -163,25 +163,25 @@ pub fn bind_and_validate_query(
 
 /// Build the standard portable test catalog used across QueryFabric tests.
 ///
-/// The catalog contains `neurons` and `synapses` with the canonical portable
+/// The catalog contains `records` and `links` with the canonical portable
 /// schema expected by the integration tests, fuzz target, and Python binding.
 pub fn portable_catalog(snapshot_id: impl Into<String>) -> MemoryCatalog {
     let mut catalog = MemoryCatalog::default();
     catalog.set_snapshot_id(snapshot_id);
     catalog.register_relation(RelationSchema {
         namespace: None,
-        name: "neurons".into(),
+        name: "records".into(),
         aliases: vec!["n".into()],
         kind: RelationKind::Table,
         columns: vec![
             ColumnSchema {
-                name: "neuron_id".into(),
+                name: "record_id".into(),
                 data_type: DataType::Uuid,
                 nullable: false,
                 metadata: Default::default(),
             },
             ColumnSchema {
-                name: "cable_length".into(),
+                name: "score".into(),
                 data_type: DataType::Float64,
                 nullable: true,
                 metadata: Default::default(),
@@ -191,18 +191,18 @@ pub fn portable_catalog(snapshot_id: impl Into<String>) -> MemoryCatalog {
     });
     catalog.register_relation(RelationSchema {
         namespace: None,
-        name: "synapses".into(),
+        name: "links".into(),
         aliases: vec!["s".into()],
         kind: RelationKind::Table,
         columns: vec![
             ColumnSchema {
-                name: "source_neuron_id".into(),
+                name: "source_record_id".into(),
                 data_type: DataType::Uuid,
                 nullable: false,
                 metadata: Default::default(),
             },
             ColumnSchema {
-                name: "target_neuron_id".into(),
+                name: "target_record_id".into(),
                 data_type: DataType::Uuid,
                 nullable: false,
                 metadata: Default::default(),

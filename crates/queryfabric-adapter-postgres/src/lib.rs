@@ -94,11 +94,11 @@ mod tests {
         let mut catalog = MemoryCatalog::default();
         catalog.register_relation(RelationSchema {
             namespace: None,
-            name: "neurons".into(),
+            name: "records".into(),
             aliases: Vec::new(),
             kind: RelationKind::Table,
             columns: vec![ColumnSchema {
-                name: "neuron_id".into(),
+                name: "record_id".into(),
                 data_type: DataType::Uuid,
                 nullable: false,
                 metadata: Default::default(),
@@ -111,7 +111,7 @@ mod tests {
     #[test]
     fn emits_postgres_sql_for_portable_subset() {
         let parsed = GenericSqlDialect
-            .parse("SELECT neuron_id FROM neurons LIMIT 5")
+            .parse("SELECT record_id FROM records LIMIT 5")
             .expect("parse");
         let bound =
             bind_and_validate(&parsed, &catalog(), &QueryParameters::default()).expect("bind");
@@ -125,7 +125,7 @@ mod tests {
             panic!("expected SQL artifact");
         };
         assert_eq!(sql.dialect, "postgres");
-        assert_eq!(sql.text, "SELECT neurons.neuron_id FROM neurons LIMIT 5");
+        assert_eq!(sql.text, "SELECT records.record_id FROM records LIMIT 5");
     }
 
     #[test]
@@ -140,7 +140,7 @@ mod tests {
     #[test]
     fn cost_estimator_reports_unsupported() {
         let parsed = GenericSqlDialect
-            .parse("SELECT neuron_id FROM neurons LIMIT 5")
+            .parse("SELECT record_id FROM records LIMIT 5")
             .expect("parse");
         let catalog = catalog();
         let bound =

@@ -1,1 +1,1 @@
-SELECT neuron_id FROM neurons SETTINGS max_threads =
+SELECT record_id FROM records SETTINGS max_threads =

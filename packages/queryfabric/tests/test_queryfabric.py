@@ -10,13 +10,13 @@ def catalog() -> queryfabric.MemoryCatalog:
     catalog.set_snapshot_id("python-test-catalog")
     catalog.register_relation(
         queryfabric.RelationSchema(
-            "neurons",
+            "records",
             [
                 queryfabric.ColumnSchema(
-                    "neuron_id", queryfabric.DataType.uuid(), nullable=False
+                    "record_id", queryfabric.DataType.uuid(), nullable=False
                 ),
                 queryfabric.ColumnSchema(
-                    "cable_length", queryfabric.DataType.float64()
+                    "score", queryfabric.DataType.float64()
                 ),
                 queryfabric.ColumnSchema("species", queryfabric.DataType.utf8()),
             ],
@@ -28,11 +28,11 @@ def catalog() -> queryfabric.MemoryCatalog:
 
 def test_parse_syql_summary_matches_expected_shape() -> None:
     parsed = queryfabric.parse_syql(
-        "SELECT neuron_id FROM neurons WHERE cable_length > 100 LIMIT 5"
+        "SELECT record_id FROM records WHERE score > 100 LIMIT 5"
     )
     summary = parsed.summary()
-    assert summary["primary_relation"] == "neurons"
-    assert summary["projected_columns"] == ["neuron_id"]
+    assert summary["primary_relation"] == "records"
+    assert summary["projected_columns"] == ["record_id"]
     assert summary["predicate_count"] == 1
     assert summary["row_limit"] == 5
     assert summary["scope"] == "local"
@@ -41,7 +41,7 @@ def test_parse_syql_summary_matches_expected_shape() -> None:
 
 def test_inspect_parameters_reports_positional_and_named_placeholders() -> None:
     parsed = queryfabric.parse_sql(
-        "SELECT neuron_id FROM neurons WHERE cable_length > $1 AND species = :species"
+        "SELECT record_id FROM records WHERE score > $1 AND species = :species"
     )
     summary = queryfabric.inspect_parameters(parsed)
     assert summary.positional_count == 1
@@ -50,7 +50,7 @@ def test_inspect_parameters_reports_positional_and_named_placeholders() -> None:
 
 def test_bind_analyze_and_emit_clickhouse() -> None:
     parsed = queryfabric.parse_syql(
-        "SELECT neuron_id FROM neurons WHERE cable_length > 100 LIMIT 3"
+        "SELECT record_id FROM records WHERE score > 100 LIMIT 3"
     )
     bound = queryfabric.bind_and_validate(parsed, catalog())
     analysis = queryfabric.analyze_clickhouse(bound, catalog())
@@ -59,7 +59,7 @@ def test_bind_analyze_and_emit_clickhouse() -> None:
     payload = artifact.to_dict()
     assert payload["dialect"] == "clickhouse"
     assert "SELECT" in payload["text"]
-    assert "neurons" in payload["text"]
+    assert "records" in payload["text"]
 
 
 def test_memory_catalog_document_roundtrip() -> None:
@@ -79,11 +79,11 @@ def test_memory_catalog_from_json_roundtrip() -> None:
 
 
 def test_emit_postgres_sql() -> None:
-    parsed = queryfabric.parse_sql("SELECT neuron_id FROM neurons LIMIT 2")
+    parsed = queryfabric.parse_sql("SELECT record_id FROM records LIMIT 2")
     bound = queryfabric.bind_and_validate(parsed, catalog())
     artifact = queryfabric.emit_postgres_sql(bound, catalog())
     assert artifact.dialect == "postgres"
-    assert artifact.text == "SELECT neurons.neuron_id FROM neurons LIMIT 2"
+    assert artifact.text == "SELECT records.record_id FROM records LIMIT 2"
 
 
 def test_query_parameters_and_json_roundtrip() -> None:
@@ -91,13 +91,13 @@ def test_query_parameters_and_json_roundtrip() -> None:
     params.insert_positional(1, 42.0)
     params.insert_named("species", "mouse")
     parsed = queryfabric.parse_sql(
-        "SELECT neuron_id FROM neurons WHERE cable_length > $1 AND species = :species"
+        "SELECT record_id FROM records WHERE score > $1 AND species = :species"
     )
     bound = queryfabric.bind_and_validate(parsed, catalog(), params)
     payload = bound.to_dict()
     assert payload["parameters"][0]["schema"]["reference"]["Positional"] == 1
     assert payload["parameters"][1]["schema"]["reference"]["Named"] == "species"
-    assert "neurons" in bound.to_json()
+    assert "records" in bound.to_json()
 
 
 def test_query_parameters_accept_json_object_values() -> None:

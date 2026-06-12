@@ -791,14 +791,14 @@ mod tests {
         let parsed = QueryCompiler::default()
             .parse(
                 &SyqlDialect,
-                "SELECT neuron_id FROM neurons WHERE cable_length > 100 LIMIT 5",
+                "SELECT record_id FROM records WHERE score > 100 LIMIT 5",
             )
             .expect("parse");
         let summary = inspect_query(&parsed, None);
-        assert_eq!(summary.primary_relation.as_deref(), Some("neurons"));
+        assert_eq!(summary.primary_relation.as_deref(), Some("records"));
         assert_eq!(
             summary.projected_columns,
-            Some(vec!["neuron_id".to_owned()])
+            Some(vec!["record_id".to_owned()])
         );
         assert_eq!(summary.predicate_count, 1);
         assert_eq!(summary.row_limit, Some(5));
@@ -808,7 +808,7 @@ mod tests {
     fn bind_emit_and_analyze_portable_query() {
         let compiler = QueryCompiler::default();
         let parsed = compiler
-            .parse(&SyqlDialect, "SELECT neuron_id FROM neurons LIMIT 3")
+            .parse(&SyqlDialect, "SELECT record_id FROM records LIMIT 3")
             .expect("parse");
         let bound = compiler
             .bind_and_validate(&parsed, &catalog(), &QueryParameters::default())
@@ -821,7 +821,7 @@ mod tests {
         let sql = postgres.as_sql().expect("sql artifact");
         assert_eq!(sql.dialect, "postgres");
         assert!(sql.text.contains("SELECT"));
-        assert!(sql.text.contains("neurons"));
+        assert!(sql.text.contains("records"));
     }
 
     #[test]

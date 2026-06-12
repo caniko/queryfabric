@@ -1,1 +1,1 @@
-SELECT neuron_id, (SELECT COUNT(weight) FROM synapses) AS synapse_count FROM neurons
+SELECT record_id, (SELECT COUNT(weight) FROM links) AS link_count FROM records

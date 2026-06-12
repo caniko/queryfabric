@@ -21,7 +21,7 @@ const MINIO_IMAGE: &str = "docker.io/minio/minio:RELEASE.2025-02-28T09-55-16Z";
 const MEILISEARCH_IMAGE: &str = "docker.io/getmeili/meilisearch:v1.12.8";
 const POSTGRES_USER: &str = "postgres";
 const POSTGRES_PASSWORD: &str = "postgres";
-const POSTGRES_DB: &str = "syndb";
+const POSTGRES_DB: &str = "queryfabric";
 const MINIO_ACCESS_KEY: &str = "minioadmin";
 const MINIO_SECRET_KEY: &str = "minioadmin";
 const CH_JSON_USERS_XML: &str = r#"<clickhouse>
@@ -500,7 +500,7 @@ impl TestRig {
 
     async fn build(builder: TestRigBuilder) -> eyre::Result<Self> {
         let docker = connect_docker()?;
-        let network = format!("syndb-test-rig-{}", uuid::Uuid::now_v7().simple());
+        let network = format!("queryfabric-test-rig-{}", uuid::Uuid::now_v7().simple());
         ensure_network(&docker, &network).await?;
         register_cleanup(&docker, &network);
 
@@ -663,7 +663,7 @@ async fn start_clickhouse(
             network,
             CLICKHOUSE_IMAGE,
             vec![
-                "CLICKHOUSE_DB=syndb".into(),
+                "CLICKHOUSE_DB=queryfabric".into(),
                 "CLICKHOUSE_DEFAULT_ACCESS_MANAGEMENT=1".into(),
                 "CLICKHOUSE_LISTEN_HOST=0.0.0.0".into(),
             ],
@@ -681,7 +681,7 @@ async fn start_clickhouse(
             network,
             CLICKHOUSE_IMAGE,
             vec![
-                "CLICKHOUSE_DB=syndb".into(),
+                "CLICKHOUSE_DB=queryfabric".into(),
                 "CLICKHOUSE_DEFAULT_ACCESS_MANAGEMENT=1".into(),
                 "CLICKHOUSE_LISTEN_HOST=0.0.0.0".into(),
             ],

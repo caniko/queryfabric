@@ -108,16 +108,16 @@ mod tests {
     #[test]
     fn lowerer_preserves_basic_query_shape() {
         let map = SourceMap::new(
-            "SELECT neuron_id FROM neurons LIMIT 10".into(),
+            "SELECT record_id FROM records LIMIT 10".into(),
             vec![SourcePiece {
                 rewritten_start: 0,
-                rewritten_len: "SELECT neuron_id FROM neurons LIMIT 10".len(),
+                rewritten_len: "SELECT record_id FROM records LIMIT 10".len(),
                 origin: Some(QuerySourceSpan { offset: 0, len: 39 }),
             }],
         );
         let query = parse_sql_with_source_map(
             "sql",
-            "SELECT neuron_id FROM neurons LIMIT 10",
+            "SELECT record_id FROM records LIMIT 10",
             map,
             false,
             DialectMetadata::default(),
@@ -125,7 +125,7 @@ mod tests {
         .expect("parse");
         assert_eq!(
             query.rendered_sql(),
-            "SELECT neuron_id FROM neurons LIMIT 10"
+            "SELECT record_id FROM records LIMIT 10"
         );
         assert!(query.syntax().node.span.is_some());
     }

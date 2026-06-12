@@ -6,7 +6,7 @@ fn main() -> Result<(), queryfabric::QueryFabricError> {
     let compiler = QueryCompiler::default();
     let parsed = compiler.parse(
         &GenericSqlDialect,
-        "SELECT neuron_id, cable_length FROM neurons WHERE cable_length > $1 LIMIT 5",
+        "SELECT record_id, score FROM records WHERE score > $1 LIMIT 5",
     )?;
 
     let catalog = queryfabric::portable_catalog("quickstart-catalog");

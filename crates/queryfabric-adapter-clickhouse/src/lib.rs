@@ -1859,7 +1859,7 @@ mod tests {
         let mut catalog = MemoryCatalog::default();
         catalog.register_relation(RelationSchema {
             namespace: None,
-            name: "neurons".into(),
+            name: "records".into(),
             aliases: Vec::new(),
             kind: RelationKind::Table,
             columns: vec![
@@ -1870,13 +1870,13 @@ mod tests {
                     metadata: Default::default(),
                 },
                 ColumnSchema {
-                    name: "neuron_id".into(),
+                    name: "record_id".into(),
                     data_type: DataType::Uuid,
                     nullable: false,
                     metadata: Default::default(),
                 },
                 ColumnSchema {
-                    name: "cable_length".into(),
+                    name: "score".into(),
                     data_type: DataType::Float64,
                     nullable: true,
                     metadata: Default::default(),
@@ -1950,14 +1950,14 @@ mod tests {
     #[test]
     fn emits_sql_for_plain_select() {
         let catalog = catalog();
-        let bound = bind("SELECT neuron_id, cable_length FROM neurons LIMIT 10");
+        let bound = bind("SELECT record_id, score FROM records LIMIT 10");
         let artifact = ClickHouseAdapter.emit(&bound, &catalog).expect("emit");
         let EmitArtifact::Sql(sql) = artifact else {
             panic!("expected SQL artifact");
         };
         assert_eq!(
             sql.text,
-            "SELECT toString(neurons.neuron_id) AS neuron_id, neurons.cable_length FROM neurons LIMIT 10"
+            "SELECT toString(records.record_id) AS record_id, records.score FROM records LIMIT 10"
         );
         assert_eq!(sql.result_schema.fields().len(), 2);
         assert_eq!(sql.result_schema.fields()[0].data_type, DataType::Utf8);
@@ -1985,30 +1985,30 @@ mod tests {
     #[test]
     fn rewrites_uuid_projection_and_group_by_for_arrow_output() {
         let catalog = catalog();
-        let bound = bind("SELECT neuron_id, count() AS n FROM neurons GROUP BY neuron_id");
+        let bound = bind("SELECT record_id, count() AS n FROM records GROUP BY record_id");
         let artifact = ClickHouseAdapter.emit(&bound, &catalog).expect("emit");
         let EmitArtifact::Sql(sql) = artifact else {
             panic!("expected SQL artifact");
         };
         assert_eq!(
             sql.text,
-            "SELECT toString(neurons.neuron_id) AS neuron_id, count(*) AS n FROM neurons GROUP BY toString(neurons.neuron_id)"
+            "SELECT toString(records.record_id) AS record_id, count(*) AS n FROM records GROUP BY toString(records.record_id)"
         );
         assert_eq!(sql.result_schema.fields()[0].data_type, DataType::Utf8);
-        assert_eq!(sql.result_schema.fields()[0].name, "neuron_id");
+        assert_eq!(sql.result_schema.fields()[0].name, "record_id");
     }
 
     #[test]
     fn rewrites_uuid_wildcard_projection_for_arrow_output() {
         let catalog = catalog();
-        let bound = bind("SELECT * FROM neurons");
+        let bound = bind("SELECT * FROM records");
         let artifact = ClickHouseAdapter.emit(&bound, &catalog).expect("emit");
         let EmitArtifact::Sql(sql) = artifact else {
             panic!("expected SQL artifact");
         };
         assert_eq!(
             sql.text,
-            "SELECT neurons.dataset_id AS dataset_id, toString(neurons.neuron_id) AS neuron_id, neurons.cable_length AS cable_length FROM neurons"
+            "SELECT records.dataset_id AS dataset_id, toString(records.record_id) AS record_id, records.score AS score FROM records"
         );
         assert_eq!(sql.result_schema.fields()[1].data_type, DataType::Utf8);
     }
@@ -2016,26 +2016,26 @@ mod tests {
     #[test]
     fn leaves_non_uuid_projection_unchanged_for_arrow_output() {
         let catalog = catalog();
-        let bound = bind("SELECT count() AS n FROM neurons");
+        let bound = bind("SELECT count() AS n FROM records");
         let artifact = ClickHouseAdapter.emit(&bound, &catalog).expect("emit");
         let EmitArtifact::Sql(sql) = artifact else {
             panic!("expected SQL artifact");
         };
-        assert_eq!(sql.text, "SELECT count(*) AS n FROM neurons");
+        assert_eq!(sql.text, "SELECT count(*) AS n FROM records");
         assert_eq!(sql.result_schema.fields()[0].data_type, DataType::Int64);
     }
 
     #[test]
     fn preserves_existing_uuid_to_string_cast_without_double_wrap() {
         let catalog = catalog();
-        let bound = bind("SELECT toString(neuron_id) AS neuron_id FROM neurons");
+        let bound = bind("SELECT toString(record_id) AS record_id FROM records");
         let artifact = ClickHouseAdapter.emit(&bound, &catalog).expect("emit");
         let EmitArtifact::Sql(sql) = artifact else {
             panic!("expected SQL artifact");
         };
         assert_eq!(
             sql.text,
-            "SELECT toString(neurons.neuron_id) AS neuron_id FROM neurons"
+            "SELECT toString(records.record_id) AS record_id FROM records"
         );
         assert!(!sql.text.contains("toString(toString"), "{}", sql.text);
         assert_eq!(sql.result_schema.fields()[0].data_type, DataType::Utf8);
@@ -2046,8 +2046,8 @@ mod tests {
         let catalog = catalog();
         let parsed = GenericSqlDialect
             .parse(
-                "SELECT dataset_id, count(neuron_id) \
-                 FROM neurons \
+                "SELECT dataset_id, count(record_id) \
+                 FROM records \
                  WHERE dataset_id = 'fafb' \
                  GROUP BY dataset_id",
             )
