@@ -147,7 +147,7 @@ fn catalog() -> MemoryCatalog {
     catalog.register_relation(RelationSchema {
         namespace: None,
         name: "records".into(),
-        aliases: vec!["n".into()],
+        aliases: vec!["r".into()],
         kind: RelationKind::Table,
         columns: vec![
             ColumnSchema {
@@ -174,7 +174,7 @@ fn catalog() -> MemoryCatalog {
     catalog.register_relation(RelationSchema {
         namespace: None,
         name: "links".into(),
-        aliases: vec!["s".into()],
+        aliases: vec!["l".into()],
         kind: RelationKind::Table,
         columns: vec![
             ColumnSchema {
@@ -409,17 +409,17 @@ fn render_join(
     threshold: i64,
     limit: Option<u32>,
 ) -> (String, QueryParameters) {
-    let mut sql = String::from("SELECT n.record_id, s.weight FROM records AS n ");
+    let mut sql = String::from("SELECT r.record_id, l.weight FROM records AS r ");
     sql.push_str(kind.render());
-    sql.push_str(" links AS s");
+    sql.push_str(" links AS l");
     if !matches!(kind, JoinKindSpec::Cross) {
-        sql.push_str(" ON n.record_id = s.target_record_id");
+        sql.push_str(" ON r.record_id = l.target_record_id");
     }
     sql.push_str(" WHERE ");
     if matches!(kind, JoinKindSpec::Cross) {
-        sql.push_str("n.record_id = s.target_record_id AND ");
+        sql.push_str("r.record_id = l.target_record_id AND ");
     }
-    sql.push_str(&format!("s.weight > {threshold}"));
+    sql.push_str(&format!("l.weight > {threshold}"));
     if let Some(limit) = limit {
         sql.push_str(&format!(" LIMIT {limit}"));
     }
@@ -428,15 +428,15 @@ fn render_join(
 
 fn render_aggregate(kind: AggregateKind, threshold: i64) -> (String, QueryParameters) {
     let aggregate = match kind {
-        AggregateKind::Count { distinct: true } => "COUNT(DISTINCT s.target_record_id)".to_string(),
-        AggregateKind::Count { distinct: false } => "COUNT(s.target_record_id)".to_string(),
-        AggregateKind::Sum => "SUM(s.weight)".to_string(),
-        AggregateKind::Avg => "AVG(s.weight)".to_string(),
-        AggregateKind::Min => "MIN(s.weight)".to_string(),
-        AggregateKind::Max => "MAX(s.weight)".to_string(),
+        AggregateKind::Count { distinct: true } => "COUNT(DISTINCT l.target_record_id)".to_string(),
+        AggregateKind::Count { distinct: false } => "COUNT(l.target_record_id)".to_string(),
+        AggregateKind::Sum => "SUM(l.weight)".to_string(),
+        AggregateKind::Avg => "AVG(l.weight)".to_string(),
+        AggregateKind::Min => "MIN(l.weight)".to_string(),
+        AggregateKind::Max => "MAX(l.weight)".to_string(),
     };
     let sql = format!(
-        "SELECT n.record_id, {aggregate} AS aggregate_value FROM records AS n INNER JOIN links AS s ON n.record_id = s.target_record_id GROUP BY n.record_id HAVING {aggregate} > {threshold}"
+        "SELECT r.record_id, {aggregate} AS aggregate_value FROM records AS r INNER JOIN links AS l ON r.record_id = l.target_record_id GROUP BY r.record_id HAVING {aggregate} > {threshold}"
     );
     (sql, QueryParameters::default())
 }

@@ -112,7 +112,7 @@ pub fn portable_subset_seed() -> PortableSubsetCorpus {
                 .backends("supported", "supported")
                 .build(),
             case("inner-join")
-                .query("SELECT n.record_id, s.weight FROM records AS n INNER JOIN links AS s ON n.record_id = s.target_record_id")
+                .query("SELECT r.record_id, l.weight FROM records AS r INNER JOIN links AS l ON r.record_id = l.target_record_id")
                 .capabilities(["Joins"])
                 .schema([
                     field("record_id", DataType::Uuid, false),
@@ -121,7 +121,7 @@ pub fn portable_subset_seed() -> PortableSubsetCorpus {
                 .backends("supported", "supported")
                 .build(),
             case("left-join")
-                .query("SELECT n.record_id, s.weight FROM records AS n LEFT JOIN links AS s ON n.record_id = s.target_record_id")
+                .query("SELECT r.record_id, l.weight FROM records AS r LEFT JOIN links AS l ON r.record_id = l.target_record_id")
                 .capabilities(["Joins"])
                 .schema([
                     field("record_id", DataType::Uuid, false),
@@ -130,7 +130,7 @@ pub fn portable_subset_seed() -> PortableSubsetCorpus {
                 .backends("supported", "supported")
                 .build(),
             case("right-join")
-                .query("SELECT n.record_id, s.weight FROM records AS n RIGHT JOIN links AS s ON n.record_id = s.target_record_id")
+                .query("SELECT r.record_id, l.weight FROM records AS r RIGHT JOIN links AS l ON r.record_id = l.target_record_id")
                 .capabilities(["Joins"])
                 .schema([
                     field("record_id", DataType::Uuid, true),
@@ -139,7 +139,7 @@ pub fn portable_subset_seed() -> PortableSubsetCorpus {
                 .backends("supported", "supported")
                 .build(),
             case("full-join")
-                .query("SELECT n.record_id, s.weight FROM records AS n FULL JOIN links AS s ON n.record_id = s.target_record_id")
+                .query("SELECT r.record_id, l.weight FROM records AS r FULL JOIN links AS l ON r.record_id = l.target_record_id")
                 .capabilities(["Joins"])
                 .schema([
                     field("record_id", DataType::Uuid, true),
@@ -148,7 +148,7 @@ pub fn portable_subset_seed() -> PortableSubsetCorpus {
                 .backends("supported", "supported")
                 .build(),
             case("cross-join")
-                .query("SELECT n.record_id, s.weight FROM records AS n CROSS JOIN links AS s")
+                .query("SELECT r.record_id, l.weight FROM records AS r CROSS JOIN links AS l")
                 .capabilities(["Joins"])
                 .schema([
                     field("record_id", DataType::Uuid, false),
@@ -285,7 +285,7 @@ pub fn portable_subset_seed() -> PortableSubsetCorpus {
                 .bind_errors(["QF0002"])
                 .build(),
             case("correlated-subquery")
-                .query("SELECT record_id FROM records AS n WHERE EXISTS (SELECT 1 FROM links AS s WHERE s.target_record_id = n.record_id)")
+                .query("SELECT record_id FROM records AS r WHERE EXISTS (SELECT 1 FROM links AS l WHERE l.target_record_id = r.record_id)")
                 .backends("rejected", "rejected")
                 .bind_errors(["QF0014"])
                 .build(),

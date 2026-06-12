@@ -1,4 +1,4 @@
-SELECT n.record_id, AVG(s.weight) AS mean_weight
-FROM records AS n
-LEFT JOIN links AS s ON n.record_id = s.target_record_id
-GROUP BY n.record_id
+SELECT r.record_id, AVG(l.weight) AS mean_weight
+FROM records AS r
+LEFT JOIN links AS l ON r.record_id = l.target_record_id
+GROUP BY r.record_id

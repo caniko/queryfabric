@@ -77,7 +77,7 @@ fn aggregate_schema_preserves_empty_input_nullability() {
 #[test]
 fn qualified_wildcard_schema_stays_scoped() {
     let bound = bind(
-        "SELECT n.* FROM records AS n LEFT JOIN links AS s ON n.record_id = s.target_record_id",
+        "SELECT r.* FROM records AS r LEFT JOIN links AS l ON r.record_id = l.target_record_id",
     );
     assert_eq!(
         bound.result_schema().fields(),
@@ -91,7 +91,7 @@ fn qualified_wildcard_schema_stays_scoped() {
 #[test]
 fn join_projection_schema_tracks_all_fields() {
     let bound = bind(
-        "SELECT * FROM records AS n INNER JOIN links AS s ON n.record_id = s.target_record_id",
+        "SELECT * FROM records AS r INNER JOIN links AS l ON r.record_id = l.target_record_id",
     );
     assert_eq!(
         bound.result_schema().fields(),
@@ -145,7 +145,7 @@ fn in_list_propagates_nullable_items() {
 #[test]
 fn left_join_projection_makes_right_side_nullable() {
     let bound = bind(
-        "SELECT n.record_id, s.weight FROM records AS n LEFT JOIN links AS s ON n.record_id = s.target_record_id",
+        "SELECT r.record_id, l.weight FROM records AS r LEFT JOIN links AS l ON r.record_id = l.target_record_id",
     );
     assert_eq!(
         bound.result_schema().fields(),
@@ -159,7 +159,7 @@ fn left_join_projection_makes_right_side_nullable() {
 #[test]
 fn right_join_projection_makes_left_side_nullable() {
     let bound = bind(
-        "SELECT n.record_id, s.weight FROM records AS n RIGHT JOIN links AS s ON n.record_id = s.target_record_id",
+        "SELECT r.record_id, l.weight FROM records AS r RIGHT JOIN links AS l ON r.record_id = l.target_record_id",
     );
     assert_eq!(
         bound.result_schema().fields(),
@@ -173,7 +173,7 @@ fn right_join_projection_makes_left_side_nullable() {
 #[test]
 fn full_join_projection_makes_both_sides_nullable() {
     let bound = bind(
-        "SELECT n.record_id, s.weight FROM records AS n FULL JOIN links AS s ON n.record_id = s.target_record_id",
+        "SELECT r.record_id, l.weight FROM records AS r FULL JOIN links AS l ON r.record_id = l.target_record_id",
     );
     assert_eq!(
         bound.result_schema().fields(),

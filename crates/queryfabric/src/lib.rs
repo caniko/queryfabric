@@ -171,7 +171,7 @@ pub fn portable_catalog(snapshot_id: impl Into<String>) -> MemoryCatalog {
     catalog.register_relation(RelationSchema {
         namespace: None,
         name: "records".into(),
-        aliases: vec!["n".into()],
+        aliases: vec!["r".into()],
         kind: RelationKind::Table,
         columns: vec![
             ColumnSchema {
@@ -192,7 +192,7 @@ pub fn portable_catalog(snapshot_id: impl Into<String>) -> MemoryCatalog {
     catalog.register_relation(RelationSchema {
         namespace: None,
         name: "links".into(),
-        aliases: vec!["s".into()],
+        aliases: vec!["l".into()],
         kind: RelationKind::Table,
         columns: vec![
             ColumnSchema {

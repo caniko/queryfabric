@@ -10,7 +10,7 @@ fn catalog() -> impl Catalog {
     catalog.register_relation(RelationSchema {
         namespace: None,
         name: "records".into(),
-        aliases: vec!["n".into()],
+        aliases: vec!["r".into()],
         kind: RelationKind::Table,
         columns: vec![
             ColumnSchema {
