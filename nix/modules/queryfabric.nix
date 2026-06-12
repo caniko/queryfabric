@@ -9,13 +9,15 @@
   lib,
   pkgs,
   ...
-}: let
+}:
+let
   cfg = config.services.queryfabric;
 
   credentials =
     lib.optional (cfg.database.urlFile != null) "db-url:${cfg.database.urlFile}"
     ++ lib.optional (cfg.store.credentialsFile != null) "store-creds:${cfg.store.credentialsFile}";
-in {
+in
+{
   options.services.queryfabric = {
     enable = lib.mkEnableOption "the QueryFabric self-host demonstrator service";
 
@@ -79,7 +81,10 @@ in {
 
     store = {
       backend = lib.mkOption {
-        type = lib.types.enum ["memory" "s3"];
+        type = lib.types.enum [
+          "memory"
+          "s3"
+        ];
         default = "memory";
         description = ''
           Object-store backend for export bundles and artifacts. `memory`
@@ -131,8 +136,8 @@ in {
 
       hubMultiaddrs = lib.mkOption {
         type = lib.types.listOf lib.types.str;
-        default = [];
-        example = ["/dns4/hub.example.org/tcp/4001"];
+        default = [ ];
+        example = [ "/dns4/hub.example.org/tcp/4001" ];
         description = "Multiaddrs of federation hubs to announce.";
       };
 
@@ -164,44 +169,44 @@ in {
       }
     ];
 
-    networking.firewall.allowedTCPPorts = lib.mkIf cfg.openFirewall [cfg.port];
+    networking.firewall.allowedTCPPorts = lib.mkIf cfg.openFirewall [ cfg.port ];
 
     systemd.services.queryfabric = {
       description = "QueryFabric self-host demonstrator";
-      wantedBy = ["multi-user.target"];
-      after = ["network-online.target" "postgresql.service" "minio.service"];
-      wants = ["network-online.target"];
+      wantedBy = [ "multi-user.target" ];
+      after = [
+        "network-online.target"
+        "postgresql.service"
+        "minio.service"
+      ];
+      wants = [ "network-online.target" ];
 
-      environment =
-        {
-          RUST_LOG = cfg.logLevel;
-          QFDEMO_LISTEN_ADDR = "${cfg.listenAddress}:${toString cfg.port}";
-          QFDEMO_STORE_BACKEND = cfg.store.backend;
-          QFDEMO_FEDERATION_ENABLE =
-            if cfg.federation.enable
-            then "true"
-            else "false";
-          QFDEMO_FEDERATION_NODE_NAME = cfg.federation.nodeName;
-          QFDEMO_FEDERATION_FLIGHT_PORT = toString cfg.federation.flightPort;
-        }
-        // lib.optionalAttrs (cfg.publicBaseUrl != null) {
-          QFDEMO_PUBLIC_BASE_URL = cfg.publicBaseUrl;
-        }
-        // lib.optionalAttrs (cfg.database.urlFile != null) {
-          QFDEMO_DATABASE_URL_FILE = "%d/db-url";
-        }
-        // lib.optionalAttrs (cfg.database.urlFile == null && cfg.database.url != null) {
-          QFDEMO_DATABASE_URL = cfg.database.url;
-        }
-        // lib.optionalAttrs (cfg.store.backend == "s3") {
-          QFDEMO_STORE_ENDPOINT = cfg.store.endpoint;
-          QFDEMO_STORE_BUCKET = cfg.store.bucket;
-          QFDEMO_STORE_REGION = cfg.store.region;
-          QFDEMO_STORE_CREDENTIALS_FILE = "%d/store-creds";
-        }
-        // lib.optionalAttrs (cfg.federation.hubMultiaddrs != []) {
-          QFDEMO_FEDERATION_HUB_MULTIADDRS = lib.concatStringsSep "," cfg.federation.hubMultiaddrs;
-        };
+      environment = {
+        RUST_LOG = cfg.logLevel;
+        QFDEMO_LISTEN_ADDR = "${cfg.listenAddress}:${toString cfg.port}";
+        QFDEMO_STORE_BACKEND = cfg.store.backend;
+        QFDEMO_FEDERATION_ENABLE = if cfg.federation.enable then "true" else "false";
+        QFDEMO_FEDERATION_NODE_NAME = cfg.federation.nodeName;
+        QFDEMO_FEDERATION_FLIGHT_PORT = toString cfg.federation.flightPort;
+      }
+      // lib.optionalAttrs (cfg.publicBaseUrl != null) {
+        QFDEMO_PUBLIC_BASE_URL = cfg.publicBaseUrl;
+      }
+      // lib.optionalAttrs (cfg.database.urlFile != null) {
+        QFDEMO_DATABASE_URL_FILE = "%d/db-url";
+      }
+      // lib.optionalAttrs (cfg.database.urlFile == null && cfg.database.url != null) {
+        QFDEMO_DATABASE_URL = cfg.database.url;
+      }
+      // lib.optionalAttrs (cfg.store.backend == "s3") {
+        QFDEMO_STORE_ENDPOINT = cfg.store.endpoint;
+        QFDEMO_STORE_BUCKET = cfg.store.bucket;
+        QFDEMO_STORE_REGION = cfg.store.region;
+        QFDEMO_STORE_CREDENTIALS_FILE = "%d/store-creds";
+      }
+      // lib.optionalAttrs (cfg.federation.hubMultiaddrs != [ ]) {
+        QFDEMO_FEDERATION_HUB_MULTIADDRS = lib.concatStringsSep "," cfg.federation.hubMultiaddrs;
+      };
 
       serviceConfig = {
         ExecStart = lib.getExe cfg.package;
@@ -225,14 +230,21 @@ in {
         ProtectKernelTunables = true;
         ProtectProc = "invisible";
         ProcSubset = "pid";
-        RestrictAddressFamilies = ["AF_INET" "AF_INET6" "AF_UNIX"];
+        RestrictAddressFamilies = [
+          "AF_INET"
+          "AF_INET6"
+          "AF_UNIX"
+        ];
         RestrictNamespaces = true;
         RestrictRealtime = true;
         RestrictSUIDSGID = true;
         LockPersonality = true;
         MemoryDenyWriteExecute = true;
         SystemCallArchitectures = "native";
-        SystemCallFilter = ["@system-service" "~@privileged"];
+        SystemCallFilter = [
+          "@system-service"
+          "~@privileged"
+        ];
         CapabilityBoundingSet = "";
         AmbientCapabilities = "";
         UMask = "0077";

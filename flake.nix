@@ -7,18 +7,41 @@
     crane.url = "github:ipetkov/crane";
   };
 
-  outputs = {
-    self,
-    nixpkgs,
-    flake-utils,
-    crane,
-    ...
-  }:
+  outputs =
+    {
+      self,
+      nixpkgs,
+      flake-utils,
+      crane,
+      ...
+    }:
     flake-utils.lib.eachDefaultSystem (
-      system: let
-        pkgs = import nixpkgs {inherit system;};
+      system:
+      let
+        pkgs = import nixpkgs { inherit system; };
         lib = pkgs.lib;
         craneLib = crane.mkLib pkgs;
+        nixfmt = pkgs.nixfmt;
+        nixSources = lib.fileset.toSource {
+          root = ./.;
+          fileset = lib.fileset.unions [
+            ./flake.nix
+            ./nix
+          ];
+        };
+        nixFormatter = pkgs.writeShellApplication {
+          name = "queryfabric-format";
+          runtimeInputs = [
+            nixfmt
+            pkgs.findutils
+          ];
+          text = ''
+            find . \
+              \( -path './.git' -o -path './result' -o -path './target' -o -path './node_modules' \) -prune \
+              -o -name '*.nix' -print0 \
+              | xargs -0 nixfmt "$@"
+          '';
+        };
 
         queryfabric-demo = craneLib.buildPackage {
           pname = "queryfabric-demo";
@@ -46,15 +69,19 @@
             root = ./.;
             fileset = lib.fileset.maybeMissing ./website;
           };
-          nativeBuildInputs = [pkgs.zola];
-          phases = ["buildPhase" "installPhase"];
+          nativeBuildInputs = [ pkgs.zola ];
+          phases = [
+            "buildPhase"
+            "installPhase"
+          ];
           buildPhase = ''
-            cp -r --no-preserve=mode $src/website site
+            set -euo pipefail
+            cp -r --no-preserve=mode "$src/website" site
             cd site
             zola build
           '';
           installPhase = ''
-            cp -r public $out
+            cp -r public "$out"
           '';
         };
 
@@ -65,58 +92,76 @@
             root = ./.;
             fileset = lib.fileset.maybeMissing ./docs;
           };
-          nativeBuildInputs = [pkgs.mdbook];
-          phases = ["buildPhase" "installPhase"];
+          nativeBuildInputs = [ pkgs.mdbook ];
+          phases = [
+            "buildPhase"
+            "installPhase"
+          ];
           buildPhase = ''
-            cp -r --no-preserve=mode $src/docs docs
+            set -euo pipefail
+            cp -r --no-preserve=mode "$src/docs" docs
             mdbook build docs
           '';
           installPhase = ''
-            cp -r docs/book $out
+            cp -r docs/book "$out"
           '';
         };
 
-        site = pkgs.runCommand "queryfabric-site" {} ''
+        site = pkgs.runCommand "queryfabric-site" { } ''
+          set -euo pipefail
           mkdir -p $out
-          cp -r ${website}/* $out/
+          cp -r ${website}/* "$out/"
           mkdir -p $out/docs
-          cp -r ${docs}/* $out/docs/
+          cp -r ${docs}/* "$out/docs/"
         '';
-      in {
+      in
+      {
+        formatter = nixFormatter;
+
         packages = {
-          inherit website docs site queryfabric-demo;
+          inherit
+            website
+            docs
+            site
+            queryfabric-demo
+            ;
           default = site;
         };
 
-        checks =
-          {
-            # Fast gate: the demonstrator builds (and its unit tests pass)
-            # on every check run.
-            inherit queryfabric-demo;
-          }
-          // lib.optionalAttrs pkgs.stdenv.hostPlatform.isLinux {
-            # Heavy gate: boot a VM with Postgres + MinIO + the NixOS
-            # module and drive query/export/GDPR end-to-end.
-            selfhost = import ./nix/tests/selfhost.nix {
-              inherit pkgs;
-              nixosModule = self.nixosModules.queryfabric;
-            };
+        checks = {
+          # Fast gate: the demonstrator builds (and its unit tests pass)
+          # on every check run.
+          inherit queryfabric-demo;
+
+          nixfmt = pkgs.runCommand "queryfabric-nixfmt-check" { nativeBuildInputs = [ nixfmt ]; } ''
+            set -euo pipefail
+            find ${nixSources} -name '*.nix' -print0 | xargs -0 nixfmt --check
+            touch "$out"
+          '';
+        }
+        // lib.optionalAttrs pkgs.stdenv.hostPlatform.isLinux {
+          # Heavy gate: boot a VM with Postgres + MinIO + the NixOS
+          # module and drive query/export/GDPR end-to-end.
+          selfhost = import ./nix/tests/selfhost.nix {
+            inherit pkgs;
+            nixosModule = self.nixosModules.queryfabric;
           };
+        };
 
         devShells.default = pkgs.mkShell {
-          packages = with pkgs; [
-            cargo
-            cargo-fuzz
-            clippy
-            maturin
-            mdbook
-            openssl
-            pkg-config
-            python3
-            rust-analyzer
-            rustc
-            rustfmt
-            zola
+          packages = [
+            pkgs.cargo
+            pkgs.cargo-fuzz
+            pkgs.clippy
+            pkgs.maturin
+            pkgs.mdbook
+            pkgs.openssl
+            pkgs.pkg-config
+            pkgs.python3
+            pkgs.rust-analyzer
+            pkgs.rustc
+            pkgs.rustfmt
+            pkgs.zola
           ];
 
           shellHook = ''
@@ -130,16 +175,18 @@
     // {
       nixosModules = {
         default = self.nixosModules.queryfabric;
-        queryfabric = {
-          pkgs,
-          lib,
-          ...
-        }: {
-          imports = [./nix/modules/queryfabric.nix];
-          services.queryfabric.package =
-            lib.mkDefault
-            self.packages.${pkgs.stdenv.hostPlatform.system}.queryfabric-demo;
-        };
+        queryfabric =
+          {
+            pkgs,
+            lib,
+            ...
+          }:
+          {
+            imports = [ ./nix/modules/queryfabric.nix ];
+            services.queryfabric.package =
+              lib.mkDefault
+                self.packages.${pkgs.stdenv.hostPlatform.system}.queryfabric-demo;
+          };
       };
     };
 }
