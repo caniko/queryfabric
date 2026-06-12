@@ -39,6 +39,15 @@ pub enum HashError {
 /// Result type used by this crate.
 pub type Result<T> = std::result::Result<T, HashError>;
 
+/// Hex-encoded blake3 digest of an in-memory byte slice.
+///
+/// The non-filesystem entry point: content addressing for payloads that are
+/// already in memory (e.g. canonical export-bundle JSON).
+#[must_use]
+pub fn hash_bytes(bytes: &[u8]) -> String {
+    blake3::hash(bytes).to_hex().to_string()
+}
+
 /// Hash a single file with blake3 (streaming, constant memory).
 ///
 /// # Errors

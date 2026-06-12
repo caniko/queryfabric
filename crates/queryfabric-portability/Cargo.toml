@@ -11,8 +11,8 @@ rust-version.workspace = true
 
 [dependencies]
 async-trait = { workspace = true }
-blake3 = { workspace = true }
 queryfabric-access = { workspace = true }
+queryfabric-content-hash = { workspace = true }
 queryfabric-contract = { workspace = true }
 queryfabric-provenance = { workspace = true }
 serde = { workspace = true }
