@@ -31,3 +31,4 @@
 # Project
 
 - [Conformance and Release](./project/conformance-and-release.md)
+- [Threat Model](./project/threat-model.md)
