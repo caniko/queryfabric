@@ -1,6 +1,6 @@
 [package]
 name = "queryfabric-paseto"
-description = "PASETO token issuance and verification"
+description = "PASETO v4.local token validation primitives: bearer extraction, secret validation, raw claim parsing"
 version.workspace = true
 edition.workspace = true
 license.workspace = true
@@ -10,3 +10,15 @@ documentation.workspace = true
 rust-version.workspace = true
 
 [dependencies]
+chrono = { version = "=0.4.41", default-features = false, features = [
+  "std",
+  "clock",
+  "serde",
+] }
+rusty_paseto = "0.9"
+serde = { workspace = true }
+serde_json = { workspace = true }
+thiserror = { workspace = true }
+tracing = "0.1"
+utoipa = { version = "5", features = ["uuid"] }
+uuid = { workspace = true, features = ["serde"] }

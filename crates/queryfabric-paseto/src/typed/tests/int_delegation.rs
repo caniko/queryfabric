@@ -1,0 +1,241 @@
+use super::*;
+
+// -----------------------------------------------------------------
+// Delegation token tests
+// -----------------------------------------------------------------
+
+fn test_user() -> AuthUser {
+    AuthUser {
+        id: test_uuid(),
+        email: Email::new_unchecked("researcher@university.edu"),
+        is_active: true,
+        is_superuser: false,
+        is_verified: true,
+        user_type: UserType::default(),
+        roles: Vec::new(),
+    }
+}
+
+#[test]
+fn delegation_token_roundtrip() {
+    let user = test_user();
+    let ids = vec![Uuid::now_v7(), Uuid::now_v7(), Uuid::now_v7()];
+    let table = 1; // example table id
+
+    let token = mint_delegation_token(&user, &ids, table, TEST_SECRET).unwrap();
+    let claims = validate_delegation_token(&token, TEST_SECRET).unwrap();
+
+    assert_eq!(claims.sub, user.id);
+    assert_eq!(claims.email.as_str(), user.email.as_str());
+    assert_eq!(claims.dataset_ids, ids);
+    assert_eq!(claims.syndb_table, table);
+}
+
+#[test]
+fn delegation_token_empty_dataset_ids() {
+    let user = test_user();
+    let token = mint_delegation_token(&user, &[], 3, TEST_SECRET).unwrap();
+    let claims = validate_delegation_token(&token, TEST_SECRET).unwrap();
+    assert!(claims.dataset_ids.is_empty());
+    assert_eq!(claims.syndb_table, 3);
+}
+
+#[test]
+fn delegation_token_wrong_secret_rejected() {
+    let user = test_user();
+    let token = mint_delegation_token(&user, &[Uuid::now_v7()], 1, TEST_SECRET).unwrap();
+    let wrong = "wrong_secret_key_1234567890abcdef";
+    assert!(validate_delegation_token(&token, wrong).is_err());
+}
+
+#[test]
+fn delegation_token_rejects_regular_token() {
+    // A regular user token has no scope claim → should fail validation
+    let uid = test_uuid();
+    let token = build_token(&[("sub", &uid.to_string()), ("email", "test@example.com")]);
+    let err = validate_delegation_token(&token, TEST_SECRET).unwrap_err();
+    assert!(matches!(err, AuthError::MissingDelegationClaim(_)));
+}
+
+#[test]
+fn delegation_token_rejects_wrong_scope() {
+    let uid = test_uuid();
+    let token = build_token(&[
+        ("sub", &uid.to_string()),
+        ("email", "test@example.com"),
+        ("scope", "user"),
+        ("dataset_ids", "[]"),
+        ("syndb_table", "1"),
+    ]);
+    let err = validate_delegation_token(&token, TEST_SECRET).unwrap_err();
+    assert!(matches!(err, AuthError::InvalidScope { .. }));
+}
+
+#[test]
+fn delegation_token_all_syndb_tables() {
+    let user = test_user();
+    let id = Uuid::now_v7();
+    for table in 1..=11 {
+        let token = mint_delegation_token(&user, &[id], table, TEST_SECRET).unwrap();
+        let claims = validate_delegation_token(&token, TEST_SECRET).unwrap();
+        assert_eq!(claims.syndb_table, table);
+    }
+}
+
+#[test]
+fn delegation_token_short_secret_rejected() {
+    let user = test_user();
+    for short in ["", "short", "abcdefghijklmnopqrstuvwxyz01234"] {
+        assert!(
+            matches!(
+                mint_delegation_token(&user, &[Uuid::now_v7()], 1, short).unwrap_err(),
+                AuthError::SecretTooShort
+            ),
+            "mint should reject secret of len {}",
+            short.len()
+        );
+    }
+    // validate also rejects short secrets
+    assert!(matches!(
+        validate_delegation_token("v4.local.fake", "short").unwrap_err(),
+        AuthError::SecretTooShort
+    ));
+}
+
+#[test]
+fn delegation_token_many_dataset_ids() {
+    let user = test_user();
+    let ids: Vec<Uuid> = (0..500).map(|_| Uuid::now_v7()).collect();
+    let token = mint_delegation_token(&user, &ids, 1, TEST_SECRET).unwrap();
+    let claims = validate_delegation_token(&token, TEST_SECRET).unwrap();
+    assert_eq!(claims.dataset_ids.len(), 500);
+    assert_eq!(claims.dataset_ids, ids);
+}
+
+#[test]
+fn delegation_token_negative_syndb_table() {
+    let user = test_user();
+    let token = mint_delegation_token(&user, &[Uuid::now_v7()], -1, TEST_SECRET).unwrap();
+    let claims = validate_delegation_token(&token, TEST_SECRET).unwrap();
+    assert_eq!(claims.syndb_table, -1);
+}
+
+#[test]
+fn delegation_token_preserves_email_exactly() {
+    let emails = [
+        "researcher@university.edu",
+        "a@b.c",
+        "user+tag@example.com",
+        "UPPER@CASE.ORG",
+    ];
+    for email in emails {
+        let user = AuthUser {
+            id: test_uuid(),
+            email: Email::new_unchecked(email),
+            is_active: true,
+            is_superuser: false,
+            is_verified: true,
+            user_type: UserType::default(),
+            roles: Vec::new(),
+        };
+        let token = mint_delegation_token(&user, &[], 1, TEST_SECRET).unwrap();
+        let claims = validate_delegation_token(&token, TEST_SECRET).unwrap();
+        assert_eq!(claims.email.as_str(), email);
+    }
+}
+
+#[test]
+fn delegation_token_missing_dataset_ids_claim() {
+    let uid = test_uuid();
+    let token = build_token(&[
+        ("sub", &uid.to_string()),
+        ("email", "test@example.com"),
+        ("scope", "delegation"),
+        ("syndb_table", "1"),
+        // dataset_ids intentionally omitted
+    ]);
+    let err = validate_delegation_token(&token, TEST_SECRET).unwrap_err();
+    assert!(matches!(err, AuthError::MissingDelegationClaim(ref f) if f == "dataset_ids"));
+}
+
+#[test]
+fn delegation_token_missing_syndb_table_claim() {
+    let uid = test_uuid();
+    let token = build_token(&[
+        ("sub", &uid.to_string()),
+        ("email", "test@example.com"),
+        ("scope", "delegation"),
+        ("dataset_ids", "[]"),
+        // syndb_table intentionally omitted
+    ]);
+    let err = validate_delegation_token(&token, TEST_SECRET).unwrap_err();
+    assert!(matches!(err, AuthError::MissingDelegationClaim(ref f) if f == "syndb_table"));
+}
+
+#[test]
+fn delegation_token_non_uuid_in_dataset_ids() {
+    let uid = test_uuid();
+    let token = build_token(&[
+        ("sub", &uid.to_string()),
+        ("email", "test@example.com"),
+        ("scope", "delegation"),
+        ("dataset_ids", r#"["not-a-uuid", "also-bad"]"#),
+        ("syndb_table", "1"),
+    ]);
+    let err = validate_delegation_token(&token, TEST_SECRET).unwrap_err();
+    assert!(
+        matches!(err, AuthError::InvalidDelegationClaim { ref field, .. } if field == "dataset_ids")
+    );
+}
+
+#[test]
+fn delegation_token_non_integer_syndb_table() {
+    let uid = test_uuid();
+    let token = build_token(&[
+        ("sub", &uid.to_string()),
+        ("email", "test@example.com"),
+        ("scope", "delegation"),
+        ("dataset_ids", "[]"),
+        ("syndb_table", "not_a_number"),
+    ]);
+    let err = validate_delegation_token(&token, TEST_SECRET).unwrap_err();
+    assert!(
+        matches!(err, AuthError::InvalidDelegationClaim { ref field, .. } if field == "syndb_table")
+    );
+}
+
+#[test]
+fn delegation_token_malformed_dataset_ids_json() {
+    let uid = test_uuid();
+    let token = build_token(&[
+        ("sub", &uid.to_string()),
+        ("email", "test@example.com"),
+        ("scope", "delegation"),
+        ("dataset_ids", "not-json-at-all"),
+        ("syndb_table", "1"),
+    ]);
+    let err = validate_delegation_token(&token, TEST_SECRET).unwrap_err();
+    assert!(
+        matches!(err, AuthError::InvalidDelegationClaim { ref field, .. } if field == "dataset_ids")
+    );
+}
+
+#[test]
+fn auth_user_is_service_delegates_to_user_type() {
+    let human = AuthUser {
+        id: test_uuid(),
+        email: Email::new_unchecked("test@example.com"),
+        is_active: true,
+        is_superuser: false,
+        is_verified: true,
+        user_type: UserType::Human,
+        roles: Vec::new(),
+    };
+    assert!(!human.is_service());
+
+    let service = AuthUser {
+        user_type: UserType::Service,
+        ..human
+    };
+    assert!(service.is_service());
+}

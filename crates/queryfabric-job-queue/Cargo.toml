@@ -1,6 +1,6 @@
 [package]
 name = "queryfabric-job-queue"
-description = "Background job queue"
+description = "Generic thespis-backed job queue: priority dispatch, cancellation, recovery, cleanup, and an Axum/OpenAPI route surface"
 version.workspace = true
 edition.workspace = true
 license.workspace = true
@@ -10,3 +10,25 @@ documentation.workspace = true
 rust-version.workspace = true
 
 [dependencies]
+async-trait = { workspace = true }
+axum = { version = "0.8", default-features = false, features = [
+  "json",
+  "query",
+] }
+chrono = { workspace = true }
+dashmap = "6"
+futures = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+thiserror = { workspace = true }
+thespis = { workspace = true }
+tokio = { workspace = true }
+tokio-util = { workspace = true }
+tracing = { workspace = true }
+utoipa = { version = "5", features = ["axum_extras", "uuid", "chrono"] }
+utoipa-axum = "0.2"
+uuid = { workspace = true, features = ["serde"] }
+
+[dev-dependencies]
+tokio = { workspace = true }
+uuid = { workspace = true, features = ["v4"] }

@@ -1,6 +1,6 @@
 [package]
 name = "queryfabric-flight-pool"
-description = "Arrow Flight connection pooling"
+description = "Lock-free Arrow Flight client connection pool keyed by an arbitrary identifier"
 version.workspace = true
 edition.workspace = true
 license.workspace = true
@@ -10,3 +10,11 @@ documentation.workspace = true
 rust-version.workspace = true
 
 [dependencies]
+arrow-flight = "58"
+tonic = { version = "0.14", features = ["tls-ring", "tls-native-roots"] }
+papaya = { workspace = true }
+tracing = { workspace = true }
+
+[dev-dependencies]
+tokio = { workspace = true }
+uuid = { workspace = true }

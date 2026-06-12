@@ -53,3 +53,14 @@ Crates scaffolded for the extraction (bodies land in the noted phases):
 - Phase 03 (federation): `queryfabric-cluster`, `queryfabric-federation`.
 - Phase 05 (sovereignty): `queryfabric-provenance`, `queryfabric-access`,
   `queryfabric-portability`, `queryfabric-tenancy`, `queryfabric-store`.
+
+## D005: Utility crates deliberately left in SynDB
+
+Phase 02 moved the domain-neutral utility crates out of SynDB's
+`crates/owned/` but deliberately skipped `meta-stats`, `iso-continent`, and
+`latency-stats` (too niche or domain-flavoured to justify a neutral home).
+`prov-activity` and `datacite-types` were also not moved here: they feed the
+sovereignty layer and are generalised — not relocated — in Phase 05.
+SynDB's `priority-job-runner` was folded into `queryfabric-job-queue` as the
+`priority` module rather than becoming its own crate (it is a thin,
+single-consumer companion of the job queue).

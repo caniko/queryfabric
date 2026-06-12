@@ -1,6 +1,6 @@
 [package]
 name = "queryfabric-cli-toolbelt"
-description = "Shared command-line interface building blocks"
+description = "CLI ergonomics: subprocess runner, repo-root finder, tracing init, HTTP client builders"
 version.workspace = true
 edition.workspace = true
 license.workspace = true
@@ -10,3 +10,17 @@ documentation.workspace = true
 rust-version.workspace = true
 
 [dependencies]
+miette = { workspace = true }
+reqwest = { version = "0.13", default-features = false, features = [
+  "json",
+  "stream",
+  "rustls",
+] }
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", default-features = false, features = [
+  "fmt",
+  "env-filter",
+] }
+
+[dev-dependencies]
+tempfile = "3"
