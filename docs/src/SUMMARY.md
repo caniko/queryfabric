@@ -23,6 +23,10 @@
 - [Python Bindings](./integration/python-bindings.md)
 - [Host Integration](./integration/host-integration.md)
 
+# Deployment
+
+- [Self-hosting on NixOS](./deployment/self-hosting-nixos.md)
+
 # Project
 
 - [Conformance and Release](./project/conformance-and-release.md)

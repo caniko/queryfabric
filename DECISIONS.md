@@ -67,3 +67,20 @@ sovereignty layer and are generalised — not relocated — in Phase 05.
 SynDB's `priority-job-runner` was folded into `queryfabric-job-queue` as the
 `priority` module rather than becoming its own crate (it is a thin,
 single-consumer companion of the job queue).
+
+## D006: The demonstrator is a host, not a library feature
+
+Phase 06's `queryfabric-demo` exercises the extraction end-to-end by playing
+the *host* role the contract assigns (D003/D004): it executes the SQL the
+Postgres adapter emits, owns its catalog and identity data, and supplies the
+clock for provenance timestamps. Three demonstrator-level choices follow:
+
+- **Query execution lives in the demo binary** (per-request
+  `tokio-postgres` connections), not in any queryfabric crate.
+- **DOI minting is offline by default**: `LocalDoiProvider` fabricates
+  records under the DataCite test prefix (`10.5072`) so the demonstrator
+  needs no registrar account; the real `DataCiteProvider` remains the
+  production path.
+- **`queryfabric-store` gained the typed `S3Config` constructor** so hosts
+  configure S3-compatible backends without depending on OpenDAL directly —
+  the seam the NixOS module's `store.*` options map onto.
