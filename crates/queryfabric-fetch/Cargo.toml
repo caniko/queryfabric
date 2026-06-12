@@ -1,0 +1,28 @@
+[package]
+name = "queryfabric-fetch"
+description = "Retrying parallel HTTP downloader with exponential backoff and progress reporting"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+homepage.workspace = true
+documentation.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+reqwest = { version = "0.13", default-features = false, features = [
+  "json",
+  "stream",
+  "rustls",
+] }
+tokio = { version = "1", default-features = false, features = [
+  "fs",
+  "io-util",
+  "rt",
+  "time",
+] }
+futures = { workspace = true }
+thiserror = { workspace = true }
+tracing = "0.1"
+rand = "0.10"
+indicatif = "0.18"

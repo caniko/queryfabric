@@ -1,0 +1,27 @@
+[package]
+name = "queryfabric-cluster"
+description = "Generic actor + libp2p cluster substrate: swarm bootstrap, DHT registry, health monitoring, and resource routing"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+homepage.workspace = true
+documentation.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+async-trait = { workspace = true }
+chrono = { workspace = true }
+fernet = { workspace = true }
+futures = { workspace = true }
+libp2p-identity = { workspace = true }
+papaya = { workspace = true }
+queryfabric-contract = { workspace = true }
+secrecy = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+thespis = { workspace = true }
+thiserror = { workspace = true }
+tokio = { workspace = true }
+tracing = { workspace = true }
+uuid = { workspace = true }

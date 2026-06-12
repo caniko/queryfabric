@@ -1,0 +1,13 @@
+[package]
+name = "queryfabric-namespace-uuid"
+description = "Typed UUIDv5 namespace derivation: per-type marker structs with const NAMESPACE and zero-cost id helpers"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+homepage.workspace = true
+documentation.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+uuid = { workspace = true, features = ["v5"] }

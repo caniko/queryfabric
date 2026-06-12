@@ -4,18 +4,40 @@
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
     flake-utils.url = "github:numtide/flake-utils";
+    crane.url = "github:ipetkov/crane";
   };
 
   outputs = {
     self,
     nixpkgs,
     flake-utils,
+    crane,
     ...
   }:
     flake-utils.lib.eachDefaultSystem (
       system: let
         pkgs = import nixpkgs {inherit system;};
         lib = pkgs.lib;
+        craneLib = crane.mkLib pkgs;
+
+        queryfabric-demo = craneLib.buildPackage {
+          pname = "queryfabric-demo";
+          version = "0.1.1";
+          src = lib.fileset.toSource {
+            root = ./.;
+            fileset = lib.fileset.unions [
+              (craneLib.fileset.commonCargoSources ./.)
+              ./crates/queryfabric-demo/src/index.html
+            ];
+          };
+          strictDeps = true;
+          cargoExtraArgs = "-p queryfabric-demo";
+          meta = {
+            description = "QueryFabric self-host demonstrator service";
+            license = lib.licenses.asl20;
+            mainProgram = "queryfabric-demo";
+          };
+        };
 
         website = pkgs.stdenv.mkDerivation {
           pname = "queryfabric-website";
@@ -62,9 +84,24 @@
         '';
       in {
         packages = {
-          inherit website docs site;
+          inherit website docs site queryfabric-demo;
           default = site;
         };
+
+        checks =
+          {
+            # Fast gate: the demonstrator builds (and its unit tests pass)
+            # on every check run.
+            inherit queryfabric-demo;
+          }
+          // lib.optionalAttrs pkgs.stdenv.hostPlatform.isLinux {
+            # Heavy gate: boot a VM with Postgres + MinIO + the NixOS
+            # module and drive query/export/GDPR end-to-end.
+            selfhost = import ./nix/tests/selfhost.nix {
+              inherit pkgs;
+              nixosModule = self.nixosModules.queryfabric;
+            };
+          };
 
         devShells.default = pkgs.mkShell {
           packages = with pkgs; [
@@ -89,5 +126,20 @@
           '';
         };
       }
-    );
+    )
+    // {
+      nixosModules = {
+        default = self.nixosModules.queryfabric;
+        queryfabric = {
+          pkgs,
+          lib,
+          ...
+        }: {
+          imports = [./nix/modules/queryfabric.nix];
+          services.queryfabric.package =
+            lib.mkDefault
+            self.packages.${pkgs.stdenv.hostPlatform.system}.queryfabric-demo;
+        };
+      };
+    };
 }

@@ -95,10 +95,10 @@ impl Scope {
     pub(super) fn resolve_column(&self, relation: Option<&str>, name: &str) -> ColumnResolution {
         let mut matches = Vec::new();
         for entry in &self.entries {
-            if let Some(relation) = relation {
-                if !entry.binding_name.eq_ignore_ascii_case(relation) {
-                    continue;
-                }
+            if let Some(relation) = relation
+                && !entry.binding_name.eq_ignore_ascii_case(relation)
+            {
+                continue;
             }
             for field in &entry.schema.fields {
                 if field.name.eq_ignore_ascii_case(name) {

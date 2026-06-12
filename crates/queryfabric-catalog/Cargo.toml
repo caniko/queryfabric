@@ -13,6 +13,7 @@ keywords = ["sql", "catalog", "compiler", "analytics", "science"]
 categories = ["database", "science"]
 
 [dependencies]
+queryfabric-contract = { workspace = true }
 queryfabric-ir = { workspace = true }
 serde = { workspace = true }
 thiserror = { workspace = true }
@@ -20,3 +21,4 @@ thiserror = { workspace = true }
 [dev-dependencies]
 queryfabric-dialect-sql = { workspace = true }
 serde_json = { workspace = true }
+uuid = { workspace = true }

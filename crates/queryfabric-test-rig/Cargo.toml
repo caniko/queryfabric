@@ -1,0 +1,40 @@
+[package]
+name = "queryfabric-test-rig"
+description = "Generic Docker/Podman primitives for integration test harnesses (network, container, image, push)"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+homepage.workspace = true
+documentation.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+bollard = "0.20"
+clickhouse = { version = "0.15", default-features = false, features = [
+  "inserter",
+  "lz4",
+  "zstd",
+  "uuid",
+] }
+eyre = "0.6"
+futures-util = "0.3"
+libc = "0.2"
+reqwest = { version = "0.13", default-features = false, features = [
+  "json",
+  "stream",
+  "rustls",
+] }
+serde = { workspace = true, features = ["derive"] }
+tar = "0.4"
+tokio = { version = "1", default-features = false, features = [
+  "macros",
+  "net",
+  "process",
+  "rt-multi-thread",
+  "time",
+  "io-util",
+] }
+tokio-postgres = "0.7"
+tracing = "0.1"
+uuid = { workspace = true }

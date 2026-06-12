@@ -1,0 +1,13 @@
+[package]
+name = "queryfabric-prom"
+description = "Reusable Prometheus instrumentation helpers: histogram bucket presets, registry wrapper"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+homepage.workspace = true
+documentation.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+prometheus-client = "0.23"

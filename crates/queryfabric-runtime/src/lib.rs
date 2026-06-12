@@ -2,6 +2,8 @@
 
 mod driver;
 mod error;
+#[cfg(feature = "flight")]
+pub mod flight;
 mod mode;
 mod runtime;
 
@@ -9,7 +11,7 @@ pub use driver::{
     IsolatedExecutionDriver, IsolatedJobSpec, ObjectStoreFormat, ResourceRequest, StorageAccessMode,
 };
 pub use error::{DriverError, RuntimeError};
-pub use mode::ExecutionRuntimeMode;
+pub use mode::{ExecutionRuntimeMode, resolve_runtime_mode, runtime_mode_for_estimate};
 pub use runtime::{ExecutionRuntime, InteractiveRuntime, RecordBatchStream};
 
 #[cfg(test)]

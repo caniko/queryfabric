@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>QueryFabric self-host demonstrator</title>
+  <style>
+    body { font-family: system-ui, sans-serif; max-width: 46rem; margin: 3rem auto; padding: 0 1rem; color: #222; }
+    code { background: #f3f3f3; padding: 0.1rem 0.3rem; border-radius: 3px; }
+    li { margin: 0.4rem 0; }
+  </style>
+</head>
+<body>
+  <h1>QueryFabric self-host demonstrator</h1>
+  <p>
+    A portable query API with data-sovereignty endpoints, running over a
+    generic urban <strong>air-quality</strong> dataset (Postgres) and an
+    S3-compatible object store.
+  </p>
+  <ul>
+    <li><code>GET /healthz</code> — readiness</li>
+    <li><code>GET /catalog</code> — queryable relations</li>
+    <li><code>GET /resources</code> — station datasets and their access policy</li>
+    <li><code>POST /query</code> — <code>{"sql": "SELECT city, pm25 FROM readings JOIN stations ON readings.station_id = stations.station_id LIMIT 5"}</code></li>
+    <li><code>POST /resources/{id}/export</code> — build the portable export bundle</li>
+    <li><code>GET /resources/{id}/bundle</code> — read the sealed bundle back from the store</li>
+    <li><code>GET /resources/{id}/access-export</code> — GDPR Art. 15 access export</li>
+    <li><code>POST /resources/{id}/erase</code> — GDPR Art. 17 soft erasure (owner-only)</li>
+    <li><code>POST /resources/{id}/doi</code> — mint a demonstration DOI</li>
+    <li><code>GET /federation/status</code> — federation node identity</li>
+  </ul>
+</body>
+</html>

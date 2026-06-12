@@ -1,0 +1,24 @@
+[package]
+name = "queryfabric-store"
+description = "S3-compatible object store with presigned URLs, over OpenDAL"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+homepage.workspace = true
+documentation.workspace = true
+rust-version.workspace = true
+
+[features]
+default = ["memory"]
+# In-process backend for tests and the demonstrator host.
+memory = ["opendal/services-memory"]
+# Any S3-compatible backend: AWS, MinIO, Garage, ...
+s3 = ["opendal/services-s3"]
+
+[dependencies]
+opendal = { version = "0.55", default-features = false }
+thiserror = { workspace = true }
+
+[dev-dependencies]
+tokio = { version = "1", default-features = false, features = ["macros", "rt"] }

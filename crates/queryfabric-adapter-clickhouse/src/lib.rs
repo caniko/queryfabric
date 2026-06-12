@@ -13,6 +13,10 @@ use queryfabric_ir::{
     ResultSchema, SyntaxNode,
 };
 
+mod runtime;
+
+pub use runtime::{ClickHouseArrowTransport, ClickHouseRuntime};
+
 #[derive(Debug, Default, Clone, Copy)]
 pub struct ClickHouseAdapter;
 
@@ -1155,12 +1159,12 @@ fn rewrite_expr(
         BoundExprKind::Function(function) => {
             let keep_args = allow_column_wrap
                 && scope.is_some_and(|scope| is_existing_wrapper(function, scope));
-            if allow_column_wrap && !keep_args {
-                if let Some(scope) = scope {
-                    if let Some(mismatch) = scope.detect_wrapper_near_miss(function) {
-                        summary.record_near_miss(mismatch, &expr.node);
-                    }
-                }
+            if allow_column_wrap
+                && !keep_args
+                && let Some(scope) = scope
+                && let Some(mismatch) = scope.detect_wrapper_near_miss(function)
+            {
+                summary.record_near_miss(mismatch, &expr.node);
             }
             let args = if keep_args {
                 function.args.clone()

@@ -12,16 +12,23 @@ readme = "README.md"
 keywords = ["sql", "runtime", "analytics", "science"]
 categories = ["database", "science", "asynchronous"]
 
+[features]
+flight = ["dep:arrow-flight", "dep:tonic", "dep:queryfabric-contract"]
+
 [dependencies]
 arrow = { workspace = true }
+arrow-flight = { version = "58", optional = true }
 async-trait = { workspace = true }
 futures = { workspace = true }
 queryfabric-catalog = { workspace = true }
+queryfabric-contract = { workspace = true, optional = true }
 queryfabric-ir = { workspace = true }
 serde = { workspace = true }
 thiserror = { workspace = true }
 tokio-util = { workspace = true }
+tonic = { version = "0.14", optional = true }
 
 [dev-dependencies]
 queryfabric-dialect-sql = { workspace = true }
 serde_json = { workspace = true }
+uuid = { workspace = true }
