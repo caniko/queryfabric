@@ -133,6 +133,29 @@
           # on every check run.
           inherit queryfabric-demo;
 
+          legacyAliasEval =
+            let
+              _ = nixpkgs.lib.nixosSystem {
+                system = pkgs.stdenv.hostPlatform.system;
+                modules = [
+                  self.nixosModules.queryfabric
+                  (
+                    { ... }:
+                    {
+                      services.queryfabric = {
+                        enable = true;
+                        database.url = "postgres://queryfabric@/queryfabric?host=/run/postgresql";
+                        store.backend = "memory";
+                      };
+                    }
+                  )
+                ];
+              };
+            in
+            pkgs.runCommand "queryfabric-legacy-alias-eval" { } ''
+              touch "$out"
+            '';
+
           nixfmt = pkgs.runCommand "queryfabric-nixfmt-check" { nativeBuildInputs = [ nixfmt ]; } ''
             set -euo pipefail
             find ${nixSources} -name '*.nix' -print0 | xargs -0 nixfmt --check
@@ -182,7 +205,11 @@
             ...
           }:
           {
-            imports = [ ./nix/modules/queryfabric.nix ];
+            imports = [
+              (import ./nix/modules/queryfabric.nix {
+                defaultPackage = self.packages.${pkgs.stdenv.hostPlatform.system}.queryfabric-demo;
+              })
+            ];
             services.queryfabric.package =
               lib.mkDefault
                 self.packages.${pkgs.stdenv.hostPlatform.system}.queryfabric-demo;
