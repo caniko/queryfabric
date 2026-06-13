@@ -4,6 +4,7 @@
 
 ### Added
 
+- public roadmap, issue templates, and accessibility statement
 - REUSE/SPDX licensing compliance with CI enforcement
 - high-availability design documentation
 - multi-instance support in the QueryFabric NixOS module (`services.queryfabric.instances.<name>`)

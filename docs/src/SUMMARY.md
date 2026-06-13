@@ -34,6 +34,7 @@
 
 - [Conformance and Release](./project/conformance-and-release.md)
 - [Threat Model](./project/threat-model.md)
+- [Accessibility](./project/accessibility.md)
 
 # Plan: NGI Fediversity readiness
 

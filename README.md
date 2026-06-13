@@ -132,6 +132,7 @@ and emit.
 ## Repository Guide
 
 - [`COMPATIBILITY.md`](COMPATIBILITY.md): semver, MSRV, backend matrix, support policy
+- [`ROADMAP.md`](ROADMAP.md): public near-term, grant-scope, and later-stage direction
 - [`MIGRATION.md`](MIGRATION.md): moving from host-internal usage to standalone QueryFabric
 - [`docs/`](docs/): mdBook documentation for Codeberg Pages and local browsing
 - [`website/`](website/): Zola landing site for the public project homepage
