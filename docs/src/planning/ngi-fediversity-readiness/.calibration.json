@@ -1,0 +1,228 @@
+{
+  "schema_version": 1,
+  "plan": {
+    "id": "1d31c588-b4eb-41e5-b558-5083b6ac70f7",
+    "name": "Plan: NGI Fediversity readiness",
+    "flavor": "codex",
+    "worktype": null,
+    "created_at": 1781305866,
+    "phase_count": 8,
+    "wave_count": 2,
+    "max_chain_depth": 2,
+    "repo_spread": 4,
+    "routing_dist": {
+      "medium": 8
+    },
+    "shape_hash": "63c4c2906abf8cbdc5c6a699538a91393e2799fc1457bf8639dcc50db8398eff"
+  },
+  "triggers": [
+    {
+      "name": "shared-file-contention",
+      "input_value": 6.0,
+      "threshold": 2.0,
+      "fired": true,
+      "section_added": "Shared-file lockstep"
+    },
+    {
+      "name": "external-repo-phases",
+      "input_value": 8.0,
+      "threshold": 1.0,
+      "fired": true,
+      "section_added": "External repo coordination"
+    },
+    {
+      "name": "convergence-point",
+      "input_value": 2.0,
+      "threshold": 3.0,
+      "fired": false,
+      "section_added": null
+    },
+    {
+      "name": "ownership-boundary-spread",
+      "input_value": 4.0,
+      "threshold": 2.0,
+      "fired": true,
+      "section_added": "PR sequencing & cross-owner coordination"
+    },
+    {
+      "name": "risk-concentration",
+      "input_value": 0.0,
+      "threshold": 2.0,
+      "fired": false,
+      "section_added": null
+    },
+    {
+      "name": "risk-late-in-plan",
+      "input_value": 0.0,
+      "threshold": 1.0,
+      "fired": false,
+      "section_added": null
+    },
+    {
+      "name": "infrastructure-spof",
+      "input_value": 0.0,
+      "threshold": 1.0,
+      "fired": false,
+      "section_added": null
+    },
+    {
+      "name": "revendor-phase",
+      "input_value": 1.0,
+      "threshold": 1.0,
+      "fired": true,
+      "section_added": "Compat surface"
+    },
+    {
+      "name": "long-serial-chain",
+      "input_value": 2.0,
+      "threshold": 4.0,
+      "fired": false,
+      "section_added": null
+    },
+    {
+      "name": "mid-plan-rerouting",
+      "input_value": 8.0,
+      "threshold": 10.0,
+      "fired": false,
+      "section_added": null
+    },
+    {
+      "name": "trivial-phase-swamp",
+      "input_value": 8.0,
+      "threshold": 4.0,
+      "fired": true,
+      "section_added": "Cleanup batch"
+    },
+    {
+      "name": "no-integrated-verification",
+      "input_value": 1.0,
+      "threshold": 1.0,
+      "fired": true,
+      "section_added": null
+    },
+    {
+      "name": "routing-tier-inversion",
+      "input_value": 6.0,
+      "threshold": 1.0,
+      "fired": true,
+      "section_added": null
+    },
+    {
+      "name": "mechanical-streak",
+      "input_value": 0.0,
+      "threshold": 3.0,
+      "fired": false,
+      "section_added": null
+    },
+    {
+      "name": "hidden-prerequisite",
+      "input_value": 0.0,
+      "threshold": 1.0,
+      "fired": false,
+      "section_added": null
+    }
+  ],
+  "phases": [
+    {
+      "ordinal": 0,
+      "slug": "release-prep",
+      "routing_tier": "medium",
+      "files": [
+        "CHANGELOG.md",
+        "Cargo.lock",
+        "Cargo.toml` (workspace version, possibly workspace-dep version reqs)",
+        "possibly crate-level `Cargo.toml`s if any pin sibling versions explicitly"
+      ]
+    },
+    {
+      "ordinal": 1,
+      "slug": "narrative-bridge",
+      "routing_tier": "medium",
+      "files": [
+        "README.md",
+        "docs/src/SUMMARY.md` (one line; shared with phases 04/05/06 — rebase)",
+        "docs/src/concepts/self-hosting-and-data-sovereignty.md` (new)",
+        "website/content/_index.md"
+      ]
+    },
+    {
+      "ordinal": 2,
+      "slug": "reuse-compliance",
+      "routing_tier": "medium",
+      "files": [
+        ".forgejo/workflows/ci.yml",
+        "CHANGELOG.md` (one line)",
+        "LICENSES/Apache-2.0.txt` (new)",
+        "README.md` (badge line only — phase 01 owns the prose)",
+        "REUSE.toml` (new)",
+        "flake.nix` (devShell package list)"
+      ]
+    },
+    {
+      "ordinal": 3,
+      "slug": "roadmap-and-community",
+      "routing_tier": "medium",
+      "files": [
+        ".forgejo/issue_template/bug-report.yaml`, `feature-request.yaml` (new)",
+        "CHANGELOG.md` (one line)",
+        "CONTRIBUTING.md` (append one section)",
+        "ROADMAP.md` (new)",
+        "docs/src/SUMMARY.md` (one line; shared with 01/04/05/06 — rebase)",
+        "docs/src/project/accessibility.md` (new)"
+      ]
+    },
+    {
+      "ordinal": 4,
+      "slug": "threat-model",
+      "routing_tier": "medium",
+      "files": [
+        "CHANGELOG.md` (one line)",
+        "SECURITY.md` (one linking sentence)",
+        "docs/src/SUMMARY.md` (one line; shared with 01/05/06 — rebase)",
+        "docs/src/project/threat-model.md` (new)"
+      ]
+    },
+    {
+      "ordinal": 5,
+      "slug": "footprint-benchmarks",
+      "routing_tier": "medium",
+      "files": [
+        "CHANGELOG.md` (one line)",
+        "docs/src/SUMMARY.md` (one line; shared with 01/04/06 — rebase)",
+        "docs/src/deployment/resource-footprint.md` (new)",
+        "scripts/footprint.sh` (new)"
+      ]
+    },
+    {
+      "ordinal": 6,
+      "slug": "ha-design-doc",
+      "routing_tier": "medium",
+      "files": [
+        "CHANGELOG.md` (one line)",
+        "docs/src/SUMMARY.md` (one line; shared with 01/04/05 — rebase)",
+        "docs/src/deployment/high-availability.md` (new)"
+      ]
+    },
+    {
+      "ordinal": 7,
+      "slug": "multi-instance-nixos-module",
+      "routing_tier": "medium",
+      "files": [
+        "CHANGELOG.md` (one line)",
+        "docs/src/deployment/self-hosting-nixos.md",
+        "flake.nix` (only if check wiring needs it)",
+        "nix/modules/queryfabric.nix` (restructure)",
+        "nix/tests/selfhost.nix` (extend)"
+      ]
+    }
+  ],
+  "meta_heuristics_fired": [
+    "threshold-proximity"
+  ],
+  "tags": {
+    "flavor": "codex",
+    "risk": "low",
+    "scope": "cross-org"
+  },
+  "verify": null
+}
