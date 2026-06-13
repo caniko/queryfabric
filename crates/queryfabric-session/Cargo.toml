@@ -2,6 +2,7 @@
 name = "queryfabric-session"
 description = "Helpers for building browser session cookie Set-Cookie values"
 version.workspace = true
+publish = false
 edition.workspace = true
 license.workspace = true
 repository.workspace = true

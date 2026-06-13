@@ -45,7 +45,7 @@
 
         queryfabric-demo = craneLib.buildPackage {
           pname = "queryfabric-demo";
-          version = "0.1.1";
+          version = "0.2.0";
           src = lib.fileset.toSource {
             root = ./.;
             fileset = lib.fileset.unions [
@@ -185,6 +185,7 @@
             pkgs.rust-analyzer
             pkgs.rustc
             pkgs.rustfmt
+            pkgs.uv
             pkgs.zola
           ];
 

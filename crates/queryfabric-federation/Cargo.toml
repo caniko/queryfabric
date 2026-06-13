@@ -2,6 +2,7 @@
 name = "queryfabric-federation"
 description = "Generic federation layer: resource locality, routing, schema-sync protocol, and host-parametrised hub/cluster actors"
 version.workspace = true
+publish = false
 edition.workspace = true
 license.workspace = true
 repository.workspace = true

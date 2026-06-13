@@ -2,6 +2,7 @@
 name = "queryfabric-content-hash"
 description = "Deterministic blake3 content digest over all files in a directory"
 version.workspace = true
+publish = false
 edition.workspace = true
 license.workspace = true
 repository.workspace = true

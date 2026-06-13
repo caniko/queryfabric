@@ -2,19 +2,24 @@
 
 ## Unreleased
 
+## 0.2.0 - 2026-06-13
+
 ### Added
 
+- self-hosting narrative, high-availability guidance, and threat model docs
 - public roadmap, issue templates, and accessibility statement
 - REUSE/SPDX licensing compliance with CI enforcement
-- high-availability design documentation
 - multi-instance support in the QueryFabric NixOS module (`services.queryfabric.instances.<name>`)
-- staged `scripts/release.sh` helper for local release checks, ordered crates.io
-  publication, and local tagging
+- reproducible footprint benchmark and deployment sizing docs
 - crate-local README files and crates.io metadata for the public secondary crates
 - `multi_backend.rs` example showing bind-once, analyze-many, emit-many usage
 - aligned fuzzing docs around `cd queryfabric/fuzz && cargo fuzz build <target>`
-- reproducible footprint benchmark and deployment sizing docs
-- threat model documentation
+- staged `scripts/release.sh` helper for local release checks, ordered crates.io
+  publication, and local tagging
+
+### Changed
+
+- finalized the release notes for the 0.2.0 workspace cut
 
 ## 0.1.0
 

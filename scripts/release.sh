@@ -6,6 +6,7 @@ ROOT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
 CRATES=(
   "queryfabric-ir"
   "queryfabric-catalog"
+  "queryfabric-runtime"
   "queryfabric-opt"
   "queryfabric-dialect-sql"
   "queryfabric-dialect-syql"
@@ -114,16 +115,16 @@ run_check() {
   log "cargo test --workspace --all-targets --exclude queryfabric-python"
   cargo test --workspace --all-targets --exclude queryfabric-python
 
-  log "cargo fuzz build parse_sql_no_panic"
+  log "cargo fuzz build --sanitizer none parse_sql_no_panic"
   (
     cd fuzz
-    cargo fuzz build parse_sql_no_panic
+    cargo fuzz build --sanitizer none parse_sql_no_panic
   )
 
-  log "cargo fuzz build bind_portable_no_panic"
+  log "cargo fuzz build --sanitizer none bind_portable_no_panic"
   (
     cd fuzz
-    cargo fuzz build bind_portable_no_panic
+    cargo fuzz build --sanitizer none bind_portable_no_panic
   )
 
   log "cargo build --manifest-path crates/queryfabric/Cargo.toml --examples"
@@ -132,6 +133,13 @@ run_check() {
   local wheel_dir
   wheel_dir="$(mktemp -d)"
   trap "rm -rf '$wheel_dir'" RETURN
+  local venv_dir="${wheel_dir}/venv"
+
+  log "uv venv (queryfabric Python binding)"
+  (
+    cd packages/queryfabric
+    uv venv "$venv_dir"
+  )
 
   log "maturin build (queryfabric Python binding)"
   (
@@ -142,20 +150,26 @@ run_check() {
   log "maturin develop --uv (queryfabric Python binding)"
   (
     cd packages/queryfabric
+    export VIRTUAL_ENV="$venv_dir"
+    export PATH="${VIRTUAL_ENV}/bin:${PATH}"
     maturin develop --uv
   )
 
   log "uv run python smoke test (queryfabric Python package)"
   (
     cd packages/queryfabric
-    uv run python -c \
+    export VIRTUAL_ENV="$venv_dir"
+    export PATH="${VIRTUAL_ENV}/bin:${PATH}"
+    uv run --active python -c \
       "import queryfabric; parsed = queryfabric.parse_syql('FROM records'); assert parsed.table == 'records'"
   )
 
   log "uv run pytest (queryfabric Python package)"
   (
     cd packages/queryfabric
-    uv run pytest tests
+    export VIRTUAL_ENV="$venv_dir"
+    export PATH="${VIRTUAL_ENV}/bin:${PATH}"
+    uv run --active pytest tests
   )
 }
 

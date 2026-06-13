@@ -2,6 +2,7 @@
 name = "queryfabric-access"
 description = "Access-control tiers and GDPR data-rights operations over generic resources"
 version.workspace = true
+publish = false
 edition.workspace = true
 license.workspace = true
 repository.workspace = true

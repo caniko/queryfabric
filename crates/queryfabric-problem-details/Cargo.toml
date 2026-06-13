@@ -2,6 +2,7 @@
 name = "queryfabric-problem-details"
 description = "RFC 7807 Problem Details types for HTTP APIs, plus shared header constants"
 version.workspace = true
+publish = false
 edition.workspace = true
 license.workspace = true
 repository.workspace = true

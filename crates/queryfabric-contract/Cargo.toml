@@ -2,6 +2,7 @@
 name = "queryfabric-contract"
 description = "Domain-neutral contract traits for resource identity, provenance, access control, and statistics injection"
 version.workspace = true
+publish = false
 edition.workspace = true
 license.workspace = true
 repository.workspace = true

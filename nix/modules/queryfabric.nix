@@ -193,11 +193,7 @@ let
     };
 
   enabledInstances = lib.filterAttrs (_: instanceCfg: instanceCfg.enable) configuredInstances;
-  namedInstances =
-    if cfg.enable then
-      lib.removeAttrs cfg.instances [ "default" ]
-    else
-      cfg.instances;
+  namedInstances = if cfg.enable then lib.removeAttrs cfg.instances [ "default" ] else cfg.instances;
   enabledNamedInstances = lib.filterAttrs (_: instanceCfg: instanceCfg.enable) namedInstances;
   legacyEnabled = cfg.enable;
 
@@ -311,24 +307,22 @@ let
 
   hasUniqueCount = values: builtins.length values == builtins.length (lib.unique values);
 
-  mkInstanceAssertions =
-    optionPath: instanceCfg:
-    [
-      {
-        assertion = instanceCfg.database.url != null || instanceCfg.database.urlFile != null;
-        message = "${optionPath} needs database.url or database.urlFile.";
-      }
-      {
-        assertion =
-          instanceCfg.store.backend != "s3"
-          || (
-            instanceCfg.store.endpoint != null
-            && instanceCfg.store.bucket != null
-            && instanceCfg.store.credentialsFile != null
-          );
-        message = "${optionPath}: store.backend = \"s3\" needs store.endpoint, store.bucket, and store.credentialsFile.";
-      }
-    ];
+  mkInstanceAssertions = optionPath: instanceCfg: [
+    {
+      assertion = instanceCfg.database.url != null || instanceCfg.database.urlFile != null;
+      message = "${optionPath} needs database.url or database.urlFile.";
+    }
+    {
+      assertion =
+        instanceCfg.store.backend != "s3"
+        || (
+          instanceCfg.store.endpoint != null
+          && instanceCfg.store.bucket != null
+          && instanceCfg.store.credentialsFile != null
+        );
+      message = "${optionPath}: store.backend = \"s3\" needs store.endpoint, store.bucket, and store.credentialsFile.";
+    }
+  ];
 in
 {
   options.services.queryfabric =

@@ -2,6 +2,7 @@
 name = "queryfabric-leptos"
 description = "Leptos components for QueryFabric SyQL editors"
 version.workspace = true
+publish = false
 edition.workspace = true
 license.workspace = true
 repository.workspace = true

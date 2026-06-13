@@ -2,6 +2,7 @@
 name = "queryfabric-namespace-uuid"
 description = "Typed UUIDv5 namespace derivation: per-type marker structs with const NAMESPACE and zero-cost id helpers"
 version.workspace = true
+publish = false
 edition.workspace = true
 license.workspace = true
 repository.workspace = true
