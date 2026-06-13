@@ -1,0 +1,39 @@
+name: Feature request
+description: Propose a new QueryFabric capability.
+title: "[feature] "
+labels:
+  - enhancement
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Describe the user-facing need first, then explain the proposed change.
+  - type: textarea
+    id: use_case
+    attributes:
+      label: Use case
+      description: What problem are you trying to solve?
+      placeholder: As a host operator, I need ...
+    validations:
+      required: true
+  - type: textarea
+    id: crates
+    attributes:
+      label: Affected crates
+      description: Which crates or layers would need to change?
+      placeholder: crates/queryfabric-..., docs/src/...
+    validations:
+      required: true
+  - type: textarea
+    id: portable_subset
+    attributes:
+      label: Portable-subset impact
+      description: Does this change the verified portable subset, the adapters, or the public facade?
+      placeholder: Add to the portable subset, adjust diagnostics, or keep outside core
+    validations:
+      required: true
+  - type: textarea
+    id: notes
+    attributes:
+      label: Notes
+      description: Any sketches, tradeoffs, or examples that help explain the request.
