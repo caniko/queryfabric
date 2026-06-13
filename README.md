@@ -1,4 +1,5 @@
 # QueryFabric
+[![REUSE status](https://api.reuse.software/badge/codeberg.org/caniko/queryfabric)](https://api.reuse.software/info/codeberg.org/caniko/queryfabric)
 
 QueryFabric is a portable analytical query compiler for scientific platforms.
 It also provides a data-sovereignty and query-portability layer for self-hosted

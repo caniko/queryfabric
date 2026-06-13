@@ -4,6 +4,7 @@
 
 ### Added
 
+- REUSE/SPDX licensing compliance with CI enforcement
 - high-availability design documentation
 - multi-instance support in the QueryFabric NixOS module (`services.queryfabric.instances.<name>`)
 - staged `scripts/release.sh` helper for local release checks, ordered crates.io
