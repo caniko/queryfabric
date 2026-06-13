@@ -178,6 +178,7 @@
             pkgs.clippy
             pkgs.maturin
             pkgs.mdbook
+            pkgs.reuse
             pkgs.openssl
             pkgs.pkg-config
             pkgs.python3
