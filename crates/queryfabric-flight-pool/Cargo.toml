@@ -2,6 +2,7 @@
 name = "queryfabric-flight-pool"
 description = "Lock-free Arrow Flight client connection pool keyed by an arbitrary identifier"
 version.workspace = true
+publish = false
 edition.workspace = true
 license.workspace = true
 repository.workspace = true

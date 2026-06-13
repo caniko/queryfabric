@@ -2,6 +2,7 @@
 name = "queryfabric-test-rig"
 description = "Generic Docker/Podman primitives for integration test harnesses (network, container, image, push)"
 version.workspace = true
+publish = false
 edition.workspace = true
 license.workspace = true
 repository.workspace = true

@@ -2,6 +2,7 @@
 name = "queryfabric-web"
 description = "Web-facing validation and static assets for QueryFabric"
 version.workspace = true
+publish = false
 edition.workspace = true
 license.workspace = true
 repository.workspace = true

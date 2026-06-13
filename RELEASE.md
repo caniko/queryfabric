@@ -73,8 +73,8 @@ root:
 2. `cargo fmt --manifest-path fuzz/Cargo.toml --all --check`
 3. `cargo clippy --workspace --all-targets -- -D warnings`
 4. `cargo test --workspace --all-targets`
-5. `cd queryfabric/fuzz && cargo fuzz build parse_sql_no_panic`
-6. `cd queryfabric/fuzz && cargo fuzz build bind_portable_no_panic`
+5. `cd queryfabric/fuzz && cargo fuzz build --sanitizer none parse_sql_no_panic`
+6. `cd queryfabric/fuzz && cargo fuzz build --sanitizer none bind_portable_no_panic`
 7. `cargo build --manifest-path crates/queryfabric/Cargo.toml --examples`
 
 Manual release review should also verify:
@@ -90,12 +90,13 @@ Crates are published in this order:
 
 1. `queryfabric-ir`
 2. `queryfabric-catalog`
-3. `queryfabric-opt`
-4. `queryfabric-dialect-sql`
-5. `queryfabric-dialect-syql`
-6. `queryfabric-adapter-clickhouse`
-7. `queryfabric-adapter-postgres`
-8. `queryfabric`
+3. `queryfabric-runtime`
+4. `queryfabric-opt`
+5. `queryfabric-dialect-sql`
+6. `queryfabric-dialect-syql`
+7. `queryfabric-adapter-clickhouse`
+8. `queryfabric-adapter-postgres`
+9. `queryfabric`
 
 The facade crate is published last because it depends on the full public leaf
 set.

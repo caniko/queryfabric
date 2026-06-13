@@ -2,6 +2,7 @@
 name = "queryfabric-store"
 description = "S3-compatible object store with presigned URLs, over OpenDAL"
 version.workspace = true
+publish = false
 edition.workspace = true
 license.workspace = true
 repository.workspace = true

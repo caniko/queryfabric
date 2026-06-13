@@ -2,6 +2,7 @@
 name = "queryfabric-cluster"
 description = "Generic actor + libp2p cluster substrate: swarm bootstrap, DHT registry, health monitoring, and resource routing"
 version.workspace = true
+publish = false
 edition.workspace = true
 license.workspace = true
 repository.workspace = true

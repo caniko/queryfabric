@@ -2,6 +2,7 @@
 name = "queryfabric-cmd-runner"
 description = "Async subprocess runner with combined stdout/stderr capture and tail truncation"
 version.workspace = true
+publish = false
 edition.workspace = true
 license.workspace = true
 repository.workspace = true

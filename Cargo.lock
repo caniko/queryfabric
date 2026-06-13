@@ -4333,7 +4333,7 @@ dependencies = [
 
 [[package]]
 name = "queryfabric"
-version = "0.1.1"
+version = "0.2.0"
 dependencies = [
  "proptest",
  "queryfabric-adapter-clickhouse",
@@ -4350,7 +4350,7 @@ dependencies = [
 
 [[package]]
 name = "queryfabric-access"
-version = "0.1.1"
+version = "0.2.0"
 dependencies = [
  "async-trait",
  "queryfabric-contract",
@@ -4364,7 +4364,7 @@ dependencies = [
 
 [[package]]
 name = "queryfabric-adapter-clickhouse"
-version = "0.1.1"
+version = "0.2.0"
 dependencies = [
  "arrow",
  "async-trait",
@@ -4378,7 +4378,7 @@ dependencies = [
 
 [[package]]
 name = "queryfabric-adapter-postgres"
-version = "0.1.1"
+version = "0.2.0"
 dependencies = [
  "queryfabric-catalog",
  "queryfabric-dialect-sql",
@@ -4387,7 +4387,7 @@ dependencies = [
 
 [[package]]
 name = "queryfabric-catalog"
-version = "0.1.1"
+version = "0.2.0"
 dependencies = [
  "queryfabric-contract",
  "queryfabric-dialect-sql",
@@ -4400,7 +4400,7 @@ dependencies = [
 
 [[package]]
 name = "queryfabric-cli-toolbelt"
-version = "0.1.1"
+version = "0.2.0"
 dependencies = [
  "miette",
  "reqwest 0.13.4",
@@ -4411,7 +4411,7 @@ dependencies = [
 
 [[package]]
 name = "queryfabric-cluster"
-version = "0.1.1"
+version = "0.2.0"
 dependencies = [
  "async-trait",
  "chrono",
@@ -4432,7 +4432,7 @@ dependencies = [
 
 [[package]]
 name = "queryfabric-cmd-runner"
-version = "0.1.1"
+version = "0.2.0"
 dependencies = [
  "thiserror 2.0.18",
  "tokio",
@@ -4440,7 +4440,7 @@ dependencies = [
 
 [[package]]
 name = "queryfabric-content-hash"
-version = "0.1.1"
+version = "0.2.0"
 dependencies = [
  "blake3",
  "tempfile",
@@ -4449,7 +4449,7 @@ dependencies = [
 
 [[package]]
 name = "queryfabric-contract"
-version = "0.1.1"
+version = "0.2.0"
 dependencies = [
  "async-trait",
  "serde",
@@ -4459,7 +4459,7 @@ dependencies = [
 
 [[package]]
 name = "queryfabric-demo"
-version = "0.1.1"
+version = "0.2.0"
 dependencies = [
  "async-trait",
  "axum",
@@ -4485,7 +4485,7 @@ dependencies = [
 
 [[package]]
 name = "queryfabric-dialect-sql"
-version = "0.1.1"
+version = "0.2.0"
 dependencies = [
  "queryfabric-ir",
  "sqlparser",
@@ -4493,7 +4493,7 @@ dependencies = [
 
 [[package]]
 name = "queryfabric-dialect-syql"
-version = "0.1.1"
+version = "0.2.0"
 dependencies = [
  "queryfabric-dialect-sql",
  "queryfabric-ir",
@@ -4501,7 +4501,7 @@ dependencies = [
 
 [[package]]
 name = "queryfabric-federation"
-version = "0.1.1"
+version = "0.2.0"
 dependencies = [
  "async-trait",
  "chrono",
@@ -4519,7 +4519,7 @@ dependencies = [
 
 [[package]]
 name = "queryfabric-fetch"
-version = "0.1.1"
+version = "0.2.0"
 dependencies = [
  "futures",
  "indicatif",
@@ -4532,7 +4532,7 @@ dependencies = [
 
 [[package]]
 name = "queryfabric-flight-cache"
-version = "0.1.1"
+version = "0.2.0"
 dependencies = [
  "arrow",
  "md-5 0.11.0",
@@ -4542,7 +4542,7 @@ dependencies = [
 
 [[package]]
 name = "queryfabric-flight-pool"
-version = "0.1.1"
+version = "0.2.0"
 dependencies = [
  "arrow-flight",
  "papaya",
@@ -4554,7 +4554,7 @@ dependencies = [
 
 [[package]]
 name = "queryfabric-ir"
-version = "0.1.1"
+version = "0.2.0"
 dependencies = [
  "blake3",
  "miette",
@@ -4564,7 +4564,7 @@ dependencies = [
 
 [[package]]
 name = "queryfabric-job-queue"
-version = "0.1.1"
+version = "0.2.0"
 dependencies = [
  "async-trait",
  "axum",
@@ -4585,21 +4585,21 @@ dependencies = [
 
 [[package]]
 name = "queryfabric-leptos"
-version = "0.1.1"
+version = "0.2.0"
 dependencies = [
  "leptos",
 ]
 
 [[package]]
 name = "queryfabric-namespace-uuid"
-version = "0.1.1"
+version = "0.2.0"
 dependencies = [
  "uuid",
 ]
 
 [[package]]
 name = "queryfabric-opt"
-version = "0.1.1"
+version = "0.2.0"
 dependencies = [
  "queryfabric-adapter-clickhouse",
  "queryfabric-catalog",
@@ -4610,7 +4610,7 @@ dependencies = [
 
 [[package]]
 name = "queryfabric-paseto"
-version = "0.1.1"
+version = "0.2.0"
 dependencies = [
  "chrono",
  "rusty_paseto",
@@ -4624,7 +4624,7 @@ dependencies = [
 
 [[package]]
 name = "queryfabric-portability"
-version = "0.1.1"
+version = "0.2.0"
 dependencies = [
  "async-trait",
  "queryfabric-access",
@@ -4640,7 +4640,7 @@ dependencies = [
 
 [[package]]
 name = "queryfabric-problem-details"
-version = "0.1.1"
+version = "0.2.0"
 dependencies = [
  "serde",
  "serde_json",
@@ -4648,14 +4648,14 @@ dependencies = [
 
 [[package]]
 name = "queryfabric-prom"
-version = "0.1.1"
+version = "0.2.0"
 dependencies = [
  "prometheus-client",
 ]
 
 [[package]]
 name = "queryfabric-provenance"
-version = "0.1.1"
+version = "0.2.0"
 dependencies = [
  "async-trait",
  "queryfabric-contract",
@@ -4668,7 +4668,7 @@ dependencies = [
 
 [[package]]
 name = "queryfabric-python"
-version = "0.1.1"
+version = "0.2.0"
 dependencies = [
  "pyo3",
  "pythonize",
@@ -4680,7 +4680,7 @@ dependencies = [
 
 [[package]]
 name = "queryfabric-runtime"
-version = "0.1.1"
+version = "0.2.0"
 dependencies = [
  "arrow",
  "arrow-flight",
@@ -4700,7 +4700,7 @@ dependencies = [
 
 [[package]]
 name = "queryfabric-session"
-version = "0.1.1"
+version = "0.2.0"
 dependencies = [
  "serde",
  "serde_json",
@@ -4709,7 +4709,7 @@ dependencies = [
 
 [[package]]
 name = "queryfabric-store"
-version = "0.1.1"
+version = "0.2.0"
 dependencies = [
  "opendal",
  "thiserror 2.0.18",
@@ -4718,14 +4718,14 @@ dependencies = [
 
 [[package]]
 name = "queryfabric-tcp-tuned"
-version = "0.1.1"
+version = "0.2.0"
 dependencies = [
  "socket2 0.6.4",
 ]
 
 [[package]]
 name = "queryfabric-tenancy"
-version = "0.1.1"
+version = "0.2.0"
 dependencies = [
  "async-trait",
  "queryfabric-access",
@@ -4738,7 +4738,7 @@ dependencies = [
 
 [[package]]
 name = "queryfabric-test-rig"
-version = "0.1.1"
+version = "0.2.0"
 dependencies = [
  "bollard",
  "clickhouse",
@@ -4756,7 +4756,7 @@ dependencies = [
 
 [[package]]
 name = "queryfabric-web"
-version = "0.1.1"
+version = "0.2.0"
 dependencies = [
  "queryfabric",
  "queryfabric-catalog",

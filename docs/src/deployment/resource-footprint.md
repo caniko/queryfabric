@@ -28,7 +28,7 @@ The script:
 Build provenance:
 
 - release-profile build: `nix build .#queryfabric-demo`
-- package output: `/nix/store/k7w8mya1j00m22nvc069361a97bchx5q-queryfabric-demo-0.1.1`
+- package output: `/nix/store/k7w8mya1j00m22nvc069361a97bchx5q-queryfabric-demo-0.2.0`
 - workspace Rust floor: `rust-version = "1.88"` in `Cargo.toml`
 
 Measurement host:
