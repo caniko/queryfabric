@@ -1,0 +1,152 @@
+[site]
+title = "QueryFabric"
+description = "Portable analytical query compilation for scientific platforms."
+base_url = "/queryfabric/"
+footer_note = "QueryFabric is maintained as free software for scientific and self-hosted platforms."
+
+[theme]
+paper = "#FAFAF7"
+surface = "#FFFFFF"
+ink = "#1F2933"
+ink_soft = "#5D6875"
+line = "rgba(31, 41, 51, 0.12)"
+accent = "#0F766E"
+accent_soft = "#CCFBF1"
+secondary = "#7C3AED"
+warning = "#B45309"
+rust = "#B7410E"
+
+[[nav]]
+label = "Overview"
+href = "#overview"
+
+[[nav]]
+label = "Workflow"
+href = "#workflow"
+
+[[nav]]
+label = "Demo"
+href = "#demo"
+
+[[nav]]
+label = "Docs"
+href = "/queryfabric/docs/"
+
+[[nav]]
+label = "Source"
+href = "https://codeberg.org/caniko/queryfabric"
+
+[[pages]]
+slug = "index"
+title = "QueryFabric"
+description = "Portable analytical query compilation for scientific platforms."
+
+[[pages.sections]]
+type = "hero"
+title = "QueryFabric"
+tagline = "Stable query compilation for scientific platforms."
+subtitle = "QueryFabric gives database hosts one place to parse, bind, analyze, and emit portable analytical queries while keeping routing, authorization, and execution policy in the host."
+
+[[pages.sections.ctas]]
+label = "Read the docs"
+href = "/queryfabric/docs/"
+primary = true
+
+[[pages.sections.ctas]]
+label = "Open live demo"
+href = "https://queryfabricdemo.tartanoglu.com/"
+
+[[pages.sections.ctas]]
+label = "View source"
+href = "https://codeberg.org/caniko/queryfabric"
+
+[[pages.sections]]
+type = "feature_grid"
+id = "overview"
+
+[[pages.sections.features]]
+title = "Stable facade"
+description = "Use the queryfabric crate as the public contract for parse, bind, analyze, and emit stages without depending on parser internals."
+highlight = true
+
+[[pages.sections.features]]
+title = "Verified portable subset"
+description = "Define portability through support matrices, conformance data, and tests instead of whatever one parser happens to accept."
+
+[[pages.sections.features]]
+title = "Typed schemas"
+description = "Carry typed parameters, result schemas, catalog snapshots, and field metadata through the compiler boundary."
+
+[[pages.sections.features]]
+title = "Capability diagnostics"
+description = "Ask each backend adapter which requirements a query has, whether they are supported, and which advisories apply before execution."
+
+[[pages.sections.features]]
+title = "Dialect layering"
+description = "Preserve SyQL directives as downstream dialect metadata while keeping the compiler core neutral and reusable."
+
+[[pages.sections.features]]
+title = "Self-hosting fit"
+description = "Keep access rights, portability bundles, tenancy, federation, and NixOS deployment support outside product-specific service code."
+
+[[pages.sections]]
+type = "workflow_steps"
+id = "workflow"
+heading = "Compiler workflow"
+intro = "The facade keeps each stage explicit so hosts can inspect and enforce policy before sending work to a backend."
+
+[[pages.sections.steps]]
+title = "Parse"
+description = "Convert SQL or a downstream dialect such as SyQL into a ParsedQuery."
+
+[[pages.sections.steps]]
+title = "Bind"
+description = "Resolve names, parameters, and schemas against an explicit catalog."
+
+[[pages.sections.steps]]
+title = "Analyze"
+description = "Compute backend capability requirements and structured diagnostics."
+
+[[pages.sections.steps]]
+title = "Emit"
+description = "Produce typed backend artifacts with reproducibility metadata."
+
+[[pages.sections]]
+type = "trust_panel"
+id = "demo"
+heading = "Demo solution"
+intro = "The presentation site stays at queryfabric.tartanoglu.com, while the live service proof runs separately at queryfabricdemo.tartanoglu.com with HTTPS, federation status, and resource discovery exposed as smoke-checkable endpoints."
+
+[[pages.sections.items]]
+title = "Module-deployed service"
+description = "The running demonstrator is configured through services.queryfabric in canix, with the public base URL set by the NixOS module deployment."
+
+[[pages.sections.items]]
+title = "Federation is visible"
+description = "The /federation/status endpoint reports federation mode and the instance identity used by the reference host, making the federation claim visible during review."
+
+[[pages.sections.items]]
+title = "Resources are inspectable"
+description = "The /resources endpoint returns the deterministic demo catalog used to present QueryFabric's portable data boundary, and /healthz gives the compact availability check."
+
+[[pages.sections.items]]
+title = "Presentation stays separate"
+description = "queryfabric.tartanoglu.com is reserved for the Plinth project site, so reviewers can read the project story without colliding with the runnable demo service."
+
+[[pages.sections]]
+type = "trust_panel"
+id = "operations"
+heading = "Host-owned boundaries"
+intro = "QueryFabric owns query portability and diagnostics. Hosts keep the policy and runtime decisions that are specific to their deployment."
+
+[[pages.sections.items]]
+title = "Execution stays out of core"
+description = "Routing, fan-out, authentication, and backend execution remain host responsibilities."
+
+[[pages.sections.items]]
+title = "Conformance is data-backed"
+description = "The public portable subset is backed by a machine-readable corpus and release checks."
+
+[[pages.sections.items]]
+title = "Documentation remains authoritative"
+description = "The project page stays concise while the mdBook documentation is published under /queryfabric/docs/."
