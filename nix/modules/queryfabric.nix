@@ -173,6 +173,7 @@ let
     };
 
   legacyInstance = {
+    enable = cfg.enable;
     inherit (cfg)
       package
       listenAddress
@@ -192,9 +193,13 @@ let
       default = legacyInstance;
     };
 
-  enabledInstances = lib.filterAttrs (_: instanceCfg: instanceCfg.enable) configuredInstances;
+  enabledInstances = lib.filterAttrs (
+    _: instanceCfg: instanceCfg.enable or false
+  ) configuredInstances;
   namedInstances = if cfg.enable then lib.removeAttrs cfg.instances [ "default" ] else cfg.instances;
-  enabledNamedInstances = lib.filterAttrs (_: instanceCfg: instanceCfg.enable) namedInstances;
+  enabledNamedInstances = lib.filterAttrs (
+    _: instanceCfg: instanceCfg.enable or false
+  ) namedInstances;
   legacyEnabled = cfg.enable;
 
   unitName = name: if name == "default" then "queryfabric" else "queryfabric-${name}";
