@@ -2,6 +2,25 @@
 
 ## Unreleased
 
+### Added
+
+- vendored libp2p (v0.56.0, typed-builder fork) and rs-thespis (v0.19.2) under `vendor/`
+- Plinth project-site definition replacing Zola website at `website/plinth-project.toml`
+- Forgejo Pages deployment workflow at `.forgejo/workflows/pages.yaml`
+- `plinth` flake input and restructured `docs`/`site` derivations
+- grant pre-application readiness phase plan under `docs/src/planning/grant-preapplication-readiness/`
+- claim evidence map and ideal project set at `docs/grants/`
+- pre-commit hook config at `nix/pre-commit.nix`
+
+### Changed
+
+- Website migrated from Zola to Plinth project-site
+- Cargo.toml: wire vendored deps via `[patch]` sections, bump pyo3/pythonize to 0.29
+- Nix build: replace `website` (Zola) derivation with separate `docs` (mdBook) and `site` (Plinth) packages
+- README, installation docs, and narrative bridge updated to reference Plinth
+- Resource footprint benchmark numbers refreshed from local rerun
+- NixOS module: harden instance `enable` checks with explicit attribute-or-false
+
 ## 0.2.0 - 2026-06-13
 
 ### Added
