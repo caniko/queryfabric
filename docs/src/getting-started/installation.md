@@ -9,7 +9,7 @@ QueryFabric currently supports two practical ways to start:
 
 - Rust `1.85` or newer
 - Python `3.11` or newer if you want the Python bindings
-- Nix if you want the repo-local dev shell with `zola`, `mdbook`, and
+- Nix if you want the repo-local dev shell with `plinth-project`, `mdbook`, and
   `cargo-fuzz`
 
 ## Rust Workspace
@@ -58,13 +58,13 @@ nix develop
 That shell includes:
 
 - Rust toolchain and `cargo-fuzz`
-- `zola` for the landing site
+- `plinth-project` for the landing site
 - `mdbook` for the documentation site
 - `maturin` and Python for the bindings
 
 Local site commands:
 
 ```bash
-cd website && zola serve
+plinth-project dev --config website/plinth-project.toml
 cd docs && mdbook serve
 ```
