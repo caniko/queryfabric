@@ -27,8 +27,12 @@ The script:
 
 Build provenance:
 
-- release-profile build: `nix build .#queryfabric-demo`
-- package output: `/nix/store/k7w8mya1j00m22nvc069361a97bchx5q-queryfabric-demo-0.2.0`
+- measured command: `nix develop -c scripts/footprint.sh`
+- release-profile build inside the script: `nix build .#queryfabric-demo`
+- package output: `/nix/store/l7w5zchfzwfg2gizr5gd3kf9rhfmizvi-queryfabric-demo-0.2.0`
+- workspace version: `0.2.0`
+- git identity at measurement time: local `HEAD` `57066d8`, with no local
+  `v0.2.0` tag and a dirty worktree
 - workspace Rust floor: `rust-version = "1.88"` in `Cargo.toml`
 
 Measurement host:
@@ -45,17 +49,14 @@ Measurement host:
 | --- | ---: | --- |
 | Release binary size | 17M | `du -h` on the packaged release binary |
 | Nix closure size | 63MiB | `nix path-info -S` for the package output |
-| Cold-start median (5 runs) | 726 ms | spawn to first successful `GET /healthz` |
-| Idle RSS median (5 runs) | 1544 KiB | `VmRSS` after warmup and a 40-second settle window |
-| Under-load peak RSS | 14248 KiB | peak `VmRSS` during 8 concurrent `POST /query` workers |
-
-The reproducibility check on the same host produced idle RSS medians of
-`1564 KiB` and `1544 KiB`, and load peaks of `14252 KiB` and `14248 KiB`.
+| Cold-start median (5 runs) | 472 ms | spawn to first successful `GET /healthz` |
+| Idle RSS median (5 runs) | 2912 KiB | `VmRSS` after warmup and a 40-second settle window |
+| Under-load peak RSS | 14664 KiB | peak `VmRSS` during 8 concurrent `POST /query` workers |
 
 ## Sizing
 
 The demo process itself is small: its peak under the simple concurrent query
-loop is about 14 MiB RSS, and its idle footprint settles around 1.5 MiB.
+loop is about 14.3 MiB RSS, and its idle footprint settles around 2.9 MiB.
 For the service process alone, a `1 vCPU / 128 MiB` VPS is enough with
 margin.
 

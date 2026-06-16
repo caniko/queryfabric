@@ -1,0 +1,224 @@
+{
+  "schema_version": 1,
+  "plan": {
+    "id": "d5f16bf0-c037-467c-ad24-0aa5a2562df0",
+    "name": "Plan: Grant pre-application readiness",
+    "flavor": "codex",
+    "worktype": null,
+    "created_at": 1781466416,
+    "phase_count": 8,
+    "wave_count": 5,
+    "max_chain_depth": 5,
+    "repo_spread": 6,
+    "routing_dist": {
+      "medium": 8
+    },
+    "shape_hash": "b1305dceb3b07d18de8f99eb576c14b60278497cc4dbcfb38ba6b97b72316fab"
+  },
+  "triggers": [
+    {
+      "name": "shared-file-contention",
+      "input_value": 7.0,
+      "threshold": 2.0,
+      "fired": true,
+      "section_added": "Shared-file lockstep"
+    },
+    {
+      "name": "external-repo-phases",
+      "input_value": 8.0,
+      "threshold": 1.0,
+      "fired": true,
+      "section_added": "External repo coordination"
+    },
+    {
+      "name": "convergence-point",
+      "input_value": 3.0,
+      "threshold": 3.0,
+      "fired": true,
+      "section_added": "Merge-readiness checklist"
+    },
+    {
+      "name": "ownership-boundary-spread",
+      "input_value": 6.0,
+      "threshold": 2.0,
+      "fired": true,
+      "section_added": "PR sequencing & cross-owner coordination"
+    },
+    {
+      "name": "risk-concentration",
+      "input_value": 0.0,
+      "threshold": 2.0,
+      "fired": false,
+      "section_added": null
+    },
+    {
+      "name": "risk-late-in-plan",
+      "input_value": 0.0,
+      "threshold": 1.0,
+      "fired": false,
+      "section_added": null
+    },
+    {
+      "name": "infrastructure-spof",
+      "input_value": 1.0,
+      "threshold": 1.0,
+      "fired": true,
+      "section_added": "infra-SPOF"
+    },
+    {
+      "name": "revendor-phase",
+      "input_value": 0.0,
+      "threshold": 1.0,
+      "fired": false,
+      "section_added": null
+    },
+    {
+      "name": "long-serial-chain",
+      "input_value": 5.0,
+      "threshold": 4.0,
+      "fired": true,
+      "section_added": "Serial-chain recovery"
+    },
+    {
+      "name": "mid-plan-rerouting",
+      "input_value": 8.0,
+      "threshold": 10.0,
+      "fired": false,
+      "section_added": null
+    },
+    {
+      "name": "trivial-phase-swamp",
+      "input_value": 8.0,
+      "threshold": 4.0,
+      "fired": true,
+      "section_added": "Cleanup batch"
+    },
+    {
+      "name": "no-integrated-verification",
+      "input_value": 1.0,
+      "threshold": 1.0,
+      "fired": true,
+      "section_added": null
+    },
+    {
+      "name": "routing-tier-inversion",
+      "input_value": 3.0,
+      "threshold": 1.0,
+      "fired": true,
+      "section_added": null
+    },
+    {
+      "name": "mechanical-streak",
+      "input_value": 0.0,
+      "threshold": 3.0,
+      "fired": false,
+      "section_added": null
+    },
+    {
+      "name": "hidden-prerequisite",
+      "input_value": 0.0,
+      "threshold": 1.0,
+      "fired": false,
+      "section_added": null
+    }
+  ],
+  "phases": [
+    {
+      "ordinal": 1,
+      "slug": "claim-freeze-evidence-map",
+      "routing_tier": "medium",
+      "files": [
+        "docs/grants/claim-evidence-map.md` (new)",
+        "docs/grants/ngi-fediversity-application-answers.md` (only if removing or"
+      ]
+    },
+    {
+      "ordinal": 2,
+      "slug": "legal-openness-hygiene",
+      "routing_tier": "medium",
+      "files": [
+        ".forgejo/issue_template/bug-report.yaml` (only if using headers)",
+        ".forgejo/issue_template/config.yaml` (only if using headers)",
+        ".forgejo/issue_template/feature-request.yaml` (only if using headers)",
+        ".forgejo/workflows/pages.yaml` (only if using headers)",
+        "REUSE.toml",
+        "docs/grants/claim-evidence-map.md"
+      ]
+    },
+    {
+      "ordinal": 3,
+      "slug": "public-narrative-surface",
+      "routing_tier": "medium",
+      "files": [
+        "README.md",
+        "docs/grants/claim-evidence-map.md",
+        "docs/src/**/*.md` only for correcting unsupported wording",
+        "website/plinth-project.toml"
+      ]
+    },
+    {
+      "ordinal": 4,
+      "slug": "release-proof",
+      "routing_tier": "medium",
+      "files": [
+        "Release-blocking code or metadata only if the release check fails.",
+        "docs/grants/claim-evidence-map.md",
+        "docs/grants/ngi-fediversity-application-answers.md` only if release claims"
+      ]
+    },
+    {
+      "ordinal": 5,
+      "slug": "public-demo-instance",
+      "routing_tier": "medium",
+      "files": [
+        "External deployment repo or host configuration.",
+        "docs/grants/claim-evidence-map.md",
+        "docs/grants/ngi-fediversity-application-answers.md"
+      ]
+    },
+    {
+      "ordinal": 6,
+      "slug": "community-reviewer-surface",
+      "routing_tier": "medium",
+      "files": [
+        ".forgejo/issue_template/*.yaml",
+        "CONTRIBUTING.md",
+        "Public forge issues, if created outside the repository.",
+        "README.md",
+        "ROADMAP.md",
+        "docs/grants/claim-evidence-map.md"
+      ]
+    },
+    {
+      "ordinal": 7,
+      "slug": "measurement-ha-risk-evidence",
+      "routing_tier": "medium",
+      "files": [
+        "SECURITY.md` only if the threat model link is missing",
+        "docs/grants/claim-evidence-map.md",
+        "docs/grants/ngi-fediversity-application-answers.md",
+        "docs/src/deployment/high-availability.md` only for claim corrections",
+        "docs/src/deployment/resource-footprint.md",
+        "docs/src/project/threat-model.md` only for claim corrections"
+      ]
+    },
+    {
+      "ordinal": 8,
+      "slug": "application-packet-finalization",
+      "routing_tier": "medium",
+      "files": [
+        "docs/grants/claim-evidence-map.md",
+        "docs/grants/ngi-fediversity-application-answers.md"
+      ]
+    }
+  ],
+  "meta_heuristics_fired": [
+    "threshold-proximity"
+  ],
+  "tags": {
+    "flavor": "codex",
+    "risk": "low",
+    "scope": "cross-org"
+  },
+  "verify": null
+}

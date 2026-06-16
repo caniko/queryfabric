@@ -47,3 +47,15 @@
 - [Phase 06 — HA Design Doc](./planning/ngi-fediversity-readiness/06-ha-design-doc.md)
 - [Phase 07 — Multi-Instance NixOS Module](./planning/ngi-fediversity-readiness/07-multi-instance-nixos-module.md)
 - [Phase 08 — Release Prep](./planning/ngi-fediversity-readiness/08-release-prep.md)
+
+# Plan: Grant Pre-Application Readiness
+
+- [Plan Overview](./planning/grant-preapplication-readiness/README.md)
+- [Phase 01 — Claim Freeze and Evidence Map](./planning/grant-preapplication-readiness/01-claim-freeze-evidence-map.md)
+- [Phase 02 — Legal and Openness Hygiene](./planning/grant-preapplication-readiness/02-legal-openness-hygiene.md)
+- [Phase 03 — Public Narrative Surface](./planning/grant-preapplication-readiness/03-public-narrative-surface.md)
+- [Phase 04 — Release Proof](./planning/grant-preapplication-readiness/04-release-proof.md)
+- [Phase 05 — Public Demo Instance](./planning/grant-preapplication-readiness/05-public-demo-instance.md)
+- [Phase 06 — Community and Reviewer Surface](./planning/grant-preapplication-readiness/06-community-reviewer-surface.md)
+- [Phase 07 — Measurement, HA, and Risk Evidence](./planning/grant-preapplication-readiness/07-measurement-ha-risk-evidence.md)
+- [Phase 08 — Application Packet Finalization](./planning/grant-preapplication-readiness/08-application-packet-finalization.md)

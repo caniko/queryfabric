@@ -6,7 +6,7 @@
 
 ## Goal
 
-This phase succeeds when README.md, the Zola website landing page, and a new
+This phase succeeds when README.md, the Plinth website landing page, and a new
 mdBook chapter present QueryFabric as the data-sovereignty and
 query-portability layer for self-hosted and federated services — in addition
 to, not instead of, its scientific-platform identity — with every claim backed
@@ -47,7 +47,7 @@ The canonical bridge paragraph (adapt, don't contradict):
   no accessibility statement (phase 03).
 - No removal or downgrading of the scientific-platform framing — additive only.
 - No new code, no Cargo.toml changes, no website redesign (content edits within
-  the existing Zola templates only).
+  the existing Plinth project-site definition only).
 - No claims about unimplemented features (no "import bundles", no "SQLite
   backend" — those are grant-funded future work and belong in ROADMAP, phase 03).
 
@@ -64,10 +64,11 @@ The canonical bridge paragraph (adapt, don't contradict):
    `crates/queryfabric-cluster` (wire-stable libp2p federation), and
    `nix/modules/queryfabric.nix` (hardened NixOS deployment, VM-tested).
    Link each bullet to the crate directory.
-3. **Website** (`website/content/_index.md`): add a "Data sovereignty for
+3. **Website** (`website/plinth-project.toml`): add a "Data sovereignty for
    self-hosted services" section using the same five capability bullets,
    phrased for a non-Rust operator audience. Verify rendering with
-   `nix build .#website` (or `zola build` inside `website/`).
+   `plinth-project check --config website/plinth-project.toml` and
+   `nix build .#site`.
 4. **New mdBook chapter** `docs/src/concepts/self-hosting-and-data-sovereignty.md`:
    ~1–2 pages tying together the Phase 05 sovereignty crates and the NixOS
    module. Structure: the lock-in problem → what QueryFabric owns (with crate
@@ -87,8 +88,9 @@ The canonical bridge paragraph (adapt, don't contradict):
       the hosting/sovereignty sentence.
 - [ ] README has a `## Why this matters for self-hosting` section with ≥5
       bullets, each linking to a real crate directory or `nix/modules/` path.
-- [ ] `website/content/_index.md` contains the new section and `zola build`
-      (or `nix build .#website`) exits 0.
+- [ ] `website/plinth-project.toml` contains the new section and
+      `plinth-project check --config website/plinth-project.toml` plus
+      `nix build .#site` exit 0.
 - [ ] `docs/src/concepts/self-hosting-and-data-sovereignty.md` exists, cites
       `DECISIONS.md` D003 explicitly, and contains zero claims about
       unimplemented features.
@@ -99,7 +101,7 @@ The canonical bridge paragraph (adapt, don't contradict):
 ## Files likely touched
 
 - `README.md`
-- `website/content/_index.md`
+- `website/plinth-project.toml`
 - `docs/src/concepts/self-hosting-and-data-sovereignty.md` (new)
 - `docs/src/SUMMARY.md` (one line; shared with phases 04/05/06 — rebase)
 
@@ -114,10 +116,10 @@ The canonical bridge paragraph (adapt, don't contradict):
 - **SUMMARY merge conflict.** Symptom: mdbook build fails post-merge with a
   missing-file or duplicate-entry error. Cause: phases 04/05/06 landed in
   between. Recovery: rebase, keep all additive lines, rebuild.
-- **Zola template assumptions.** Symptom: section renders unstyled or not at
-  all. Cause: `_index.md` front-matter/shortcode expectations in
-  `website/templates/`. Recovery: mirror the structure of an existing section
-  in `_index.md` rather than inventing new shortcodes.
+- **Plinth project-site assumptions.** Symptom: section fails config validation
+  or renders in the wrong place. Cause: unsupported fields or section types in
+  `website/plinth-project.toml`. Recovery: use only section types accepted by
+  `plinth-project check`.
 
 ## Reference
 

@@ -19,7 +19,7 @@ Fediversity 12th-call deadline (2026-08-01 12:00 CEST).
 
 Current state: QueryFabric is a 35-crate Rust workspace (workspace version
 0.1.1) presenting as "a portable analytical query compiler for scientific
-platforms". It already has an mdBook (`docs/`), a Zola website (`website/`), a
+platforms". It already has an mdBook (`docs/`), a Plinth project site (`website/`), a
 hardened NixOS module (`nix/modules/queryfabric.nix`) with a VM test
 (`nix/tests/selfhost.nix`), Forgejo CI, a conformance corpus, fuzzing, and a
 staged release script (`scripts/release.sh`). It lacks: a hosting/data-
