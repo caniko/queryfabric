@@ -5,6 +5,7 @@
     nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
     flake-utils.url = "github:numtide/flake-utils";
     crane.url = "github:ipetkov/crane";
+    plinth.url = "git+https://codeberg.org/caniko/plinth";
   };
 
   outputs =
@@ -13,6 +14,7 @@
       nixpkgs,
       flake-utils,
       crane,
+      plinth,
       ...
     }:
     flake-utils.lib.eachDefaultSystem (
@@ -22,6 +24,7 @@
         lib = pkgs.lib;
         craneLib = crane.mkLib pkgs;
         nixfmt = pkgs.nixfmt;
+        plinthProject = plinth.packages.${system}.plinth-project;
         nixSources = lib.fileset.toSource {
           root = ./.;
           fileset = lib.fileset.unions [
@@ -51,6 +54,7 @@
             fileset = lib.fileset.unions [
               (craneLib.fileset.commonCargoSources ./.)
               ./crates/queryfabric-demo/src/index.html
+              ./vendor/rs-thespis/README.md
             ];
           };
           strictDeps = true;
@@ -60,29 +64,6 @@
             license = lib.licenses.asl20;
             mainProgram = "queryfabric-demo";
           };
-        };
-
-        website = pkgs.stdenv.mkDerivation {
-          pname = "queryfabric-website";
-          version = "0.1.0";
-          src = lib.fileset.toSource {
-            root = ./.;
-            fileset = lib.fileset.maybeMissing ./website;
-          };
-          nativeBuildInputs = [ pkgs.zola ];
-          phases = [
-            "buildPhase"
-            "installPhase"
-          ];
-          buildPhase = ''
-            set -euo pipefail
-            cp -r --no-preserve=mode "$src/website" site
-            cd site
-            zola build
-          '';
-          installPhase = ''
-            cp -r public "$out"
-          '';
         };
 
         docs = pkgs.stdenv.mkDerivation {
@@ -107,20 +88,36 @@
           '';
         };
 
-        site = pkgs.runCommand "queryfabric-site" { } ''
-          set -euo pipefail
-          mkdir -p $out
-          cp -r ${website}/* "$out/"
-          mkdir -p $out/docs
-          cp -r ${docs}/* "$out/docs/"
-        '';
+        site = pkgs.stdenvNoCC.mkDerivation {
+          pname = "queryfabric-site";
+          version = "0.1.0";
+          src = lib.fileset.toSource {
+            root = ./.;
+            fileset = lib.fileset.maybeMissing ./website;
+          };
+          nativeBuildInputs = [ plinthProject ];
+          phases = [
+            "buildPhase"
+            "installPhase"
+          ];
+          buildPhase = ''
+            set -euo pipefail
+            cp -r --no-preserve=mode "$src/website" website
+            plinth-project build --config website/plinth-project.toml --out public
+          '';
+          installPhase = ''
+            mkdir -p "$out"
+            cp -r public/. "$out/"
+            mkdir -p "$out/docs"
+            cp -r ${docs}/. "$out/docs/"
+          '';
+        };
       in
       {
         formatter = nixFormatter;
 
         packages = {
           inherit
-            website
             docs
             site
             queryfabric-demo
@@ -178,6 +175,7 @@
             pkgs.clippy
             pkgs.maturin
             pkgs.mdbook
+            plinthProject
             pkgs.reuse
             pkgs.openssl
             pkgs.pkg-config
@@ -186,12 +184,11 @@
             pkgs.rustc
             pkgs.rustfmt
             pkgs.uv
-            pkgs.zola
           ];
 
           shellHook = ''
             echo "QueryFabric dev shell"
-            echo "Website: cd website && zola serve"
+            echo "Website: plinth-project dev --config website/plinth-project.toml"
             echo "Documentation: cd docs && mdbook serve"
           '';
         };
