@@ -6,6 +6,7 @@ mod error;
 pub mod flight;
 mod mode;
 mod runtime;
+pub mod util;
 
 pub use driver::{
     IsolatedExecutionDriver, IsolatedJobSpec, ObjectStoreFormat, ResourceRequest, StorageAccessMode,
