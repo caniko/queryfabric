@@ -4,6 +4,9 @@
 
 ### Added
 
+- Documentation: new mdBook config (`docs/book.toml`), narrative pages (Why QueryFabric?, user scenarios, tutorials, contributing guide, crate catalog, CLI tooling, custom adapter, Docker deployment), and reorganized sidebar navigation
+- `README.md` — 'Who is this for?' audience section and links to crate catalog and user scenarios
+- `CONTRIBUTING.md` — cross-reference to the new contributing guide in the documentation
 - `queryfabric-runtime::util` — `spawn_traced` panic-safe background task spawner
 - `queryfabric-adapter-clickhouse::arrow` — `clickhouse_arrow_safe_sql` for Arrow-compatible SQL wrapping
 - `queryfabric-adapter-clickhouse::types` — `ChType`, `SimpleColumnType`, `ChType::to_arrow()` type mapping
