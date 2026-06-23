@@ -7,7 +7,11 @@
 
 #![warn(missing_docs)]
 
+pub mod clickhouse;
+pub mod constants;
 mod docker;
+pub mod docker_auth;
+pub mod probe;
 mod publish;
 mod rig;
 

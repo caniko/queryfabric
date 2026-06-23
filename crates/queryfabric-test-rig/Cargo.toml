@@ -2,7 +2,6 @@
 name = "queryfabric-test-rig"
 description = "Generic Docker/Podman primitives for integration test harnesses (network, container, image, push)"
 version.workspace = true
-publish = false
 edition.workspace = true
 license.workspace = true
 repository.workspace = true
@@ -11,6 +10,7 @@ documentation.workspace = true
 rust-version.workspace = true
 
 [dependencies]
+base64 = "0.22"
 bollard = "0.20"
 clickhouse = { version = "0.15", default-features = false, features = [
   "inserter",
@@ -27,6 +27,7 @@ reqwest = { version = "0.13", default-features = false, features = [
   "rustls",
 ] }
 serde = { workspace = true, features = ["derive"] }
+serde_json = { workspace = true }
 tar = "0.4"
 tokio = { version = "1", default-features = false, features = [
   "macros",

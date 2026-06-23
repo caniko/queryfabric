@@ -2,7 +2,6 @@
 name = "queryfabric-cmd-runner"
 description = "Async subprocess runner with combined stdout/stderr capture and tail truncation"
 version.workspace = true
-publish = false
 edition.workspace = true
 license.workspace = true
 repository.workspace = true
@@ -11,6 +10,7 @@ documentation.workspace = true
 rust-version.workspace = true
 
 [dependencies]
+rmcp = { version = "1", features = ["server", "transport-io"] }
 thiserror = { workspace = true }
 tokio = { version = "1", default-features = false, features = [
   "process",
