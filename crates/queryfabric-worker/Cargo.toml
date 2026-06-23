@@ -1,0 +1,21 @@
+[package]
+name = "queryfabric-worker"
+description = "One-shot Arrow Flight worker for isolated query execution"
+version = "0.1.0"
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+homepage.workspace = true
+documentation.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+arrow = { workspace = true }
+arrow-flight = "58"
+async-trait = { workspace = true }
+futures = { workspace = true }
+queryfabric = { workspace = true }
+thiserror = { workspace = true }
+tokio = { workspace = true }
+tonic = { version = "0.14", features = ["tls-ring", "tls-native-roots"] }
+tracing = { workspace = true }

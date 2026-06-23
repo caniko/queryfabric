@@ -36,6 +36,11 @@ members = [
     "crates/queryfabric-tenancy",
     "crates/queryfabric-store",
     "crates/queryfabric-demo",
+    "crates/queryfabric-runtime-k8s",
+    "crates/queryfabric-seaorm-ext",
+    "crates/queryfabric-changelog",
+    "crates/queryfabric-worker",
+    "crates/queryfabric-types",
 ]
 exclude = ["fuzz"]
 
@@ -81,12 +86,14 @@ thiserror = "2"
 tokio-util = "0.7"
 pyo3 = { version = "0.29", features = ["extension-module"] }
 pythonize = "0.29"
+sea-orm = { version = "1", default-features = false, features = ["macros", "with-json", "with-uuid"] }
 uuid = { version = "1", features = ["v7"] }
 
 queryfabric = { version = "0.2.0", path = "crates/queryfabric" }
 queryfabric-ir = { version = "0.2.0", path = "crates/queryfabric-ir" }
 queryfabric-catalog = { version = "0.2.0", path = "crates/queryfabric-catalog" }
 queryfabric-runtime = { version = "0.2.0", path = "crates/queryfabric-runtime" }
+queryfabric-runtime-k8s = { version = "0.1.0", path = "crates/queryfabric-runtime-k8s" }
 queryfabric-opt = { version = "0.2.0", path = "crates/queryfabric-opt" }
 queryfabric-dialect-sql = { version = "0.2.0", path = "crates/queryfabric-dialect-sql" }
 queryfabric-dialect-syql = { version = "0.2.0", path = "crates/queryfabric-dialect-syql" }
@@ -116,6 +123,10 @@ queryfabric-access = { version = "0.2.0", path = "crates/queryfabric-access" }
 queryfabric-portability = { version = "0.2.0", path = "crates/queryfabric-portability" }
 queryfabric-tenancy = { version = "0.2.0", path = "crates/queryfabric-tenancy" }
 queryfabric-store = { version = "0.2.0", path = "crates/queryfabric-store" }
+queryfabric-seaorm-ext = { version = "0.1.0", path = "crates/queryfabric-seaorm-ext" }
+queryfabric-changelog = { version = "0.1.0", path = "crates/queryfabric-changelog" }
+queryfabric-types = { version = "0.1.0", path = "crates/queryfabric-types" }
+queryfabric-worker = { version = "0.1.0", path = "crates/queryfabric-worker" }
 leptos = { version = "=0.8.19", default-features = false }
 
 [patch."https://codeberg.org/caniko/rs-thespis.git"]
