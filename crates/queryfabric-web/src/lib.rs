@@ -1,3 +1,6 @@
+#[cfg(feature = "ssr")]
+pub mod ssr;
+
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
