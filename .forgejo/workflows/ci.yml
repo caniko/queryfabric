@@ -18,6 +18,8 @@ jobs:
         run: cargo clippy --workspace --all-targets -- -D warnings
       - name: cargo test
         run: cargo test --workspace --all-targets
+      - name: reuse lint
+        run: nix develop -c reuse lint
   msrv:
     runs-on: ubuntu-latest
     steps:

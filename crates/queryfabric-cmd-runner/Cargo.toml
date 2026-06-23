@@ -10,6 +10,7 @@ documentation.workspace = true
 rust-version.workspace = true
 
 [dependencies]
+rmcp = { version = "1", features = ["server", "transport-io"] }
 thiserror = { workspace = true }
 tokio = { version = "1", default-features = false, features = [
   "process",

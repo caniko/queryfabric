@@ -2,6 +2,7 @@
 name = "queryfabric-portability"
 description = "Portable export bundles, DOI minting, and artifact manifests for generic resources"
 version.workspace = true
+publish = false
 edition.workspace = true
 license.workspace = true
 repository.workspace = true

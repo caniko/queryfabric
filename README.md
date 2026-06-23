@@ -1,5 +1,11 @@
 # QueryFabric
 
+<!-- simit:badges:start -->
+[![Nix](https://img.shields.io/badge/Nix-managed-5277c3)](flake.nix) [![docs](https://img.shields.io/badge/docs-enabled-6f42c1)](docs) [![crates.io](https://img.shields.io/badge/crates.io-ready-f46623)](https://crates.io/crates/queryfabric)
+<!-- simit:badges:end -->
+
+[![REUSE status](https://api.reuse.software/badge/codeberg.org/caniko/queryfabric)](https://api.reuse.software/info/codeberg.org/caniko/queryfabric)
+
 QueryFabric is a portable analytical query compiler for scientific platforms.
 It also provides a data-sovereignty and query-portability layer for self-hosted
 and federated services.
@@ -131,9 +137,10 @@ and emit.
 ## Repository Guide
 
 - [`COMPATIBILITY.md`](COMPATIBILITY.md): semver, MSRV, backend matrix, support policy
+- [`ROADMAP.md`](ROADMAP.md): public near-term, grant-scope, and later-stage direction
 - [`MIGRATION.md`](MIGRATION.md): moving from host-internal usage to standalone QueryFabric
 - [`docs/`](docs/): mdBook documentation for Codeberg Pages and local browsing
-- [`website/`](website/): Zola landing site for the public project homepage
+- [`website/`](website/): Plinth project-site definition for the public homepage
 - [`fuzz/README.md`](fuzz/README.md): parser and binder fuzz harnesses plus seed corpora
 - [`capabilities/builtin-capability-manifest.json`](capabilities/builtin-capability-manifest.json):
   machine-readable built-in backend capabilities
@@ -159,10 +166,9 @@ cd queryfabric/fuzz && cargo fuzz build bind_portable_no_panic
 QueryFabric ships a standalone Codeberg Pages layout:
 
 ```bash
-nix build .#website
 nix build .#docs
 nix build .#site
-cd website && zola serve
+plinth-project dev --config website/plinth-project.toml
 cd docs && mdbook serve
 ```
 

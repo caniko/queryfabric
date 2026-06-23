@@ -2,6 +2,7 @@
 name = "queryfabric-prom"
 description = "Reusable Prometheus instrumentation helpers: histogram bucket presets, registry wrapper"
 version.workspace = true
+publish = false
 edition.workspace = true
 license.workspace = true
 repository.workspace = true

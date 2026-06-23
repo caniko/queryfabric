@@ -2,6 +2,7 @@
 name = "queryfabric-flight-cache"
 description = "Parquet cache layer for Arrow Flight queries: md5-hashed paths, parquet writer"
 version.workspace = true
+publish = false
 edition.workspace = true
 license.workspace = true
 repository.workspace = true

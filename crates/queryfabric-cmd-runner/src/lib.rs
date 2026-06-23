@@ -1,8 +1,9 @@
 //! Async subprocess runner with combined stdout/stderr capture.
 //!
 //! Designed for build-verification tools (lint, test, build) where the
-//! caller wants a compact summary plus the last N lines of output. The MCP
-//! integration lives at the call site — this crate is plain Tokio.
+//! caller wants a compact summary plus the last N lines of output.
+//!
+//! Enable the `mcp` feature for MCP formatting helpers.
 
 #![warn(missing_docs)]
 
@@ -131,3 +132,4 @@ pub async fn run_cmd_with_limit(
         truncated,
     })
 }
+pub mod mcp;

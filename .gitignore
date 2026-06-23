@@ -7,8 +7,10 @@
 /.devenv
 /result
 /result-*
-/docs/book
-/website/public
+/docs/book/
+/website/public/
+/.plinth-project/
+/dist/plinth-project/
 .DS_Store
 __pycache__/
 *.py[cod]

@@ -25,8 +25,8 @@ Add the flake input and import the module:
 }
 ```
 
-Then enable the service. A complete single-host example with Postgres and
-MinIO on the same machine:
+Then enable the service. The legacy shorthand keeps the original
+single-instance shape:
 
 ```nix
 {config, ...}: {
@@ -61,7 +61,54 @@ MinIO on the same machine:
 }
 ```
 
-The two secret files referenced above:
+For multi-tenant hosts, use the instance API instead. Each instance gets
+its own service unit, runtime state directory, credentials, port, and
+federation identity:
+
+```nix
+{config, ...}: {
+  services.queryfabric.instances.alpha = {
+    listenAddress = "127.0.0.1";
+    port = 8780;
+    database.urlFile = "/run/secrets/queryfabric-alpha-db-url";
+    store = {
+      backend = "s3";
+      endpoint = "http://127.0.0.1:9000";
+      bucket = "queryfabric-alpha";
+      credentialsFile = "/run/secrets/queryfabric-alpha-store-creds";
+    };
+    federation = {
+      enable = true;
+      nodeName = "queryfabric-alpha";
+      flightPort = 50051;
+    };
+  };
+
+  services.queryfabric.instances.beta = {
+    listenAddress = "127.0.0.1";
+    port = 8781;
+    database.urlFile = "/run/secrets/queryfabric-beta-db-url";
+    store = {
+      backend = "s3";
+      endpoint = "http://127.0.0.1:9000";
+      bucket = "queryfabric-beta";
+      credentialsFile = "/run/secrets/queryfabric-beta-store-creds";
+    };
+    federation = {
+      enable = true;
+      nodeName = "queryfabric-beta";
+      flightPort = 50052;
+    };
+  };
+}
+```
+
+You can mix the new API with the legacy shorthand only if you do not also
+define `services.queryfabric.instances.default`. The old top-level options
+still map to a virtual default instance, and the module rejects a config
+that defines both surfaces at once.
+
+The secret files referenced above follow the same pattern per instance:
 
 ```text
 # /run/secrets/queryfabric-db-url
@@ -81,8 +128,9 @@ at runtime and never enter the Nix store.
 
 ## What you get
 
-Once the unit is up (`systemctl status queryfabric`), the service seeds a
-generic urban air-quality dataset and exposes:
+Once the unit is up (`systemctl status queryfabric` for the legacy path or
+`systemctl status queryfabric-alpha` for a named instance), the service
+seeds a generic urban air-quality dataset and exposes:
 
 | Endpoint | Purpose |
 |---|---|
@@ -113,11 +161,12 @@ $ curl -s -X POST http://127.0.0.1:8780/resources/lis-baixa/export | jq .content
 
 ## Module options
 
-All options live under `services.queryfabric`:
+All options live under `services.queryfabric`. The same per-instance option
+set is available under `services.queryfabric.instances.<name>`:
 
 | Option | Default | Description |
 |---|---|---|
-| `enable` | `false` | enable the service |
+| `enable` | `false` | enable the legacy default instance |
 | `package` | the flake's `queryfabric-demo` | binary to run |
 | `listenAddress` / `port` | `127.0.0.1` / `8780` | HTTP bind |
 | `publicBaseUrl` | listen address | external URL used in citations/DOIs |
@@ -132,6 +181,22 @@ All options live under `services.queryfabric`:
 | `federation.hubMultiaddrs` | `[]` | federation hub multiaddrs |
 | `federation.flightPort` | `50051` | announced Arrow Flight port |
 | `openFirewall` | `false` | open the HTTP port |
+
+Named instances default to enabled; set `enable = false` to stage one
+without starting it.
+
+Namespacing rules:
+
+- `services.queryfabric.instances.<name>` creates `queryfabric-<name>.service`.
+- Each instance gets `StateDirectory=queryfabric-<name>`.
+- `database.urlFile` and `store.credentialsFile` are passed through
+  per-unit `LoadCredential` entries, so the credentials stay out of the Nix
+  store.
+- `listenAddress`, `port`, `federation.flightPort`, and
+  `federation.nodeName` must be unique across enabled instances when the
+  corresponding features are enabled.
+- `openFirewall` adds the instance port to the host firewall; multiple
+  instances are aggregated.
 
 ## Security posture
 

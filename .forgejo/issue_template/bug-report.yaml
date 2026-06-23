@@ -1,0 +1,55 @@
+name: Bug report
+description: Report a reproducible QueryFabric bug.
+title: "[bug] "
+labels:
+  - bug
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Please include the smallest reproducible example you can provide.
+  - type: input
+    id: version
+    attributes:
+      label: Version
+      description: QueryFabric version, commit SHA, or release tag.
+      placeholder: v0.1.1 / commit SHA
+    validations:
+      required: true
+  - type: input
+    id: backend
+    attributes:
+      label: Backend
+      description: Which backend or adapter was involved?
+      placeholder: PostgreSQL, ClickHouse, SyQL, or facade
+    validations:
+      required: true
+  - type: textarea
+    id: query
+    attributes:
+      label: Minimal query
+      description: The smallest query or input that reproduces the issue.
+      placeholder: SELECT ...
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected emission or diagnostics
+      description: What should QueryFabric have emitted or reported?
+      placeholder: Expected SQL, artifact metadata, or diagnostic
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual emission or diagnostics
+      description: What QueryFabric actually emitted or reported.
+      placeholder: Actual SQL, artifact metadata, panic, or diagnostic
+    validations:
+      required: true
+  - type: textarea
+    id: context
+    attributes:
+      label: Additional context
+      description: Logs, screenshots, or reproduction notes.

@@ -1,0 +1,50 @@
+#![doc = include_str!("../README.md")]
+#![warn(missing_docs)]
+#![warn(clippy::all)]
+#![warn(rust_2018_idioms)]
+#![warn(missing_debug_implementations)]
+#![deny(unused_must_use)]
+
+pub mod actor;
+pub mod error;
+pub mod mailbox;
+pub mod message;
+#[cfg(not(feature = "remote"))]
+pub mod registry;
+#[cfg(feature = "remote")]
+pub mod remote;
+pub mod reply;
+pub mod request;
+
+pub use actor::Actor;
+pub use reply::Reply;
+#[cfg(feature = "macros")]
+pub use thespis_macros::{Actor, RemoteActor, Reply, messages, remote_message};
+
+/// Commonly used types and functions that can be imported with a single use statement.
+///
+/// ```
+/// use thespis::prelude::*;
+/// ```
+///
+/// This module includes the most essential actor components, messaging types,
+/// and traits needed for typical actor system usage.
+pub mod prelude {
+    #[cfg(feature = "macros")]
+    pub use thespis_macros::{Actor, RemoteActor, Reply, messages, remote_message};
+
+    #[cfg(feature = "remote")]
+    pub use crate::actor::RemoteActorRef;
+    pub use crate::actor::{
+        Actor, ActorId, ActorRef, PreparedActor, Recipient, ReplyRecipient, Spawn, WeakActorRef,
+        WeakRecipient, WeakReplyRecipient,
+    };
+    #[cfg(feature = "remote")]
+    pub use crate::error::RemoteSendError;
+    pub use crate::error::{ActorStopReason, PanicError, PanicReason, SendError};
+    pub use crate::mailbox::{self, MailboxReceiver, MailboxSender};
+    pub use crate::message::{Context, Message};
+    #[cfg(feature = "remote")]
+    pub use crate::remote::{self, RemoteActor, RemoteMessage};
+    pub use crate::reply::{DelegatedReply, ForwardedReply, Reply, ReplyError, ReplySender};
+}

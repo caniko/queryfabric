@@ -1,0 +1,44 @@
+{
+  "activeDeadlineSeconds": 300,
+  "container": {
+    "command": null,
+    "envNames": [
+      "SYNDB_ISOLATED_QUERY_JSON",
+      "SYNDB_FLIGHT_PORT",
+      "SYNDB_STORAGE_MODE",
+      "SYNDB_REPLICATED_CLICKHOUSE_DATABASE",
+      "SYNDB_REPLICATED_CLICKHOUSE_USERNAME",
+      "SYNDB_REPLICATED_CLICKHOUSE_PASSWORD",
+      "SYNDB_REPLICATED_CLICKHOUSE_HOST",
+      "SYNDB_REPLICATED_CLICKHOUSE_NATIVE_PORT"
+    ],
+    "image": "registry.example/syndb/burst-worker:test",
+    "limits": {
+      "cpu": "600m",
+      "memory": "1200Mi"
+    },
+    "name": "burst-worker",
+    "ports": [
+      8815
+    ],
+    "requests": {
+      "cpu": "500m",
+      "memory": "1Gi"
+    }
+  },
+  "labels": {
+    "app.kubernetes.io/managed-by": "queryfabric-runtime-k8s",
+    "app.kubernetes.io/name": "burst-worker",
+    "queryfabric.io/component": "burst",
+    "queryfabric.io/isolated-job": "qf-isolated-test"
+  },
+  "name": "qf-isolated-test",
+  "serviceAccount": "syndb-burst-worker",
+  "ttlSecondsAfterFinished": 60,
+  "volumes": [
+    {
+      "emptyDir": {},
+      "name": "tmp"
+    }
+  ]
+}

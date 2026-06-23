@@ -3,6 +3,9 @@
 Security-sensitive behavior such as query execution, authorization, and data
 access policy remains outside QueryFabric core.
 
+For the current compiler and federation attack surface, see the mdBook chapter
+at `docs/src/project/threat-model.md`.
+
 Security reports for QueryFabric should focus on:
 
 - SQL or artifact generation bugs

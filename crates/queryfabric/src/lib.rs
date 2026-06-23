@@ -40,7 +40,10 @@ pub use self::inspect::{
     ParsedQuerySummary, build_query_parameters, inspect_parameters, inspect_query,
     parameter_value_from_json,
 };
-pub use queryfabric_adapter_clickhouse::ClickHouseAdapter;
+pub use queryfabric_adapter_clickhouse::{
+    ClickHouseAdapter, ClickHouseConfig, ClickHouseError, DynamicClient,
+    clickhouse_arrow_safe_artifact_sql, clickhouse_arrow_safe_sql, downcast_view_types,
+};
 pub use queryfabric_adapter_postgres::PostgresAdapter;
 pub use queryfabric_catalog::{
     BackendAdapter, BackendAnalysis, BackendExecutionLimits, BackendFeature,
@@ -71,6 +74,7 @@ pub use queryfabric_ir::{
     ResultField, ResultSchema,
 };
 pub use queryfabric_opt::{IdentityPass, OptimizationPass, OptimizationPipeline, RewriteAdvisory};
+pub use queryfabric_runtime::util::spawn_traced;
 pub use queryfabric_runtime::{
     DriverError, ExecutionRuntime, ExecutionRuntimeMode, InteractiveRuntime,
     IsolatedExecutionDriver, IsolatedJobSpec, ObjectStoreFormat, RecordBatchStream,

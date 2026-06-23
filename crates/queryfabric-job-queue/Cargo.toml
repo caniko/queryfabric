@@ -2,6 +2,7 @@
 name = "queryfabric-job-queue"
 description = "Generic thespis-backed job queue: priority dispatch, cancellation, recovery, cleanup, and an Axum/OpenAPI route surface"
 version.workspace = true
+publish = false
 edition.workspace = true
 license.workspace = true
 repository.workspace = true

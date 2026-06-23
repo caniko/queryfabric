@@ -2,6 +2,7 @@
 name = "queryfabric-paseto"
 description = "PASETO v4.local token validation primitives: bearer extraction, secret validation, raw claim parsing"
 version.workspace = true
+publish = false
 edition.workspace = true
 license.workspace = true
 repository.workspace = true

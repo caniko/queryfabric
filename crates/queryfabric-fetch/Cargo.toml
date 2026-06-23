@@ -2,6 +2,7 @@
 name = "queryfabric-fetch"
 description = "Retrying parallel HTTP downloader with exponential backoff and progress reporting"
 version.workspace = true
+publish = false
 edition.workspace = true
 license.workspace = true
 repository.workspace = true

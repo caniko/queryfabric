@@ -2,6 +2,7 @@
 name = "queryfabric-tcp-tuned"
 description = "TCP listener with performance-tuned socket options for high-throughput streaming servers"
 version.workspace = true
+publish = false
 edition.workspace = true
 license.workspace = true
 repository.workspace = true

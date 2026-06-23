@@ -1,0 +1,33 @@
+version = 1
+
+[[annotations]]
+path = [
+  "*.md",
+  "*.toml",
+  "*.lock",
+  ".gitignore",
+  ".forgejo/workflows/*.yml",
+  ".forgejo/workflows/*.yaml",
+  ".forgejo/issue_template/*.yaml",
+  "flake.nix",
+  "keys/*.gpg",
+]
+SPDX-FileCopyrightText = "2026 QueryFabric maintainers"
+SPDX-License-Identifier = "Apache-2.0"
+
+[[annotations]]
+path = [
+  "crates/**",
+  "docs/**",
+  "examples/**",
+  "conformance/**",
+  "fuzz/**",
+  "nix/**",
+  "scripts/**",
+  "packages/**",
+  "capabilities/**",
+  "vendor/**",
+  "website/**",
+]
+SPDX-FileCopyrightText = "2026 QueryFabric maintainers"
+SPDX-License-Identifier = "Apache-2.0"
