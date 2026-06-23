@@ -25,7 +25,9 @@ queryfabric-contract = { workspace = true, optional = true }
 queryfabric-ir = { workspace = true }
 serde = { workspace = true }
 thiserror = { workspace = true }
+tokio = { workspace = true }
 tokio-util = { workspace = true }
+tracing = { workspace = true }
 tonic = { version = "0.14", optional = true }
 
 [dev-dependencies]
