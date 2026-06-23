@@ -9,6 +9,13 @@
 QueryFabric is a portable analytical query compiler for scientific platforms.
 It also provides a data-sovereignty and query-portability layer for self-hosted
 and federated services.
+
+**Who is this for?** Platform engineers building scientific data platforms who
+need to parse, validate, analyze, and emit queries against multiple backends
+without coupling their query surface to any one storage engine. Python data
+scientists who want to validate SyQL queries server-side. Sysadmins deploying
+self-hosted data services with GDPR portability requirements.
+
 It gives hosts a stable semantic boundary for:
 
 - parsing SQL or downstream dialects such as SyQL into `ParsedQuery`
@@ -140,6 +147,8 @@ and emit.
 - [`ROADMAP.md`](ROADMAP.md): public near-term, grant-scope, and later-stage direction
 - [`MIGRATION.md`](MIGRATION.md): moving from host-internal usage to standalone QueryFabric
 - [`docs/`](docs/): mdBook documentation for Codeberg Pages and local browsing
+- [**Crate Catalog**](docs/src/integration/crate-catalog.md): what each of the 35 crates does
+- [**User Scenarios**](docs/src/scenarios/): concrete walkthroughs for embedding, deploying, federating, and extending
 - [`website/`](website/): Plinth project-site definition for the public homepage
 - [`fuzz/README.md`](fuzz/README.md): parser and binder fuzz harnesses plus seed corpora
 - [`capabilities/builtin-capability-manifest.json`](capabilities/builtin-capability-manifest.json):

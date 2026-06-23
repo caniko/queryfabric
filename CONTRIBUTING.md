@@ -12,6 +12,9 @@ This QueryFabric workspace is kept intentionally neutral:
   when changing the verified subset.
 - Keep the capability manifest and release notes in sync with code changes.
 
+See the [Contributing Guide](docs/src/project/contributing.md) for the full
+development workflow, test setup, and review expectations.
+
 ## Your first contribution
 
 If you are looking for a first issue, these are small, concrete places to start:
