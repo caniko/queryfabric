@@ -4,6 +4,38 @@
 
 ### Added
 
+- `queryfabric-runtime::util` — `spawn_traced` panic-safe background task spawner
+- `queryfabric-adapter-clickhouse::arrow` — `clickhouse_arrow_safe_sql` for Arrow-compatible SQL wrapping
+- `queryfabric-adapter-clickhouse::types` — `ChType`, `SimpleColumnType`, `ChType::to_arrow()` type mapping
+- `queryfabric-adapter-clickhouse::driver` — `ClickHouseConfig`, `ClickHouseError`, `DynamicClient` with fallback-host retry and Arrow IPC streaming
+- `queryfabric-adapter-clickhouse::cost` — ClickHouse cost model integration
+- `queryfabric-cli-toolbelt::auth` — `AuthStore`, `load_auth`, `save_auth`, `load_auth_token`
+- `queryfabric-cli-toolbelt::clickhouse` — `ClickHouseConnArgs` with env-var defaults
+- `queryfabric-cli-toolbelt::flight` — `FlightClient` with `do_get` (feature-gated)
+- `queryfabric-cli-toolbelt::k8s` — K8s resource types, kubectl helpers, `parse_quantity`
+- `queryfabric-test-rig::probe` — `wait_for_tcp_port`, `WaitConfig`
+- `queryfabric-test-rig::constants` — default image tags and test credentials
+- `queryfabric-test-rig::docker_auth` — `resolve_registry_auth` for Docker credentials
+- `queryfabric-test-rig::clickhouse` — multi-node ClickHouse test helpers (`cluster_xml`, `execute_ch`, `split_ddl_statements`)
+- `queryfabric-cmd-runner::mcp` — `format_result` for MCP `CallToolResult` conversion
+- `queryfabric-web::ssr` — `SsrSettings` with env-prefix parameterization and `ApiClient` SSR proxy (feature-gated)
+- `queryfabric-runtime-k8s` crate — Kubernetes isolated execution driver with configurable label keys
+- `queryfabric-seaorm-ext` crate — `SharedDatabaseConnection`, `I16Vec`, `UuidVec`
+- `queryfabric-types` crate — validated string newtypes (`Email`, `Doi`, `CountryCode`, etc.) and portable enums (`UserType`, `OAuthProviderName`)
+- `queryfabric-worker` crate — one-shot Arrow Flight worker with `QueryExecutor` trait
+- `queryfabric-changelog` crate — multi-ecosystem changelog compiler with git diff parsers
+
+### Changed
+
+- `queryfabric-runtime` Cargo.toml: add `tokio` and `tracing` deps
+- `queryfabric-adapter-clickhouse` Cargo.toml: add `secrecy`, `serde_json`, `thiserror` deps
+- `queryfabric-cli-toolbelt`: add `flight` and `polars` features
+- `queryfabric-cmd-runner`: add `rmcp` dependency for MCP support
+
+### Fixed
+
+- `queryfabric-adapter-clickhouse::driver` — replace 3 `.expect()` in retry loop with safe error propagation
+
 - vendored libp2p (v0.56.0, typed-builder fork) and rs-thespis (v0.19.2) under `vendor/`
 - Plinth project-site definition replacing Zola website at `website/plinth-project.toml`
 - Forgejo Pages deployment workflow at `.forgejo/workflows/pages.yaml`
