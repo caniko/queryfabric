@@ -1,0 +1,18 @@
+[package]
+name = "queryfabric-changelog"
+description = "Multi-ecosystem changelog compilation from git diffs"
+version = "0.1.0"
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+homepage.workspace = true
+documentation.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+regex = "1"
+reqwest = { version = "0.13", default-features = false, features = ["json", "rustls"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = { version = "1" }
+thiserror = { workspace = true }
+tokio = { workspace = true }
