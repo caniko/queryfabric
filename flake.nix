@@ -123,6 +123,7 @@
             queryfabric-demo
             ;
           default = site;
+          website = site;
         };
 
         checks = {

@@ -1,4 +1,4 @@
-//! Standardized logging initialization for QueryFabric CLI tools.
+//! Standardized logging initialization for SynDB CLI tools.
 
 #![warn(missing_docs)]
 
