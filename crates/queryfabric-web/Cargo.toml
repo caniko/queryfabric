@@ -20,6 +20,7 @@ queryfabric-catalog = { workspace = true }
 reqwest = { version = "0.13", default-features = false, features = ["json", "rustls"], optional = true }
 serde = { workspace = true }
 serde_json = { workspace = true, optional = true }
+urlencoding = "2"
 
 [features]
 default = []
@@ -27,3 +28,5 @@ ssr = ["dep:http", "dep:reqwest", "dep:serde_json"]
 
 [dev-dependencies]
 queryfabric-catalog = { workspace = true }
+serde_json = { workspace = true }
+urlencoding = "2"

@@ -146,11 +146,11 @@ where
     Ok(default)
 }
 
-fn trim_trailing_slash(value: &str) -> String {
+pub fn trim_trailing_slash(value: &str) -> String {
     value.trim_end_matches('/').to_owned()
 }
 
-fn normalize_prefix(value: &str) -> String {
+pub fn normalize_prefix(value: &str) -> String {
     let trimmed = value.trim();
     if trimmed.is_empty() || trimmed == "/" {
         String::new()
