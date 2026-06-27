@@ -7,10 +7,10 @@ use std::time::Duration;
 
 use futures::{FutureExt, future::join_all};
 use queryfabric_contract::{ClusterProbe, Health, NodeId, ProbeResult};
-use thespis::Actor;
-use thespis::actor::{ActorRef, Spawn};
-use thespis::error::Infallible;
-use thespis::message::{Context, Message};
+use piying::Actor;
+use piying::actor::{ActorRef, Spawn};
+use piying::error::Infallible;
+use piying::message::{Context, Message};
 use tokio::time::Instant;
 use tracing::{debug, info, warn};
 

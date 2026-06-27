@@ -4,10 +4,10 @@ use std::time::Instant;
 
 use chrono::Utc;
 use queryfabric_contract::Health;
-use thespis::Actor;
-use thespis::actor::ActorRef;
-use thespis::error::Infallible;
-use thespis::message::{Context, Message};
+use piying::Actor;
+use piying::actor::ActorRef;
+use piying::error::Infallible;
+use piying::message::{Context, Message};
 use tracing::info;
 
 use crate::host::FederationHost;

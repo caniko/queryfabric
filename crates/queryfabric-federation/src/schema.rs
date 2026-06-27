@@ -1,7 +1,7 @@
 use std::sync::atomic::{AtomicI32, Ordering};
 
 use serde::{Deserialize, Serialize};
-use thespis::Reply;
+use piying::Reply;
 use tracing::{info, warn};
 
 use crate::host::FederationHost;

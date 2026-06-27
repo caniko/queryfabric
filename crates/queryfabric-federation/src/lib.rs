@@ -23,7 +23,7 @@
 //! | [`SyncAllSchemas`] | local (admin) → hub | `Vec<(String, bool)>` | broadcast schema sync to every registered cluster |
 //!
 //! The actor skeletons ([`HubActor`], [`ClusterNodeActor`]) are local
-//! `thespis` actors generic over the host; remote (libp2p DHT) registration
+//! `piying` actors generic over the host; remote (libp2p DHT) registration
 //! stays in the host because `RemoteActor` derivation requires a concrete
 //! type. Tests and single-process deployments use [`InMemoryTransport`].
 

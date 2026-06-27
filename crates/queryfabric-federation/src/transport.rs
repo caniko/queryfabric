@@ -4,7 +4,7 @@ use async_trait::async_trait;
 use chrono::Utc;
 use papaya::HashMap as PapayaMap;
 use queryfabric_contract::{ClusterProbe, Health, NodeId, ProbeResult};
-use thespis::actor::ActorRef;
+use piying::actor::ActorRef;
 use thiserror::Error;
 
 use crate::host::FederationHost;
