@@ -1,4 +1,4 @@
-//! Bootstrap a thespis libp2p swarm.
+//! Bootstrap a piying libp2p swarm.
 
 #![warn(missing_docs)]
 
@@ -30,13 +30,13 @@ impl Default for SwarmConfig {
     }
 }
 
-/// Bootstrap a thespis libp2p swarm with a `role` label for log context.
+/// Bootstrap a piying libp2p swarm with a `role` label for log context.
 ///
-/// In dev mode (no explicit listen address), uses `thespis::remote::bootstrap()`.
-/// In production (explicit address), uses `thespis::remote::bootstrap_on()`.
+/// In dev mode (no explicit listen address), uses `piying::remote::bootstrap()`.
+/// In production (explicit address), uses `piying::remote::bootstrap_on()`.
 ///
 /// # Errors
-/// Returns any thespis/libp2p bootstrap error from the selected bootstrap
+/// Returns any piying/libp2p bootstrap error from the selected bootstrap
 /// helper.
 pub fn bootstrap_swarm(
     role: &str,
@@ -44,10 +44,10 @@ pub fn bootstrap_swarm(
 ) -> Result<PeerId, Box<dyn std::error::Error>> {
     let peer_id = if let Some(addr) = &config.listen_addr {
         info!(addr = %addr, role, "Bootstrapping swarm on explicit address");
-        thespis::remote::bootstrap_on(addr)?
+        piying::remote::bootstrap_on(addr)?
     } else {
         info!(role, "Bootstrapping swarm with mDNS (dev mode)");
-        thespis::remote::bootstrap()?
+        piying::remote::bootstrap()?
     };
 
     info!(peer_id = %peer_id, role, "Swarm bootstrapped");

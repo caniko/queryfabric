@@ -1,0 +1,80 @@
+%% Creator: Inkscape 1.4.4 (dcaf3e7d9e, 2026-05-05), www.inkscape.org
+%% PDF/EPS/PS + LaTeX output extension by Johan Engelen, 2010
+%% Accompanies image file 'CF01-architecture_svg-tex.pdf' (pdf, eps, ps)
+%%
+%% To include the image in your LaTeX document, write
+%%   \input{<filename>.pdf_tex}
+%%  instead of
+%%   \includegraphics{<filename>.pdf}
+%% To scale the image, write
+%%   \def\svgwidth{<desired width>}
+%%   \input{<filename>.pdf_tex}
+%%  instead of
+%%   \includegraphics[width=<desired width>]{<filename>.pdf}
+%%
+%% Images with a different path to the parent latex file can
+%% be accessed with the `import' package (which may need to be
+%% installed) using
+%%   \usepackage{import}
+%% in the preamble, and then including the image with
+%%   \import{<path to file>}{<filename>.pdf_tex}
+%% Alternatively, one can specify
+%%   \graphicspath{{<path to file>/}}
+%% 
+%% For more information, please see info/svg-inkscape on CTAN:
+%%   http://tug.ctan.org/tex-archive/info/svg-inkscape
+%%
+\begingroup%
+  \makeatletter%
+  \providecommand\color[2][]{%
+    \errmessage{(Inkscape) Color is used for the text in Inkscape, but the package 'color.sty' is not loaded}%
+    \renewcommand\color[2][]{}%
+  }%
+  \providecommand\transparent[1]{%
+    \errmessage{(Inkscape) Transparency is used (non-zero) for the text in Inkscape, but the package 'transparent.sty' is not loaded}%
+    \renewcommand\transparent[1]{}%
+  }%
+  \providecommand\rotatebox[2]{#2}%
+  \newcommand*\fsize{\dimexpr\f@size pt\relax}%
+  \newcommand*\lineheight[1]{\fontsize{\fsize}{#1\fsize}\selectfont}%
+  \ifx\svgwidth\undefined%
+    \setlength{\unitlength}{558.37882936bp}%
+    \ifx\svgscale\undefined%
+      \relax%
+    \else%
+      \setlength{\unitlength}{\unitlength * \real{\svgscale}}%
+    \fi%
+  \else%
+    \setlength{\unitlength}{\svgwidth}%
+  \fi%
+  \global\let\svgwidth\undefined%
+  \global\let\svgscale\undefined%
+  \makeatother%
+  \begin{picture}(1,0.31474695)%
+    \lineheight{1}%
+    \setlength\tabcolsep{0pt}%
+    \put(0,0){\includegraphics[width=\unitlength,page=1]{CF01-architecture_svg-tex.pdf}}%
+    \put(0.14565499,0.17260316){\color[rgb]{1,1,1}\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}\textbf{Parse}\end{tabular}}}}%
+    \put(0.14565499,0.12691409){\color[rgb]{1,1,1}\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}Dialect::parse(str)\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=2]{CF01-architecture_svg-tex.pdf}}%
+    \put(0.34871754,0.17260316){\color[rgb]{1,1,1}\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}\textbf{Bind}\end{tabular}}}}%
+    \put(0.34871754,0.12691409){\color[rgb]{1,1,1}\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}bind\_and\_validate()\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=3]{CF01-architecture_svg-tex.pdf}}%
+    \put(0.55178008,0.17260316){\color[rgb]{1,1,1}\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}\textbf{Analyze}\end{tabular}}}}%
+    \put(0.55178008,0.12691409){\color[rgb]{1,1,1}\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}analyze(bound, adapter)\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=4]{CF01-architecture_svg-tex.pdf}}%
+    \put(0.75484263,0.17260316){\color[rgb]{1,1,1}\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}\textbf{Emit}\end{tabular}}}}%
+    \put(0.75484263,0.12691409){\color[rgb]{1,1,1}\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}emit(bound, adapter)\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=5]{CF01-architecture_svg-tex.pdf}}%
+    \put(0.19642063,0.03553595){\color[rgb]{1,1,1}\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}\textbf{Catalog}\end{tabular}}}}%
+    \put(0.19642063,0.01269141){\color[rgb]{1,1,1}\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}RelationSchema · FunctionRegistry\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=6]{CF01-architecture_svg-tex.pdf}}%
+    \put(0.49086132,0.03553595){\color[rgb]{1,1,1}\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}\textbf{BackendAdapter}\end{tabular}}}}%
+    \put(0.49086132,0.01269141){\color[rgb]{1,1,1}\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}CapabilitySet · emit()\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=7]{CF01-architecture_svg-tex.pdf}}%
+    \put(0.8563739,0.26905787){\color[rgb]{0.17254902,0.24313725,0.31372549}\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}\textbf{Provenance}\end{tabular}}}}%
+    \put(0.8563739,0.24621334){\color[rgb]{0.33333333,0.33333333,0.33333333}\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}version · catalog · dialect\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=8]{CF01-architecture_svg-tex.pdf}}%
+    \put(0.45024881,0.28936413){\color[rgb]{0.17254902,0.24313725,0.31372549}\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}\textbf{A Compiler Pipeline}\end{tabular}}}}%
+  \end{picture}%
+\endgroup%

@@ -1,6 +1,6 @@
 use queryfabric_contract::{NodeId, ResourceRef};
 use serde::{Deserialize, Serialize};
-use thespis::Reply;
+use piying::Reply;
 
 use crate::schema::SchemaMigration;
 

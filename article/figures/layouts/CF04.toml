@@ -1,0 +1,13 @@
+title = "SynDB Case Study"
+page_width = 160
+page_height = 120
+
+[[panel]]
+id = "A"
+aspect = 1.6
+min_w = 100
+
+[[panel]]
+id = "B"
+aspect = 1.6
+min_w = 100

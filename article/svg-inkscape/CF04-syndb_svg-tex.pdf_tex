@@ -1,0 +1,120 @@
+%% Creator: Inkscape 1.4.4 (dcaf3e7d9e, 2026-05-05), www.inkscape.org
+%% PDF/EPS/PS + LaTeX output extension by Johan Engelen, 2010
+%% Accompanies image file 'CF04-syndb_svg-tex.pdf' (pdf, eps, ps)
+%%
+%% To include the image in your LaTeX document, write
+%%   \input{<filename>.pdf_tex}
+%%  instead of
+%%   \includegraphics{<filename>.pdf}
+%% To scale the image, write
+%%   \def\svgwidth{<desired width>}
+%%   \input{<filename>.pdf_tex}
+%%  instead of
+%%   \includegraphics[width=<desired width>]{<filename>.pdf}
+%%
+%% Images with a different path to the parent latex file can
+%% be accessed with the `import' package (which may need to be
+%% installed) using
+%%   \usepackage{import}
+%% in the preamble, and then including the image with
+%%   \import{<path to file>}{<filename>.pdf_tex}
+%% Alternatively, one can specify
+%%   \graphicspath{{<path to file>/}}
+%% 
+%% For more information, please see info/svg-inkscape on CTAN:
+%%   http://tug.ctan.org/tex-archive/info/svg-inkscape
+%%
+\begingroup%
+  \makeatletter%
+  \providecommand\color[2][]{%
+    \errmessage{(Inkscape) Color is used for the text in Inkscape, but the package 'color.sty' is not loaded}%
+    \renewcommand\color[2][]{}%
+  }%
+  \providecommand\transparent[1]{%
+    \errmessage{(Inkscape) Transparency is used (non-zero) for the text in Inkscape, but the package 'transparent.sty' is not loaded}%
+    \renewcommand\transparent[1]{}%
+  }%
+  \providecommand\rotatebox[2]{#2}%
+  \newcommand*\fsize{\dimexpr\f@size pt\relax}%
+  \newcommand*\lineheight[1]{\fontsize{\fsize}{#1\fsize}\selectfont}%
+  \ifx\svgwidth\undefined%
+    \setlength{\unitlength}{563.34015133bp}%
+    \ifx\svgscale\undefined%
+      \relax%
+    \else%
+      \setlength{\unitlength}{\unitlength * \real{\svgscale}}%
+    \fi%
+  \else%
+    \setlength{\unitlength}{\svgwidth}%
+  \fi%
+  \global\let\svgwidth\undefined%
+  \global\let\svgscale\undefined%
+  \makeatother%
+  \begin{picture}(1,0.63705784)%
+    \lineheight{1}%
+    \setlength\tabcolsep{0pt}%
+    \put(0.50140415,0.61441449){\color[rgb]{0.17254902,0.24313725,0.31372549}\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}\textbf{A SynDB Architecture with QueryFabric}\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=1]{CF04-syndb_svg-tex.pdf}}%
+    \put(0.17936547,0.5037137){\color[rgb]{1,1,1}\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}\textbf{SyQL User}\end{tabular}}}}%
+    \put(0.17936547,0.47352257){\color[rgb]{1,1,1}\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}Web / CLI / API\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=2]{CF04-syndb_svg-tex.pdf}}%
+    \put(0.43599004,0.5137774){\color[rgb]{1,1,1}\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}\textbf{QUERYFABRIC}\end{tabular}}}}%
+    \put(0.43599004,0.47855442){\color[rgb]{1,1,1}\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}parse · bind · analyze · emit\end{tabular}}}}%
+    \put(0.43599004,0.45339515){\color[rgb]{1,1,1}\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}Compiler Core\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=3]{CF04-syndb_svg-tex.pdf}}%
+    \put(0.64732793,0.54900039){\color[rgb]{1,1,1}\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}\textbf{PostgreSQL}\end{tabular}}}}%
+    \put(0.64732793,0.51880926){\color[rgb]{1,1,1}\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}Metadata · Auth\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=4]{CF04-syndb_svg-tex.pdf}}%
+    \put(0.64732793,0.43829959){\color[rgb]{1,1,1}\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}\textbf{ClickHouse}\end{tabular}}}}%
+    \put(0.64732793,0.40810846){\color[rgb]{1,1,1}\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}Neuroanatomy OLAP\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=5]{CF04-syndb_svg-tex.pdf}}%
+    \put(0.15923805,0.3930129){\color[rgb]{0.17254902,0.24313725,0.31372549}\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}\textbf{5 shard regions}\end{tabular}}}}%
+    \put(0.15923805,0.36282177){\color[rgb]{0.17254902,0.24313725,0.31372549}\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}NRP Nautilus K8s\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=6]{CF04-syndb_svg-tex.pdf}}%
+    \put(0.50140415,0.30747137){\color[rgb]{0.17254902,0.24313725,0.31372549}\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}\textbf{B Live Query Latency (Hemibrain, K8s)}\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=7]{CF04-syndb_svg-tex.pdf}}%
+    \put(0.16678583,0.23005555){\color[rgb]{0.17254902,0.24313725,0.31372549}\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}2154\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=8]{CF04-syndb_svg-tex.pdf}}%
+    \put(0.20200881,0.2289842){\color[rgb]{0.17254902,0.24313725,0.31372549}\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}2079\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=9]{CF04-syndb_svg-tex.pdf}}%
+    \put(0.23723179,0.2773376){\color[rgb]{0.17254902,0.24313725,0.31372549}\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}5464\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=10]{CF04-syndb_svg-tex.pdf}}%
+    \put(0.27245477,0.24264029){\color[rgb]{0.17254902,0.24313725,0.31372549}\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}3035\end{tabular}}}}%
+    \put(0.2196203,0.1716113){\color[rgb]{0.17254902,0.24313725,0.31372549}\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}Nrn scan 1K\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=11]{CF04-syndb_svg-tex.pdf}}%
+    \put(0.3546417,0.24129752){\color[rgb]{0.17254902,0.24313725,0.31372549}\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}2941\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=12]{CF04-syndb_svg-tex.pdf}}%
+    \put(0.38986469,0.25103964){\color[rgb]{0.17254902,0.24313725,0.31372549}\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}3623\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=13]{CF04-syndb_svg-tex.pdf}}%
+    \put(0.42508771,0.27103807){\color[rgb]{0.17254902,0.24313725,0.31372549}\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}5023\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=14]{CF04-syndb_svg-tex.pdf}}%
+    \put(0.46031069,0.37540141){\color[rgb]{0.17254902,0.24313725,0.31372549}\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}12329\end{tabular}}}}%
+    \put(0.40747618,0.1716113){\color[rgb]{0.17254902,0.24313725,0.31372549}\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}Nrn wide 10K\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=15]{CF04-syndb_svg-tex.pdf}}%
+    \put(0.54249762,0.22598444){\color[rgb]{0.17254902,0.24313725,0.31372549}\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}1869\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=16]{CF04-syndb_svg-tex.pdf}}%
+    \put(0.5777206,0.22657008){\color[rgb]{0.17254902,0.24313725,0.31372549}\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}1910\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=17]{CF04-syndb_svg-tex.pdf}}%
+    \put(0.61294354,0.22819855){\color[rgb]{0.17254902,0.24313725,0.31372549}\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}2024\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=18]{CF04-syndb_svg-tex.pdf}}%
+    \put(0.64816652,0.23082692){\color[rgb]{0.17254902,0.24313725,0.31372549}\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}2208\end{tabular}}}}%
+    \put(0.59533209,0.1716113){\color[rgb]{0.17254902,0.24313725,0.31372549}\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}PK lookup\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=19]{CF04-syndb_svg-tex.pdf}}%
+    \put(0.73035353,0.22846996){\color[rgb]{0.17254902,0.24313725,0.31372549}\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}2043\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=20]{CF04-syndb_svg-tex.pdf}}%
+    \put(0.76557651,0.22839852){\color[rgb]{0.17254902,0.24313725,0.31372549}\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}2038\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=21]{CF04-syndb_svg-tex.pdf}}%
+    \put(0.80079949,0.2338838){\color[rgb]{0.17254902,0.24313725,0.31372549}\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}2422\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=22]{CF04-syndb_svg-tex.pdf}}%
+    \put(0.83602248,0.23139828){\color[rgb]{0.17254902,0.24313725,0.31372549}\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}2248\end{tabular}}}}%
+    \put(0.783188,0.1716113){\color[rgb]{0.17254902,0.24313725,0.31372549}\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}Syn scan 1K\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=23]{CF04-syndb_svg-tex.pdf}}%
+    \put(0.18942917,0.01059196){\color[rgb]{0.17254902,0.24313725,0.31372549}\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}Cold p50\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=24]{CF04-syndb_svg-tex.pdf}}%
+    \put(0.38063965,0.01059196){\color[rgb]{0.17254902,0.24313725,0.31372549}\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}Warm p50\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=25]{CF04-syndb_svg-tex.pdf}}%
+    \put(0.57185015,0.01059196){\color[rgb]{0.17254902,0.24313725,0.31372549}\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}Cold p95\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=26]{CF04-syndb_svg-tex.pdf}}%
+    \put(0.76306059,0.01059196){\color[rgb]{0.17254902,0.24313725,0.31372549}\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}Warm p95\end{tabular}}}}%
+  \end{picture}%
+\endgroup%

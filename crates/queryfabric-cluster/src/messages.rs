@@ -1,7 +1,7 @@
 use chrono::{DateTime, Utc};
 use queryfabric_contract::{NodeId, ResourceRef};
 use serde::{Deserialize, Serialize};
-use thespis::Reply;
+use piying::Reply;
 
 /// Generic endpoint discovery request.
 #[derive(Debug, Clone, Serialize, Deserialize)]

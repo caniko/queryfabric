@@ -1,0 +1,13 @@
+title = "Architecture"
+page_width = 160
+page_height = 120
+
+[[panel]]
+id = "A"
+aspect = 2.0
+min_w = 100
+
+[[panel]]
+id = "B"
+aspect = 2.0
+min_w = 100

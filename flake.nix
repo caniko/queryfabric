@@ -6,6 +6,8 @@
     flake-utils.url = "github:numtide/flake-utils";
     crane.url = "github:ipetkov/crane";
     plinth.url = "git+https://codeberg.org/caniko/plinth";
+    treefmt-nix.url = "github:numtide/treefmt-nix";
+    git-hooks.url = "github:cachix/git-hooks.nix";
   };
 
   outputs =
@@ -15,6 +17,8 @@
       flake-utils,
       crane,
       plinth,
+      treefmt-nix,
+      git-hooks,
       ...
     }:
     flake-utils.lib.eachDefaultSystem (
@@ -25,6 +29,15 @@
         craneLib = crane.mkLib pkgs;
         nixfmt = pkgs.nixfmt;
         plinthProject = plinth.packages.${system}.plinth-project;
+        treefmtEval = treefmt-nix.lib.evalModule pkgs (import ./nix/treefmt.nix);
+        pre-commit-check = git-hooks.lib.${system}.run {
+          src = ./.;
+          hooks = import ./nix/pre-commit.nix {
+            inherit pkgs;
+            treefmtWrapper = treefmtEval.config.build.wrapper;
+            rustToolchain = pkgs.rustc;
+          };
+        };
         nixSources = lib.fileset.toSource {
           root = ./.;
           fileset = lib.fileset.unions [
@@ -54,7 +67,6 @@
             fileset = lib.fileset.unions [
               (craneLib.fileset.commonCargoSources ./.)
               ./crates/queryfabric-demo/src/index.html
-              ./vendor
             ];
           };
           strictDeps = true;
@@ -170,28 +182,32 @@
         };
 
         devShells.default = pkgs.mkShell {
-          packages = [
-            pkgs.cargo
-            pkgs.cargo-fuzz
-            pkgs.clippy
-            pkgs.maturin
-            pkgs.mdbook
-            plinthProject
-            pkgs.reuse
-            pkgs.openssl
-            pkgs.pkg-config
-            pkgs.python3
-            pkgs.rust-analyzer
-            pkgs.rustc
-            pkgs.rustfmt
-            pkgs.uv
-          ];
+          packages =
+            [
+              pkgs.cargo
+              pkgs.cargo-fuzz
+              pkgs.clippy
+              pkgs.maturin
+              pkgs.mdbook
+              plinthProject
+              pkgs.reuse
+              pkgs.openssl
+              pkgs.pkg-config
+              pkgs.python3
+              pkgs.rust-analyzer
+              pkgs.rustc
+              pkgs.rustfmt
+              pkgs.uv
+            ]
+            ++ pre-commit-check.enabledPackages;
 
-          shellHook = ''
-            echo "QueryFabric dev shell"
-            echo "Website: plinth-project dev --config website/plinth-project.toml"
-            echo "Documentation: cd docs && mdbook serve"
-          '';
+          shellHook =
+            pre-commit-check.shellHook
+            + ''
+              echo "QueryFabric dev shell"
+              echo "Website: plinth-project dev --config website/plinth-project.toml"
+              echo "Documentation: cd docs && mdbook serve"
+            '';
         };
       }
     )

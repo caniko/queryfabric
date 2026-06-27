@@ -3,10 +3,10 @@ use std::sync::Arc;
 
 use papaya::HashMap as PapayaMap;
 use queryfabric_contract::{NodeId, ResourceRef};
-use thespis::Actor;
-use thespis::actor::{ActorRef, Spawn};
-use thespis::error::RegistryError;
-use thespis::remote::RemoteActor;
+use piying::Actor;
+use piying::actor::{ActorRef, Spawn};
+use piying::error::RegistryError;
+use piying::remote::RemoteActor;
 
 use crate::routing::ResourceLocation;
 

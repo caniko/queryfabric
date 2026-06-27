@@ -1,0 +1,1622 @@
+This is LuaHBTeX, Version 1.22.0 (TeX Live 2025/nixos.org)  (format=lualatex 1980.1.1)  1 JAN 1980 01:00
+ system commands enabled.
+**manuscript.tex
+(./manuscript.tex
+LaTeX2e <2025-11-01>
+L3 programming layer <2026-01-19>
+Lua module: luaotfload 2024-12-03 v3.29 Lua based OpenType font support
+Lua module: lualibs 2023-07-13 v2.76 ConTeXt Lua standard libraries.
+Lua module: lualibs-extended 2023-07-13 v2.76 ConTeXt Lua libraries -- extended 
+collection.
+luaotfload | conf : Root cache directory is "/home/can/.texlive2025/texmf-var/lu
+atex-cache/generic/names".
+luaotfload | init : Loading fontloader "fontloader-2023-12-28.lua" from kpse-res
+olved path "/nix/store/dwx0cnswr5fb44f1126kyrvkxrk5i99f-texlive-combined-full-20
+25-final-texmfdist/tex/luatex/luaotfload/fontloader-2023-12-28.lua".
+Lua-only attribute luaotfload@noligature = 1
+luaotfload | init : Context OpenType loader version 3.134
+Inserting `luaotfload.node_processor' in `pre_linebreak_filter'.
+Inserting `luaotfload.node_processor' in `hpack_filter'.
+Inserting `luaotfload.glyph_stream' in `glyph_stream_provider'.
+Inserting `luaotfload.define_font' in `define_font'.
+Lua-only attribute luaotfload_color_attribute = 2
+luaotfload | conf : Root cache directory is "/home/can/.texlive2025/texmf-var/lu
+atex-cache/generic/names".
+Inserting `luaotfload.harf.strip_prefix' in `find_opentype_file'.
+Inserting `luaotfload.harf.strip_prefix' in `find_truetype_file'.
+Removing  `luaotfload.glyph_stream' from `glyph_stream_provider'.
+Inserting `luaotfload.harf.glyphstream' in `glyph_stream_provider'.
+Inserting `luaotfload.harf.finalize_vlist' in `post_linebreak_filter'.
+Inserting `luaotfload.harf.finalize_hlist' in `hpack_filter'.
+Inserting `luaotfload.cleanup_files' in `wrapup_run'.
+Inserting `luaotfload.harf.finalize_unicode' in `finish_pdffile'.
+Inserting `luaotfload.glyphinfo' in `glyph_info'.
+Lua-only attribute luaotfload.letterspace_done = 3
+Inserting `luaotfload.aux.set_sscale_dimens' in `luaotfload.patch_font'.
+Inserting `luaotfload.aux.set_font_index' in `luaotfload.patch_font'.
+Inserting `luaotfload.aux.patch_cambria_domh' in `luaotfload.patch_font'.
+Inserting `luaotfload.aux.fixup_fontdata' in `luaotfload.patch_font_unsafe'.
+Inserting `luaotfload.aux.set_capheight' in `luaotfload.patch_font'.
+Inserting `luaotfload.aux.set_xheight' in `luaotfload.patch_font'.
+Inserting `luaotfload.rewrite_fontname' in `luaotfload.patch_font'.
+Inserting `tracingstacklevels' in `input_level_string'.
+(/nix/store/dwx0cnswr5fb44f1126kyrvkxrk5i99f-texlive-combined-full-2025-final-t
+exmfdist/tex/latex/base/article.cls
+Document Class: article 2025/01/22 v1.4n Standard LaTeX document class
+
+(/nix/store/dwx0cnswr5fb44f1126kyrvkxrk5i99f-texlive-combined-full-2025-final-t
+exmfdist/tex/latex/base/size11.clo
+File: size11.clo 2025/01/22 v1.4n Standard LaTeX file (size option)
+luaotfload | db : Font names database loaded from /home/can/.texlive2025/texmf-v
+ar/luatex-cache/generic/names/luaotfload-names.luc.gz)
+\c@part=\count273
+\c@section=\count274
+\c@subsection=\count275
+\c@subsubsection=\count276
+\c@paragraph=\count277
+\c@subparagraph=\count278
+\c@figure=\count279
+\c@table=\count280
+\abovecaptionskip=\skip49
+\belowcaptionskip=\skip50
+\bibindent=\dimen147
+)
+(/nix/store/dwx0cnswr5fb44f1126kyrvkxrk5i99f-texlive-combined-full-2025-final-t
+exmfdist/tex/latex/fontspec/fontspec.sty
+(/nix/store/dwx0cnswr5fb44f1126kyrvkxrk5i99f-texlive-combined-full-2025-final-t
+exmfdist/tex/latex/l3packages/xparse/xparse.sty
+(/nix/store/dwx0cnswr5fb44f1126kyrvkxrk5i99f-texlive-combined-full-2025-final-t
+exmfdist/tex/latex/l3kernel/expl3.sty
+Package: expl3 2026-01-19 L3 programming layer (loader) 
+
+(/nix/store/dwx0cnswr5fb44f1126kyrvkxrk5i99f-texlive-combined-full-2025-final-t
+exmfdist/tex/latex/l3backend/l3backend-luatex.def
+File: l3backend-luatex.def 2025-10-09 L3 backend support: PDF output (LuaTeX)
+\l__color_backend_stack_int=\count281
+Inserting `l3color' in `luaotfload.parse_color'.))
+Package: xparse 2025-10-09 L3 Experimental document command parser
+)
+Package: fontspec 2025/09/29 v2.9g Font selection for XeLaTeX and LuaLaTeX
+Lua module: fontspec 2025/09/29 v2.9g Font selection for XeLaTeX and LuaLaTeX
+(/nix/store/dwx0cnswr5fb44f1126kyrvkxrk5i99f-texlive-combined-full-2025-final-t
+exmfdist/tex/latex/fontspec/fontspec-luatex.sty
+Package: fontspec-luatex 2025/09/29 v2.9g Font selection for XeLaTeX and LuaLaT
+eX
+\l__fontspec_script_int=\count282
+\l__fontspec_language_int=\count283
+\l__fontspec_strnum_int=\count284
+\l__fontspec_tmp_int=\count285
+\l__fontspec_tmpa_int=\count286
+\l__fontspec_tmpb_int=\count287
+\l__fontspec_tmpc_int=\count288
+\l__fontspec_em_int=\count289
+\l__fontspec_emdef_int=\count290
+\l__fontspec_strong_int=\count291
+\l__fontspec_strongdef_int=\count292
+\l__fontspec_tmpa_dim=\dimen148
+\l__fontspec_tmpb_dim=\dimen149
+\l__fontspec_tmpc_dim=\dimen150
+
+(/nix/store/dwx0cnswr5fb44f1126kyrvkxrk5i99f-texlive-combined-full-2025-final-t
+exmfdist/tex/latex/base/fontenc.sty
+Package: fontenc 2025/07/18 v2.1d Standard LaTeX package
+)
+(/nix/store/dwx0cnswr5fb44f1126kyrvkxrk5i99f-texlive-combined-full-2025-final-t
+exmfdist/tex/latex/fontspec/fontspec.cfg)))
+(/nix/store/dwx0cnswr5fb44f1126kyrvkxrk5i99f-texlive-combined-full-2025-final-t
+exmfdist/tex/latex/pgf/frontendlayer/tikz.sty
+(/nix/store/dwx0cnswr5fb44f1126kyrvkxrk5i99f-texlive-combined-full-2025-final-t
+exmfdist/tex/latex/pgf/basiclayer/pgf.sty
+(/nix/store/dwx0cnswr5fb44f1126kyrvkxrk5i99f-texlive-combined-full-2025-final-t
+exmfdist/tex/latex/pgf/utilities/pgfrcs.sty
+(/nix/store/dwx0cnswr5fb44f1126kyrvkxrk5i99f-texlive-combined-full-2025-final-t
+exmfdist/tex/generic/pgf/utilities/pgfutil-common.tex
+\pgfutil@everybye=\toks17
+\pgfutil@tempdima=\dimen151
+\pgfutil@tempdimb=\dimen152
+)
+(/nix/store/dwx0cnswr5fb44f1126kyrvkxrk5i99f-texlive-combined-full-2025-final-t
+exmfdist/tex/generic/pgf/utilities/pgfutil-latex.def
+\pgfutil@abb=\box53
+)
+(/nix/store/dwx0cnswr5fb44f1126kyrvkxrk5i99f-texlive-combined-full-2025-final-t
+exmfdist/tex/generic/pgf/utilities/pgfrcs.code.tex
+(/nix/store/dwx0cnswr5fb44f1126kyrvkxrk5i99f-texlive-combined-full-2025-final-t
+exmfdist/tex/generic/pgf/pgf.revision.tex)
+Package: pgfrcs 2025-08-29 v3.1.11a (3.1.11a)
+))
+Package: pgf 2025-08-29 v3.1.11a (3.1.11a)
+
+(/nix/store/dwx0cnswr5fb44f1126kyrvkxrk5i99f-texlive-combined-full-2025-final-t
+exmfdist/tex/latex/pgf/basiclayer/pgfcore.sty
+(/nix/store/dwx0cnswr5fb44f1126kyrvkxrk5i99f-texlive-combined-full-2025-final-t
+exmfdist/tex/latex/graphics/graphicx.sty
+Package: graphicx 2024/12/31 v1.2e Enhanced LaTeX Graphics (DPC,SPQR)
+
+(/nix/store/dwx0cnswr5fb44f1126kyrvkxrk5i99f-texlive-combined-full-2025-final-t
+exmfdist/tex/latex/graphics/keyval.sty
+Package: keyval 2022/05/29 v1.15 key=value parser (DPC)
+\KV@toks@=\toks18
+)
+(/nix/store/dwx0cnswr5fb44f1126kyrvkxrk5i99f-texlive-combined-full-2025-final-t
+exmfdist/tex/latex/graphics/graphics.sty
+Package: graphics 2024/08/06 v1.4g Standard LaTeX Graphics (DPC,SPQR)
+
+(/nix/store/dwx0cnswr5fb44f1126kyrvkxrk5i99f-texlive-combined-full-2025-final-t
+exmfdist/tex/latex/graphics/trig.sty
+Package: trig 2023/12/02 v1.11 sin cos tan (DPC)
+)
+(/nix/store/dwx0cnswr5fb44f1126kyrvkxrk5i99f-texlive-combined-full-2025-final-t
+exmfdist/tex/latex/graphics-cfg/graphics.cfg
+File: graphics.cfg 2016/06/04 v1.11 sample graphics configuration
+)
+Package graphics Info: Driver file: luatex.def on input line 106.
+
+(/nix/store/dwx0cnswr5fb44f1126kyrvkxrk5i99f-texlive-combined-full-2025-final-t
+exmfdist/tex/latex/graphics-def/luatex.def
+File: luatex.def 2025/09/29 v1.2f Graphics/color driver for luatex
+))
+\Gin@req@height=\dimen153
+\Gin@req@width=\dimen154
+)
+(/nix/store/dwx0cnswr5fb44f1126kyrvkxrk5i99f-texlive-combined-full-2025-final-t
+exmfdist/tex/latex/pgf/systemlayer/pgfsys.sty
+(/nix/store/dwx0cnswr5fb44f1126kyrvkxrk5i99f-texlive-combined-full-2025-final-t
+exmfdist/tex/generic/pgf/systemlayer/pgfsys.code.tex
+Package: pgfsys 2025-08-29 v3.1.11a (3.1.11a)
+
+(/nix/store/dwx0cnswr5fb44f1126kyrvkxrk5i99f-texlive-combined-full-2025-final-t
+exmfdist/tex/generic/pgf/utilities/pgfkeys.code.tex
+\pgfkeys@pathtoks=\toks19
+\pgfkeys@temptoks=\toks20
+
+(/nix/store/dwx0cnswr5fb44f1126kyrvkxrk5i99f-texlive-combined-full-2025-final-t
+exmfdist/tex/generic/pgf/utilities/pgfkeyslibraryfiltered.code.tex
+\pgfkeys@tmptoks=\toks21
+))
+\pgf@x=\dimen155
+\pgf@y=\dimen156
+\pgf@xa=\dimen157
+\pgf@ya=\dimen158
+\pgf@xb=\dimen159
+\pgf@yb=\dimen160
+\pgf@xc=\dimen161
+\pgf@yc=\dimen162
+\pgf@xd=\dimen163
+\pgf@yd=\dimen164
+\w@pgf@writea=\write3
+\r@pgf@reada=\read2
+\c@pgf@counta=\count293
+\c@pgf@countb=\count294
+\c@pgf@countc=\count295
+\c@pgf@countd=\count296
+\t@pgf@toka=\toks22
+\t@pgf@tokb=\toks23
+\t@pgf@tokc=\toks24
+\pgf@sys@id@count=\count297
+
+(/nix/store/dwx0cnswr5fb44f1126kyrvkxrk5i99f-texlive-combined-full-2025-final-t
+exmfdist/tex/generic/pgf/systemlayer/pgf.cfg
+File: pgf.cfg 2025-08-29 v3.1.11a (3.1.11a)
+)
+Driver file for pgf: pgfsys-luatex.def
+
+(/nix/store/dwx0cnswr5fb44f1126kyrvkxrk5i99f-texlive-combined-full-2025-final-t
+exmfdist/tex/generic/pgf/systemlayer/pgfsys-luatex.def
+File: pgfsys-luatex.def 2025-08-29 v3.1.11a (3.1.11a)
+
+(/nix/store/dwx0cnswr5fb44f1126kyrvkxrk5i99f-texlive-combined-full-2025-final-t
+exmfdist/tex/generic/pgf/systemlayer/pgfsys-common-pdf.def
+File: pgfsys-common-pdf.def 2025-08-29 v3.1.11a (3.1.11a)
+)))
+(/nix/store/dwx0cnswr5fb44f1126kyrvkxrk5i99f-texlive-combined-full-2025-final-t
+exmfdist/tex/generic/pgf/systemlayer/pgfsyssoftpath.code.tex
+File: pgfsyssoftpath.code.tex 2025-08-29 v3.1.11a (3.1.11a)
+\pgfsyssoftpath@smallbuffer@items=\count298
+\pgfsyssoftpath@bigbuffer@items=\count299
+)
+(/nix/store/dwx0cnswr5fb44f1126kyrvkxrk5i99f-texlive-combined-full-2025-final-t
+exmfdist/tex/generic/pgf/systemlayer/pgfsysprotocol.code.tex
+File: pgfsysprotocol.code.tex 2025-08-29 v3.1.11a (3.1.11a)
+))
+(/nix/store/dwx0cnswr5fb44f1126kyrvkxrk5i99f-texlive-combined-full-2025-final-t
+exmfdist/tex/latex/xcolor/xcolor.sty
+Package: xcolor 2024/09/29 v3.02 LaTeX color extensions (UK)
+
+(/nix/store/dwx0cnswr5fb44f1126kyrvkxrk5i99f-texlive-combined-full-2025-final-t
+exmfdist/tex/latex/graphics-cfg/color.cfg
+File: color.cfg 2016/01/02 v1.6 sample color configuration
+)
+Package xcolor Info: Driver file: luatex.def on input line 274.
+
+(/nix/store/dwx0cnswr5fb44f1126kyrvkxrk5i99f-texlive-combined-full-2025-final-t
+exmfdist/tex/latex/graphics/mathcolor.ltx)
+Package xcolor Info: Model `cmy' substituted by `cmy0' on input line 1349.
+Package xcolor Info: Model `hsb' substituted by `rgb' on input line 1353.
+Package xcolor Info: Model `RGB' extended on input line 1365.
+Package xcolor Info: Model `HTML' substituted by `rgb' on input line 1367.
+Package xcolor Info: Model `Hsb' substituted by `hsb' on input line 1368.
+Package xcolor Info: Model `tHsb' substituted by `hsb' on input line 1369.
+Package xcolor Info: Model `HSB' substituted by `hsb' on input line 1370.
+Package xcolor Info: Model `Gray' substituted by `gray' on input line 1371.
+Package xcolor Info: Model `wave' substituted by `hsb' on input line 1372.
+)
+(/nix/store/dwx0cnswr5fb44f1126kyrvkxrk5i99f-texlive-combined-full-2025-final-t
+exmfdist/tex/generic/pgf/basiclayer/pgfcore.code.tex
+Package: pgfcore 2025-08-29 v3.1.11a (3.1.11a)
+
+(/nix/store/dwx0cnswr5fb44f1126kyrvkxrk5i99f-texlive-combined-full-2025-final-t
+exmfdist/tex/generic/pgf/math/pgfmath.code.tex
+(/nix/store/dwx0cnswr5fb44f1126kyrvkxrk5i99f-texlive-combined-full-2025-final-t
+exmfdist/tex/generic/pgf/math/pgfmathutil.code.tex)
+(/nix/store/dwx0cnswr5fb44f1126kyrvkxrk5i99f-texlive-combined-full-2025-final-t
+exmfdist/tex/generic/pgf/math/pgfmathparser.code.tex
+\pgfmath@dimen=\dimen165
+\pgfmath@count=\count300
+\pgfmath@box=\box54
+\pgfmath@toks=\toks25
+\pgfmath@stack@operand=\toks26
+\pgfmath@stack@operation=\toks27
+)
+(/nix/store/dwx0cnswr5fb44f1126kyrvkxrk5i99f-texlive-combined-full-2025-final-t
+exmfdist/tex/generic/pgf/math/pgfmathfunctions.code.tex)
+(/nix/store/dwx0cnswr5fb44f1126kyrvkxrk5i99f-texlive-combined-full-2025-final-t
+exmfdist/tex/generic/pgf/math/pgfmathfunctions.basic.code.tex)
+(/nix/store/dwx0cnswr5fb44f1126kyrvkxrk5i99f-texlive-combined-full-2025-final-t
+exmfdist/tex/generic/pgf/math/pgfmathfunctions.trigonometric.code.tex)
+(/nix/store/dwx0cnswr5fb44f1126kyrvkxrk5i99f-texlive-combined-full-2025-final-t
+exmfdist/tex/generic/pgf/math/pgfmathfunctions.random.code.tex)
+(/nix/store/dwx0cnswr5fb44f1126kyrvkxrk5i99f-texlive-combined-full-2025-final-t
+exmfdist/tex/generic/pgf/math/pgfmathfunctions.comparison.code.tex)
+(/nix/store/dwx0cnswr5fb44f1126kyrvkxrk5i99f-texlive-combined-full-2025-final-t
+exmfdist/tex/generic/pgf/math/pgfmathfunctions.base.code.tex)
+(/nix/store/dwx0cnswr5fb44f1126kyrvkxrk5i99f-texlive-combined-full-2025-final-t
+exmfdist/tex/generic/pgf/math/pgfmathfunctions.round.code.tex)
+(/nix/store/dwx0cnswr5fb44f1126kyrvkxrk5i99f-texlive-combined-full-2025-final-t
+exmfdist/tex/generic/pgf/math/pgfmathfunctions.misc.code.tex)
+(/nix/store/dwx0cnswr5fb44f1126kyrvkxrk5i99f-texlive-combined-full-2025-final-t
+exmfdist/tex/generic/pgf/math/pgfmathfunctions.integerarithmetics.code.tex)
+(/nix/store/dwx0cnswr5fb44f1126kyrvkxrk5i99f-texlive-combined-full-2025-final-t
+exmfdist/tex/generic/pgf/math/pgfmathcalc.code.tex)
+(/nix/store/dwx0cnswr5fb44f1126kyrvkxrk5i99f-texlive-combined-full-2025-final-t
+exmfdist/tex/generic/pgf/math/pgfmathfloat.code.tex
+\c@pgfmathroundto@lastzeros=\count301
+))
+(/nix/store/dwx0cnswr5fb44f1126kyrvkxrk5i99f-texlive-combined-full-2025-final-t
+exmfdist/tex/generic/pgf/math/pgfint.code.tex)
+(/nix/store/dwx0cnswr5fb44f1126kyrvkxrk5i99f-texlive-combined-full-2025-final-t
+exmfdist/tex/generic/pgf/basiclayer/pgfcorepoints.code.tex
+File: pgfcorepoints.code.tex 2025-08-29 v3.1.11a (3.1.11a)
+\pgf@picminx=\dimen166
+\pgf@picmaxx=\dimen167
+\pgf@picminy=\dimen168
+\pgf@picmaxy=\dimen169
+\pgf@pathminx=\dimen170
+\pgf@pathmaxx=\dimen171
+\pgf@pathminy=\dimen172
+\pgf@pathmaxy=\dimen173
+\pgf@xx=\dimen174
+\pgf@xy=\dimen175
+\pgf@yx=\dimen176
+\pgf@yy=\dimen177
+\pgf@zx=\dimen178
+\pgf@zy=\dimen179
+)
+(/nix/store/dwx0cnswr5fb44f1126kyrvkxrk5i99f-texlive-combined-full-2025-final-t
+exmfdist/tex/generic/pgf/basiclayer/pgfcorepathconstruct.code.tex
+File: pgfcorepathconstruct.code.tex 2025-08-29 v3.1.11a (3.1.11a)
+\pgf@path@lastx=\dimen180
+\pgf@path@lasty=\dimen181
+)
+(/nix/store/dwx0cnswr5fb44f1126kyrvkxrk5i99f-texlive-combined-full-2025-final-t
+exmfdist/tex/generic/pgf/basiclayer/pgfcorepathusage.code.tex
+File: pgfcorepathusage.code.tex 2025-08-29 v3.1.11a (3.1.11a)
+\pgf@shorten@end@additional=\dimen182
+\pgf@shorten@start@additional=\dimen183
+)
+(/nix/store/dwx0cnswr5fb44f1126kyrvkxrk5i99f-texlive-combined-full-2025-final-t
+exmfdist/tex/generic/pgf/basiclayer/pgfcorescopes.code.tex
+File: pgfcorescopes.code.tex 2025-08-29 v3.1.11a (3.1.11a)
+\pgfpic=\box55
+\pgf@hbox=\box56
+\pgf@layerbox@main=\box57
+\pgf@picture@serial@count=\count302
+)
+(/nix/store/dwx0cnswr5fb44f1126kyrvkxrk5i99f-texlive-combined-full-2025-final-t
+exmfdist/tex/generic/pgf/basiclayer/pgfcoregraphicstate.code.tex
+File: pgfcoregraphicstate.code.tex 2025-08-29 v3.1.11a (3.1.11a)
+\pgflinewidth=\dimen184
+)
+(/nix/store/dwx0cnswr5fb44f1126kyrvkxrk5i99f-texlive-combined-full-2025-final-t
+exmfdist/tex/generic/pgf/basiclayer/pgfcoretransformations.code.tex
+File: pgfcoretransformations.code.tex 2025-08-29 v3.1.11a (3.1.11a)
+\pgf@pt@x=\dimen185
+\pgf@pt@y=\dimen186
+\pgf@pt@temp=\dimen187
+)
+(/nix/store/dwx0cnswr5fb44f1126kyrvkxrk5i99f-texlive-combined-full-2025-final-t
+exmfdist/tex/generic/pgf/basiclayer/pgfcorequick.code.tex
+File: pgfcorequick.code.tex 2025-08-29 v3.1.11a (3.1.11a)
+)
+(/nix/store/dwx0cnswr5fb44f1126kyrvkxrk5i99f-texlive-combined-full-2025-final-t
+exmfdist/tex/generic/pgf/basiclayer/pgfcoreobjects.code.tex
+File: pgfcoreobjects.code.tex 2025-08-29 v3.1.11a (3.1.11a)
+)
+(/nix/store/dwx0cnswr5fb44f1126kyrvkxrk5i99f-texlive-combined-full-2025-final-t
+exmfdist/tex/generic/pgf/basiclayer/pgfcorepathprocessing.code.tex
+File: pgfcorepathprocessing.code.tex 2025-08-29 v3.1.11a (3.1.11a)
+)
+(/nix/store/dwx0cnswr5fb44f1126kyrvkxrk5i99f-texlive-combined-full-2025-final-t
+exmfdist/tex/generic/pgf/basiclayer/pgfcorearrows.code.tex
+File: pgfcorearrows.code.tex 2025-08-29 v3.1.11a (3.1.11a)
+\pgfarrowsep=\dimen188
+)
+(/nix/store/dwx0cnswr5fb44f1126kyrvkxrk5i99f-texlive-combined-full-2025-final-t
+exmfdist/tex/generic/pgf/basiclayer/pgfcoreshade.code.tex
+File: pgfcoreshade.code.tex 2025-08-29 v3.1.11a (3.1.11a)
+\pgf@max=\dimen189
+\pgf@sys@shading@range@num=\count303
+\pgf@shadingcount=\count304
+)
+(/nix/store/dwx0cnswr5fb44f1126kyrvkxrk5i99f-texlive-combined-full-2025-final-t
+exmfdist/tex/generic/pgf/basiclayer/pgfcoreimage.code.tex
+File: pgfcoreimage.code.tex 2025-08-29 v3.1.11a (3.1.11a)
+)
+(/nix/store/dwx0cnswr5fb44f1126kyrvkxrk5i99f-texlive-combined-full-2025-final-t
+exmfdist/tex/generic/pgf/basiclayer/pgfcoreexternal.code.tex
+File: pgfcoreexternal.code.tex 2025-08-29 v3.1.11a (3.1.11a)
+\pgfexternal@startupbox=\box58
+)
+(/nix/store/dwx0cnswr5fb44f1126kyrvkxrk5i99f-texlive-combined-full-2025-final-t
+exmfdist/tex/generic/pgf/basiclayer/pgfcorelayers.code.tex
+File: pgfcorelayers.code.tex 2025-08-29 v3.1.11a (3.1.11a)
+)
+(/nix/store/dwx0cnswr5fb44f1126kyrvkxrk5i99f-texlive-combined-full-2025-final-t
+exmfdist/tex/generic/pgf/basiclayer/pgfcoretransparency.code.tex
+File: pgfcoretransparency.code.tex 2025-08-29 v3.1.11a (3.1.11a)
+)
+(/nix/store/dwx0cnswr5fb44f1126kyrvkxrk5i99f-texlive-combined-full-2025-final-t
+exmfdist/tex/generic/pgf/basiclayer/pgfcorepatterns.code.tex
+File: pgfcorepatterns.code.tex 2025-08-29 v3.1.11a (3.1.11a)
+)
+(/nix/store/dwx0cnswr5fb44f1126kyrvkxrk5i99f-texlive-combined-full-2025-final-t
+exmfdist/tex/generic/pgf/basiclayer/pgfcorerdf.code.tex
+File: pgfcorerdf.code.tex 2025-08-29 v3.1.11a (3.1.11a)
+)))
+(/nix/store/dwx0cnswr5fb44f1126kyrvkxrk5i99f-texlive-combined-full-2025-final-t
+exmfdist/tex/generic/pgf/modules/pgfmoduleshapes.code.tex
+File: pgfmoduleshapes.code.tex 2025-08-29 v3.1.11a (3.1.11a)
+\pgfnodeparttextbox=\box59
+)
+(/nix/store/dwx0cnswr5fb44f1126kyrvkxrk5i99f-texlive-combined-full-2025-final-t
+exmfdist/tex/generic/pgf/modules/pgfmoduleplot.code.tex
+File: pgfmoduleplot.code.tex 2025-08-29 v3.1.11a (3.1.11a)
+)
+(/nix/store/dwx0cnswr5fb44f1126kyrvkxrk5i99f-texlive-combined-full-2025-final-t
+exmfdist/tex/latex/pgf/compatibility/pgfcomp-version-0-65.sty
+Package: pgfcomp-version-0-65 2025-08-29 v3.1.11a (3.1.11a)
+\pgf@nodesepstart=\dimen190
+\pgf@nodesepend=\dimen191
+)
+(/nix/store/dwx0cnswr5fb44f1126kyrvkxrk5i99f-texlive-combined-full-2025-final-t
+exmfdist/tex/latex/pgf/compatibility/pgfcomp-version-1-18.sty
+Package: pgfcomp-version-1-18 2025-08-29 v3.1.11a (3.1.11a)
+))
+(/nix/store/dwx0cnswr5fb44f1126kyrvkxrk5i99f-texlive-combined-full-2025-final-t
+exmfdist/tex/latex/pgf/utilities/pgffor.sty
+(/nix/store/dwx0cnswr5fb44f1126kyrvkxrk5i99f-texlive-combined-full-2025-final-t
+exmfdist/tex/latex/pgf/utilities/pgfkeys.sty
+(/nix/store/dwx0cnswr5fb44f1126kyrvkxrk5i99f-texlive-combined-full-2025-final-t
+exmfdist/tex/generic/pgf/utilities/pgfkeys.code.tex))
+(/nix/store/dwx0cnswr5fb44f1126kyrvkxrk5i99f-texlive-combined-full-2025-final-t
+exmfdist/tex/latex/pgf/math/pgfmath.sty
+(/nix/store/dwx0cnswr5fb44f1126kyrvkxrk5i99f-texlive-combined-full-2025-final-t
+exmfdist/tex/generic/pgf/math/pgfmath.code.tex))
+(/nix/store/dwx0cnswr5fb44f1126kyrvkxrk5i99f-texlive-combined-full-2025-final-t
+exmfdist/tex/generic/pgf/utilities/pgffor.code.tex
+Package: pgffor 2025-08-29 v3.1.11a (3.1.11a)
+\pgffor@iter=\dimen192
+\pgffor@skip=\dimen193
+\pgffor@stack=\toks28
+\pgffor@toks=\toks29
+))
+(/nix/store/dwx0cnswr5fb44f1126kyrvkxrk5i99f-texlive-combined-full-2025-final-t
+exmfdist/tex/generic/pgf/frontendlayer/tikz/tikz.code.tex
+Package: tikz 2025-08-29 v3.1.11a (3.1.11a)
+
+(/nix/store/dwx0cnswr5fb44f1126kyrvkxrk5i99f-texlive-combined-full-2025-final-t
+exmfdist/tex/generic/pgf/libraries/pgflibraryplothandlers.code.tex
+File: pgflibraryplothandlers.code.tex 2025-08-29 v3.1.11a (3.1.11a)
+\pgf@plot@mark@count=\count305
+\pgfplotmarksize=\dimen194
+)
+\tikz@lastx=\dimen195
+\tikz@lasty=\dimen196
+\tikz@lastxsaved=\dimen197
+\tikz@lastysaved=\dimen198
+\tikz@lastmovetox=\dimen199
+\tikz@lastmovetoy=\dimen256
+\tikzleveldistance=\dimen257
+\tikzsiblingdistance=\dimen258
+\tikz@figbox=\box60
+\tikz@figbox@bg=\box61
+\tikz@tempbox=\box62
+\tikz@tempbox@bg=\box63
+\tikztreelevel=\count306
+\tikznumberofchildren=\count307
+\tikznumberofcurrentchild=\count308
+\tikz@fig@count=\count309
+
+(/nix/store/dwx0cnswr5fb44f1126kyrvkxrk5i99f-texlive-combined-full-2025-final-t
+exmfdist/tex/generic/pgf/modules/pgfmodulematrix.code.tex
+File: pgfmodulematrix.code.tex 2025-08-29 v3.1.11a (3.1.11a)
+\pgfmatrixcurrentrow=\count310
+\pgfmatrixcurrentcolumn=\count311
+\pgf@matrix@numberofcolumns=\count312
+)
+\tikz@expandcount=\count313
+
+(/nix/store/dwx0cnswr5fb44f1126kyrvkxrk5i99f-texlive-combined-full-2025-final-t
+exmfdist/tex/generic/pgf/frontendlayer/tikz/libraries/tikzlibrarytopaths.code.t
+ex
+File: tikzlibrarytopaths.code.tex 2025-08-29 v3.1.11a (3.1.11a)
+)))
+(/nix/store/dwx0cnswr5fb44f1126kyrvkxrk5i99f-texlive-combined-full-2025-final-t
+exmfdist/tex/latex/svg/svg.sty
+Package: svg 2020/11/26 v2.02k (include SVG pictures)
+
+(/nix/store/dwx0cnswr5fb44f1126kyrvkxrk5i99f-texlive-combined-full-2025-final-t
+exmfdist/tex/generic/iftex/iftex.sty
+Package: iftex 2024/12/12 v1.0g TeX engine tests
+)
+(/nix/store/dwx0cnswr5fb44f1126kyrvkxrk5i99f-texlive-combined-full-2025-final-t
+exmfdist/tex/latex/koma-script/scrbase.sty
+Package: scrbase 2026/02/02 v3.49.2 KOMA-Script package (KOMA-Script-independen
+t basics and keyval usage)
+
+(/nix/store/dwx0cnswr5fb44f1126kyrvkxrk5i99f-texlive-combined-full-2025-final-t
+exmfdist/tex/latex/koma-script/scrlfile.sty
+Package: scrlfile 2026/02/02 v3.49.2 KOMA-Script package (file load hooks)
+
+(/nix/store/dwx0cnswr5fb44f1126kyrvkxrk5i99f-texlive-combined-full-2025-final-t
+exmfdist/tex/latex/koma-script/scrlfile-hook.sty
+Package: scrlfile-hook 2026/02/02 v3.49.2 KOMA-Script package (using LaTeX hook
+s)
+
+(/nix/store/dwx0cnswr5fb44f1126kyrvkxrk5i99f-texlive-combined-full-2025-final-t
+exmfdist/tex/latex/koma-script/scrlogo.sty
+Package: scrlogo 2026/02/02 v3.49.2 KOMA-Script package (logo)
+)))
+Applying: [2021/05/01] Usage of raw or classic option list on input line 254.
+Already applied: [0000/00/00] Usage of raw or classic option list on input line
+ 370.
+)
+(/nix/store/dwx0cnswr5fb44f1126kyrvkxrk5i99f-texlive-combined-full-2025-final-t
+exmfdist/tex/generic/pdftexcmds/pdftexcmds.sty
+Package: pdftexcmds 2020-06-27 v0.33 Utility functions of pdfTeX for LuaTeX (HO
+)
+
+(/nix/store/dwx0cnswr5fb44f1126kyrvkxrk5i99f-texlive-combined-full-2025-final-t
+exmfdist/tex/generic/infwarerr/infwarerr.sty
+Package: infwarerr 2019/12/03 v1.5 Providing info/warning/error messages (HO)
+)
+(/nix/store/dwx0cnswr5fb44f1126kyrvkxrk5i99f-texlive-combined-full-2025-final-t
+exmfdist/tex/generic/ltxcmds/ltxcmds.sty
+Package: ltxcmds 2023-12-04 v1.26 LaTeX kernel commands for general use (HO)
+)
+Package pdftexcmds Info: \pdf@primitive is available.
+Package pdftexcmds Info: \pdf@ifprimitive is available.
+Package pdftexcmds Info: \pdfdraftmode found.
+\pdftexcmds@toks=\toks30
+)
+(/nix/store/dwx0cnswr5fb44f1126kyrvkxrk5i99f-texlive-combined-full-2025-final-t
+exmfdist/tex/latex/trimspaces/trimspaces.sty
+Package: trimspaces 2009/09/17 v1.1 Trim spaces around a token list
+)
+(/nix/store/dwx0cnswr5fb44f1126kyrvkxrk5i99f-texlive-combined-full-2025-final-t
+exmfdist/tex/latex/tools/shellesc.sty
+Package: shellesc 2023/07/08 v1.0d unified shell escape interface for LaTeX
+Package shellesc Info: Unrestricted shell escape enabled on input line 75.
+)
+(/nix/store/dwx0cnswr5fb44f1126kyrvkxrk5i99f-texlive-combined-full-2025-final-t
+exmfdist/tex/latex/ifplatform/ifplatform.sty
+Package: ifplatform 2017/10/13 v0.4a Testing for the operating system
+
+(/nix/store/dwx0cnswr5fb44f1126kyrvkxrk5i99f-texlive-combined-full-2025-final-t
+exmfdist/tex/generic/catchfile/catchfile.sty
+Package: catchfile 2019/12/09 v1.8 Catch the contents of a file (HO)
+
+(/nix/store/dwx0cnswr5fb44f1126kyrvkxrk5i99f-texlive-combined-full-2025-final-t
+exmfdist/tex/generic/etexcmds/etexcmds.sty
+Package: etexcmds 2019/12/15 v1.7 Avoid name clashes with e-TeX commands (HO)
+))
+(/nix/store/dwx0cnswr5fb44f1126kyrvkxrk5i99f-texlive-combined-full-2025-final-t
+exmfdist/tex/generic/iftex/ifluatex.sty
+Package: ifluatex 2019/10/25 v1.5 ifluatex legacy package. Use iftex instead.
+)
+runsystem(uname -s > "manuscript.w18")...executed.
+ (./manuscript.w18)
+runsystem(rm -- "manuscript.w18")...executed.
+)
+\c@svg@param@lastpage=\count314
+\svg@box=\box64
+\c@svg@param@currpage=\count315
+)
+(/nix/store/dwx0cnswr5fb44f1126kyrvkxrk5i99f-texlive-combined-full-2025-final-t
+exmfdist/tex/latex/transparent/transparent.sty
+Package: transparent 2025-06-23 v1.6 Transparency with color stacks
+
+(/nix/store/dwx0cnswr5fb44f1126kyrvkxrk5i99f-texlive-combined-full-2025-final-t
+exmfdist/tex/latex/transparent/transparent-nometadata.sty
+Package: transparent-nometadata 2025-06-23 v1.6 Transparency via pdfTeX's color
+ stack (HO)
+
+(/nix/store/dwx0cnswr5fb44f1126kyrvkxrk5i99f-texlive-combined-full-2025-final-t
+exmfdist/tex/latex/auxhook/auxhook.sty
+Package: auxhook 2019-12-17 v1.6 Hooks for auxiliary files (HO)
+)))
+(/nix/store/dwx0cnswr5fb44f1126kyrvkxrk5i99f-texlive-combined-full-2025-final-t
+exmfdist/tex/latex/amsmath/amsmath.sty
+Package: amsmath 2025/07/09 v2.17z AMS math features
+\@mathmargin=\skip51
+
+For additional information on amsmath, use the `?' option.
+
+(/nix/store/dwx0cnswr5fb44f1126kyrvkxrk5i99f-texlive-combined-full-2025-final-t
+exmfdist/tex/latex/amsmath/amstext.sty
+Package: amstext 2024/11/17 v2.01 AMS text
+
+(/nix/store/dwx0cnswr5fb44f1126kyrvkxrk5i99f-texlive-combined-full-2025-final-t
+exmfdist/tex/latex/amsmath/amsgen.sty
+File: amsgen.sty 1999/11/30 v2.0 generic functions
+\@emptytoks=\toks31
+\ex@=\dimen259
+))
+(/nix/store/dwx0cnswr5fb44f1126kyrvkxrk5i99f-texlive-combined-full-2025-final-t
+exmfdist/tex/latex/amsmath/amsbsy.sty
+Package: amsbsy 1999/11/29 v1.2d Bold Symbols
+\pmbraise@=\dimen260
+)
+(/nix/store/dwx0cnswr5fb44f1126kyrvkxrk5i99f-texlive-combined-full-2025-final-t
+exmfdist/tex/latex/amsmath/amsopn.sty
+Package: amsopn 2022/04/08 v2.04 operator names
+)
+\inf@bad=\count316
+LaTeX Info: Redefining \frac on input line 235.
+\uproot@=\count317
+\leftroot@=\count318
+LaTeX Info: Redefining \overline on input line 398.
+LaTeX Info: Redefining \colon on input line 409.
+\classnum@=\count319
+\DOTSCASE@=\count320
+LaTeX Info: Redefining \ldots on input line 495.
+LaTeX Info: Redefining \dots on input line 498.
+LaTeX Info: Redefining \cdots on input line 619.
+\Mathstrutbox@=\box65
+\strutbox@=\box66
+LaTeX Info: Redefining \big on input line 721.
+LaTeX Info: Redefining \Big on input line 722.
+LaTeX Info: Redefining \bigg on input line 723.
+LaTeX Info: Redefining \Bigg on input line 724.
+\big@size=\dimen261
+LaTeX Font Info:    Redeclaring font encoding OML on input line 742.
+LaTeX Font Info:    Redeclaring font encoding OMS on input line 743.
+\macc@depth=\count321
+LaTeX Info: Redefining \bmod on input line 904.
+LaTeX Info: Redefining \pmod on input line 909.
+LaTeX Info: Redefining \smash on input line 939.
+LaTeX Info: Redefining \relbar on input line 969.
+LaTeX Info: Redefining \Relbar on input line 970.
+\c@MaxMatrixCols=\count322
+\dotsspace@=\muskip17
+\c@parentequation=\count323
+\dspbrk@lvl=\count324
+\tag@help=\toks32
+\row@=\count325
+\column@=\count326
+\maxfields@=\count327
+\andhelp@=\toks33
+\eqnshift@=\dimen262
+\alignsep@=\dimen263
+\tagshift@=\dimen264
+\tagwidth@=\dimen265
+\totwidth@=\dimen266
+\lineht@=\dimen267
+\@envbody=\toks34
+\multlinegap=\skip52
+\multlinetaggap=\skip53
+\mathdisplay@stack=\toks35
+LaTeX Info: Redefining \[ on input line 2950.
+LaTeX Info: Redefining \] on input line 2951.
+)
+(/nix/store/dwx0cnswr5fb44f1126kyrvkxrk5i99f-texlive-combined-full-2025-final-t
+exmfdist/tex/latex/amsfonts/amssymb.sty
+Package: amssymb 2013/01/14 v3.01 AMS font symbols
+
+(/nix/store/dwx0cnswr5fb44f1126kyrvkxrk5i99f-texlive-combined-full-2025-final-t
+exmfdist/tex/latex/amsfonts/amsfonts.sty
+Package: amsfonts 2013/01/14 v3.01 Basic AMSFonts support
+\symAMSa=\mathgroup4
+\symAMSb=\mathgroup5
+LaTeX Font Info:    Redeclaring math symbol \hbar on input line 98.
+LaTeX Font Info:    Overwriting math alphabet `\mathfrak' in version `bold'
+(Font)                  U/euf/m/n --> U/euf/b/n on input line 106.
+))
+(/nix/store/dwx0cnswr5fb44f1126kyrvkxrk5i99f-texlive-combined-full-2025-final-t
+exmfdist/tex/latex/booktabs/booktabs.sty
+Package: booktabs 2020/01/12 v1.61803398 Publication quality tables
+\heavyrulewidth=\dimen268
+\lightrulewidth=\dimen269
+\cmidrulewidth=\dimen270
+\belowrulesep=\dimen271
+\belowbottomsep=\dimen272
+\aboverulesep=\dimen273
+\abovetopsep=\dimen274
+\cmidrulesep=\dimen275
+\cmidrulekern=\dimen276
+\defaultaddspace=\dimen277
+\@cmidla=\count328
+\@cmidlb=\count329
+\@aboverulesep=\dimen278
+\@belowrulesep=\dimen279
+\@thisruleclass=\count330
+\@lastruleclass=\count331
+\@thisrulewidth=\dimen280
+)
+(/nix/store/dwx0cnswr5fb44f1126kyrvkxrk5i99f-texlive-combined-full-2025-final-t
+exmfdist/tex/latex/geometry/geometry.sty
+Package: geometry 2020/01/02 v5.9 Page Geometry
+
+(/nix/store/dwx0cnswr5fb44f1126kyrvkxrk5i99f-texlive-combined-full-2025-final-t
+exmfdist/tex/generic/iftex/ifvtex.sty
+Package: ifvtex 2019/10/25 v1.7 ifvtex legacy package. Use iftex instead.
+)
+\Gm@cnth=\count332
+\Gm@cntv=\count333
+\c@Gm@tempcnt=\count334
+\Gm@bindingoffset=\dimen281
+\Gm@wd@mp=\dimen282
+\Gm@odd@mp=\dimen283
+\Gm@even@mp=\dimen284
+\Gm@layoutwidth=\dimen285
+\Gm@layoutheight=\dimen286
+\Gm@layouthoffset=\dimen287
+\Gm@layoutvoffset=\dimen288
+\Gm@dimlist=\toks36
+)
+(/nix/store/dwx0cnswr5fb44f1126kyrvkxrk5i99f-texlive-combined-full-2025-final-t
+exmfdist/tex/latex/hyperref/hyperref.sty
+Package: hyperref 2026-01-29 v7.01p Hypertext links for LaTeX
+
+(/nix/store/dwx0cnswr5fb44f1126kyrvkxrk5i99f-texlive-combined-full-2025-final-t
+exmfdist/tex/latex/kvsetkeys/kvsetkeys.sty
+Package: kvsetkeys 2022-10-05 v1.19 Key value parser (HO)
+)
+(/nix/store/dwx0cnswr5fb44f1126kyrvkxrk5i99f-texlive-combined-full-2025-final-t
+exmfdist/tex/generic/kvdefinekeys/kvdefinekeys.sty
+Package: kvdefinekeys 2019-12-19 v1.6 Define keys (HO)
+)
+(/nix/store/dwx0cnswr5fb44f1126kyrvkxrk5i99f-texlive-combined-full-2025-final-t
+exmfdist/tex/generic/pdfescape/pdfescape.sty
+Package: pdfescape 2019/12/09 v1.15 Implements pdfTeX's escape features (HO)
+)
+(/nix/store/dwx0cnswr5fb44f1126kyrvkxrk5i99f-texlive-combined-full-2025-final-t
+exmfdist/tex/latex/hycolor/hycolor.sty
+Package: hycolor 2020-01-27 v1.10 Color options for hyperref/bookmark (HO)
+)
+(/nix/store/dwx0cnswr5fb44f1126kyrvkxrk5i99f-texlive-combined-full-2025-final-t
+exmfdist/tex/latex/hyperref/nameref.sty
+Package: nameref 2026-01-29 v2.58 Cross-referencing by name of section
+
+(/nix/store/dwx0cnswr5fb44f1126kyrvkxrk5i99f-texlive-combined-full-2025-final-t
+exmfdist/tex/latex/refcount/refcount.sty
+Package: refcount 2019/12/15 v3.6 Data extraction from label references (HO)
+)
+(/nix/store/dwx0cnswr5fb44f1126kyrvkxrk5i99f-texlive-combined-full-2025-final-t
+exmfdist/tex/generic/gettitlestring/gettitlestring.sty
+Package: gettitlestring 2019/12/15 v1.6 Cleanup title references (HO)
+
+(/nix/store/dwx0cnswr5fb44f1126kyrvkxrk5i99f-texlive-combined-full-2025-final-t
+exmfdist/tex/latex/kvoptions/kvoptions.sty
+Package: kvoptions 2022-06-15 v3.15 Key value format for package options (HO)
+))
+\c@section@level=\count335
+)
+(/nix/store/dwx0cnswr5fb44f1126kyrvkxrk5i99f-texlive-combined-full-2025-final-t
+exmfdist/tex/latex/etoolbox/etoolbox.sty
+Package: etoolbox 2025/10/02 v2.5m e-TeX tools for LaTeX (JAW)
+\etb@tempcnta=\count336
+)
+(/nix/store/dwx0cnswr5fb44f1126kyrvkxrk5i99f-texlive-combined-full-2025-final-t
+exmfdist/tex/generic/stringenc/stringenc.sty
+Package: stringenc 2019/11/29 v1.12 Convert strings between diff. encodings (HO
+)
+)
+\@linkdim=\dimen289
+\Hy@linkcounter=\count337
+\Hy@pagecounter=\count338
+
+(/nix/store/dwx0cnswr5fb44f1126kyrvkxrk5i99f-texlive-combined-full-2025-final-t
+exmfdist/tex/latex/hyperref/pd1enc.def
+File: pd1enc.def 2026-01-29 v7.01p Hyperref: PDFDocEncoding definition (HO)
+)
+(/nix/store/dwx0cnswr5fb44f1126kyrvkxrk5i99f-texlive-combined-full-2025-final-t
+exmfdist/tex/generic/intcalc/intcalc.sty
+Package: intcalc 2019/12/15 v1.3 Expandable calculations with integers (HO)
+)
+\Hy@SavedSpaceFactor=\count339
+
+(/nix/store/dwx0cnswr5fb44f1126kyrvkxrk5i99f-texlive-combined-full-2025-final-t
+exmfdist/tex/latex/hyperref/puenc.def
+File: puenc.def 2026-01-29 v7.01p Hyperref: PDF Unicode definition (HO)
+)
+Package hyperref Info: Hyper figures OFF on input line 4201.
+Package hyperref Info: Link nesting OFF on input line 4206.
+Package hyperref Info: Hyper index ON on input line 4209.
+Package hyperref Info: Plain pages OFF on input line 4216.
+Package hyperref Info: Backreferencing OFF on input line 4221.
+Package hyperref Info: Implicit mode ON; LaTeX internals redefined.
+Package hyperref Info: Bookmarks ON on input line 4468.
+\c@Hy@tempcnt=\count340
+
+(/nix/store/dwx0cnswr5fb44f1126kyrvkxrk5i99f-texlive-combined-full-2025-final-t
+exmfdist/tex/latex/url/url.sty
+\Urlmuskip=\muskip18
+Package: url 2013/09/16  ver 3.4  Verb mode for urls, etc.
+)
+LaTeX Info: Redefining \url on input line 4807.
+\XeTeXLinkMargin=\dimen290
+
+(/nix/store/dwx0cnswr5fb44f1126kyrvkxrk5i99f-texlive-combined-full-2025-final-t
+exmfdist/tex/generic/bitset/bitset.sty
+Package: bitset 2019/12/09 v1.3 Handle bit-vector datatype (HO)
+
+(/nix/store/dwx0cnswr5fb44f1126kyrvkxrk5i99f-texlive-combined-full-2025-final-t
+exmfdist/tex/generic/bigintcalc/bigintcalc.sty
+Package: bigintcalc 2019/12/15 v1.5 Expandable calculations on big integers (HO
+)
+))
+\Fld@menulength=\count341
+\Field@Width=\dimen291
+\Fld@charsize=\dimen292
+Package hyperref Info: Hyper figures OFF on input line 6084.
+Package hyperref Info: Link nesting OFF on input line 6089.
+Package hyperref Info: Hyper index ON on input line 6092.
+Package hyperref Info: backreferencing OFF on input line 6099.
+Package hyperref Info: Link coloring OFF on input line 6104.
+Package hyperref Info: Link coloring with OCG OFF on input line 6109.
+Package hyperref Info: PDF/A mode OFF on input line 6114.
+\Hy@abspage=\count342
+\c@Item=\count343
+\c@Hfootnote=\count344
+)
+Package hyperref Info: Driver (autodetected): hluatex.
+
+(/nix/store/dwx0cnswr5fb44f1126kyrvkxrk5i99f-texlive-combined-full-2025-final-t
+exmfdist/tex/latex/hyperref/hluatex.def
+File: hluatex.def 2026-01-29 v7.01p Hyperref driver for luaTeX
+\Fld@listcount=\count345
+\c@bookmark@seq@number=\count346
+
+(/nix/store/dwx0cnswr5fb44f1126kyrvkxrk5i99f-texlive-combined-full-2025-final-t
+exmfdist/tex/latex/rerunfilecheck/rerunfilecheck.sty
+Package: rerunfilecheck 2025-06-21 v1.11 Rerun checks for auxiliary files (HO)
+
+(/nix/store/dwx0cnswr5fb44f1126kyrvkxrk5i99f-texlive-combined-full-2025-final-t
+exmfdist/tex/generic/uniquecounter/uniquecounter.sty
+Package: uniquecounter 2019/12/15 v1.4 Provide unlimited unique counter (HO)
+)
+Package uniquecounter Info: New unique counter `rerunfilecheck' on input line 2
+84.
+)
+\Hy@SectionHShift=\skip54
+)
+(/nix/store/dwx0cnswr5fb44f1126kyrvkxrk5i99f-texlive-combined-full-2025-final-t
+exmfdist/tex/latex/setspace/setspace.sty
+Package: setspace 2022/12/04 v6.7b set line spacing
+) (./figure_sizes.tex
+\maxfigheight=\skip55
+)
+(./tikz/fonts.tex
+luaotfload | cache : Lookup cache loaded from /home/can/.texlive2025/texmf-var/l
+uatex-cache/generic/names/luaotfload-lookup-cache.luc.
+
+Package fontspec Info: 
+(fontspec)             Font family 'LatinModernRoman(0)' created for font
+(fontspec)             'Latin Modern Roman' with options [Ligatures=TeX].
+(fontspec)              
+(fontspec)              This font family consists of the following NFSS
+(fontspec)             series/shapes:
+(fontspec)              
+(fontspec)             - 'normal' (m/n) with NFSS spec.: <->"name:Latin Modern
+(fontspec)             Roman:mode=node;script=latn;language=dflt;+tlig;"
+(fontspec)             - 'bold' (b/n) with NFSS spec.: <->"name:Latin Modern
+(fontspec)             Roman/B:mode=node;script=latn;language=dflt;+tlig;"
+(fontspec)             - 'italic' (m/it) with NFSS spec.: <->"name:Latin
+(fontspec)             Modern
+(fontspec)             Roman/I:mode=node;script=latn;language=dflt;+tlig;"
+(fontspec)             - 'bold italic' (b/it) with NFSS spec.: <->"name:Latin
+(fontspec)             Modern
+(fontspec)             Roman/BI:mode=node;script=latn;language=dflt;+tlig;"
+
+
+Package fontspec Info: 
+(fontspec)             Font family 'LatinModernSans(0)' created for font
+(fontspec)             'Latin Modern Sans' with options [Ligatures=TeX].
+(fontspec)              
+(fontspec)              This font family consists of the following NFSS
+(fontspec)             series/shapes:
+(fontspec)              
+(fontspec)             - 'normal' (m/n) with NFSS spec.: <->"name:Latin Modern
+(fontspec)             Sans:mode=node;script=latn;language=dflt;+tlig;"
+(fontspec)             - 'bold' (b/n) with NFSS spec.: <->"name:Latin Modern
+(fontspec)             Sans/B:mode=node;script=latn;language=dflt;+tlig;"
+(fontspec)             - 'italic' (m/it) with NFSS spec.: <->"name:Latin
+(fontspec)             Modern
+(fontspec)             Sans/I:mode=node;script=latn;language=dflt;+tlig;"
+(fontspec)             - 'bold italic' (b/it) with NFSS spec.: <->"name:Latin
+(fontspec)             Modern
+(fontspec)             Sans/BI:mode=node;script=latn;language=dflt;+tlig;"
+
+
+Package fontspec Info: 
+(fontspec)             Could not resolve font "Latin Modern Mono/BI" (it
+(fontspec)             probably doesn't exist).
+
+
+Package fontspec Info: 
+(fontspec)             Could not resolve font "Latin Modern Mono/B" (it
+(fontspec)             probably doesn't exist).
+
+
+Package fontspec Info: 
+(fontspec)             Font family 'LatinModernMono(0)' created for font
+(fontspec)             'Latin Modern Mono' with options
+(fontspec)             [WordSpace={1,0,0},HyphenChar=None,PunctuationSpace=Word
+Space].
+(fontspec)              
+(fontspec)              This font family consists of the following NFSS
+(fontspec)             series/shapes:
+(fontspec)              
+(fontspec)             - 'normal' (m/n) with NFSS spec.: <->"name:Latin Modern
+(fontspec)             Mono:mode=node;script=latn;language=dflt;"
+(fontspec)             - 'italic' (m/it) with NFSS spec.: <->"name:Latin
+(fontspec)             Modern Mono/I:mode=node;script=latn;language=dflt;"
+
+\synSmall=\skip56
+\synBase=\skip57
+\synLabel=\skip58
+\synTitle=\skip59
+) (./tikz/palette.tex) (./manuscript.aux)
+\openout1 = manuscript.aux
+
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 26.
+LaTeX Font Info:    ... okay on input line 26.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 26.
+LaTeX Font Info:    ... okay on input line 26.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 26.
+LaTeX Font Info:    ... okay on input line 26.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 26.
+LaTeX Font Info:    ... okay on input line 26.
+LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 26.
+LaTeX Font Info:    ... okay on input line 26.
+LaTeX Font Info:    Checking defaults for TU/lmr/m/n on input line 26.
+LaTeX Font Info:    ... okay on input line 26.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 26.
+LaTeX Font Info:    ... okay on input line 26.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 26.
+LaTeX Font Info:    ... okay on input line 26.
+LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 26.
+LaTeX Font Info:    ... okay on input line 26.
+LaTeX Font Info:    Checking defaults for PU/pdf/m/n on input line 26.
+LaTeX Font Info:    ... okay on input line 26.
+
+Package fontspec Info: 
+(fontspec)             Adjusting the maths setup (use [no-math] to avoid
+(fontspec)             this).
+
+\symlegacymaths=\mathgroup6
+LaTeX Font Info:    Overwriting symbol font `legacymaths' in version `bold'
+(Font)                  OT1/cmr/m/n --> OT1/cmr/bx/n on input line 26.
+LaTeX Font Info:    Redeclaring math accent \acute on input line 26.
+LaTeX Font Info:    Redeclaring math accent \grave on input line 26.
+LaTeX Font Info:    Redeclaring math accent \ddot on input line 26.
+LaTeX Font Info:    Redeclaring math accent \tilde on input line 26.
+LaTeX Font Info:    Redeclaring math accent \bar on input line 26.
+LaTeX Font Info:    Redeclaring math accent \breve on input line 26.
+LaTeX Font Info:    Redeclaring math accent \check on input line 26.
+LaTeX Font Info:    Redeclaring math accent \hat on input line 26.
+LaTeX Font Info:    Redeclaring math accent \dot on input line 26.
+LaTeX Font Info:    Redeclaring math accent \mathring on input line 26.
+LaTeX Font Info:    Redeclaring math symbol \Gamma on input line 26.
+LaTeX Font Info:    Redeclaring math symbol \Delta on input line 26.
+LaTeX Font Info:    Redeclaring math symbol \Theta on input line 26.
+LaTeX Font Info:    Redeclaring math symbol \Lambda on input line 26.
+LaTeX Font Info:    Redeclaring math symbol \Xi on input line 26.
+LaTeX Font Info:    Redeclaring math symbol \Pi on input line 26.
+LaTeX Font Info:    Redeclaring math symbol \Sigma on input line 26.
+LaTeX Font Info:    Redeclaring math symbol \Upsilon on input line 26.
+LaTeX Font Info:    Redeclaring math symbol \Phi on input line 26.
+LaTeX Font Info:    Redeclaring math symbol \Psi on input line 26.
+LaTeX Font Info:    Redeclaring math symbol \Omega on input line 26.
+LaTeX Font Info:    Redeclaring math symbol \mathdollar on input line 26.
+LaTeX Font Info:    Redeclaring symbol font `operators' on input line 26.
+LaTeX Font Info:    Encoding `OT1' has changed to `TU' for symbol font
+(Font)              `operators' in the math version `normal' on input line 26.
+LaTeX Font Info:    Overwriting symbol font `operators' in version `normal'
+(Font)                  OT1/cmr/m/n --> TU/LatinModernRoman(0)/m/n on input lin
+e 26.
+LaTeX Font Info:    Encoding `OT1' has changed to `TU' for symbol font
+(Font)              `operators' in the math version `bold' on input line 26.
+LaTeX Font Info:    Overwriting symbol font `operators' in version `bold'
+(Font)                  OT1/cmr/bx/n --> TU/LatinModernRoman(0)/m/n on input li
+ne 26.
+LaTeX Font Info:    Overwriting symbol font `operators' in version `normal'
+(Font)                  TU/LatinModernRoman(0)/m/n --> TU/LatinModernRoman(0)/m
+/n on input line 26.
+LaTeX Font Info:    Overwriting math alphabet `\mathit' in version `normal'
+(Font)                  OT1/cmr/m/it --> TU/LatinModernRoman(0)/m/it on input l
+ine 26.
+LaTeX Font Info:    Overwriting math alphabet `\mathbf' in version `normal'
+(Font)                  OT1/cmr/bx/n --> TU/LatinModernRoman(0)/b/n on input li
+ne 26.
+LaTeX Font Info:    Overwriting math alphabet `\mathsf' in version `normal'
+(Font)                  OT1/cmss/m/n --> TU/LatinModernSans(0)/m/n on input lin
+e 26.
+LaTeX Font Info:    Overwriting math alphabet `\mathtt' in version `normal'
+(Font)                  OT1/cmtt/m/n --> TU/LatinModernMono(0)/m/n on input lin
+e 26.
+LaTeX Font Info:    Overwriting symbol font `operators' in version `bold'
+(Font)                  TU/LatinModernRoman(0)/m/n --> TU/LatinModernRoman(0)/b
+/n on input line 26.
+LaTeX Font Info:    Overwriting math alphabet `\mathit' in version `bold'
+(Font)                  OT1/cmr/bx/it --> TU/LatinModernRoman(0)/b/it on input 
+line 26.
+LaTeX Font Info:    Overwriting math alphabet `\mathsf' in version `bold'
+(Font)                  OT1/cmss/bx/n --> TU/LatinModernSans(0)/b/n on input li
+ne 26.
+LaTeX Font Info:    Overwriting math alphabet `\mathtt' in version `bold'
+(Font)                  OT1/cmtt/m/n --> TU/LatinModernMono(0)/b/n on input lin
+e 26.
+
+(/nix/store/dwx0cnswr5fb44f1126kyrvkxrk5i99f-texlive-combined-full-2025-final-t
+exmfdist/tex/context/base/mkii/supp-pdf.mkii
+[Loading MPS to PDF converter (version 2006.09.02).]
+\scratchcounter=\count347
+\scratchdimen=\dimen293
+\scratchbox=\box67
+\nofMPsegments=\count348
+\nofMParguments=\count349
+\everyMPshowfont=\toks37
+\MPscratchCnt=\count350
+\MPscratchDim=\dimen294
+\MPnumerator=\count351
+\makeMPintoPDFobject=\count352
+\everyMPtoPDFconversion=\toks38
+)
+(/nix/store/dwx0cnswr5fb44f1126kyrvkxrk5i99f-texlive-combined-full-2025-final-t
+exmfdist/tex/latex/epstopdf-pkg/epstopdf-base.sty
+Package: epstopdf-base 2020-01-24 v2.11 Base part for package epstopdf
+Package epstopdf-base Info: Redefining graphics rule for `.eps' on input line 4
+85.
+
+(/nix/store/dwx0cnswr5fb44f1126kyrvkxrk5i99f-texlive-combined-full-2025-final-t
+exmfdist/tex/latex/latexconfig/epstopdf-sys.cfg
+File: epstopdf-sys.cfg 2010/07/13 v1.3 Configuration of (r)epstopdf for TeX Liv
+e
+))
+*geometry* driver: auto-detecting
+*geometry* detected driver: luatex
+*geometry* verbose mode - [ preamble ] result:
+* driver: luatex
+* paper: a4paper
+* layout: <same size as paper>
+* layoutoffset:(h,v)=(0.0pt,0.0pt)
+* modes: 
+* h-part:(L,W,R)=(71.13188pt, 455.24411pt, 71.13188pt)
+* v-part:(T,H,B)=(71.13188pt, 702.78308pt, 71.13188pt)
+* \paperwidth=597.50787pt
+* \paperheight=845.04684pt
+* \textwidth=455.24411pt
+* \textheight=702.78308pt
+* \oddsidemargin=-1.1381pt
+* \evensidemargin=-1.1381pt
+* \topmargin=-38.1381pt
+* \headheight=12.0pt
+* \headsep=25.0pt
+* \topskip=11.0pt
+* \footskip=30.0pt
+* \marginparwidth=50.0pt
+* \marginparsep=10.0pt
+* \columnsep=10.0pt
+* \skip\footins=10.0pt plus 4.0pt minus 2.0pt
+* \hoffset=0.0pt
+* \voffset=0.0pt
+* \mag=1000
+* \@twocolumnfalse
+* \@twosidefalse
+* \@mparswitchfalse
+* \@reversemarginfalse
+* (1in=72.27pt=25.4mm, 1cm=28.453pt)
+
+Package hyperref Info: Link coloring OFF on input line 26.
+(./manuscript.out) (./manuscript.out)
+\@outlinefile=\write4
+
+\openout4 = manuscript.out
+LaTeX Font Info:    Trying to load font information for U+msa on input line 28.
+
+
+(/nix/store/dwx0cnswr5fb44f1126kyrvkxrk5i99f-texlive-combined-full-2025-final-t
+exmfdist/tex/latex/amsfonts/umsa.fd
+File: umsa.fd 2013/01/14 v3.01 AMS symbols A
+)
+LaTeX Font Info:    Trying to load font information for U+msb on input line 28.
+
+
+(/nix/store/dwx0cnswr5fb44f1126kyrvkxrk5i99f-texlive-combined-full-2025-final-t
+exmfdist/tex/latex/amsfonts/umsb.fd
+File: umsb.fd 2013/01/14 v3.01 AMS symbols B
+)
+Overfull \hbox (4.55583pt too wide) in paragraph at lines 30--49
+\TU/LatinModernRoman(0)/m/n/10 that de-cou-ples query au-thor-ing from back-end ex-e-cu-tion through a four-stage com-piler pipeline:
+ []
+
+[1
+
+{/nix/store/laq3dszzv0wwj5kwdsqacghiiamijfis-texlive-combined-full-2025-final/sh
+are/texmf-var/fonts/map/pdftex/updmap/pdftex.map}]
+Overfull \hbox (3.53888pt too wide) in paragraph at lines 116--124
+\TU/LatinModernMono(0)/m/n/10.95 bind_and_validate(parsed, catalog, params) \TU
+/LatinModernRoman(0)/m/n/10.95 pro-duces a \TU/LatinModernMono(0)/m/n/10.95 Boun
+dQuery\TU/LatinModernRoman(0)/m/n/10.95 . This is where Query-
+ []
+
+
+Overfull \hbox (9.39189pt too wide) in paragraph at lines 125--130
+[]\TU/LatinModernRoman(0)/m/n/10.95 The cat-a-log con-tract is de-lib-er-ately 
+generic. Hosts pro-vide re-la-tion schemas (\TU/LatinModernMono(0)/m/n/10.95 Rel
+ationSchema\TU/LatinModernRoman(0)/m/n/10.95 ),
+ []
+
+[2]
+Package svg Info: Last page of `./svg-inkscape/CF01-architecture_svg-tex.pdf' i
+s 8 on input line 176.
+ (./svg-inkscape/CF01-architecture_svg-tex.pdf_tex
+<./svg-inkscape/CF01-architecture_svg-tex.pdf, id=118, page=1, 560.47275pt x 17
+6.40709pt>
+File: ./svg-inkscape/CF01-architecture_svg-tex.pdf Graphic file (type pdf)
+<use ./svg-inkscape/CF01-architecture_svg-tex.pdf, page 1>
+Package luatex.def Info: ./svg-inkscape/CF01-architecture_svg-tex.pdf , page1 u
+sed on input line 56.
+(luatex.def)             Requested size: 455.24411pt x 143.28732pt.
+<./svg-inkscape/CF01-architecture_svg-tex.pdf, id=119, page=2, 560.47275pt x 17
+6.40709pt>
+File: ./svg-inkscape/CF01-architecture_svg-tex.pdf Graphic file (type pdf)
+<use ./svg-inkscape/CF01-architecture_svg-tex.pdf, page 2>
+Package luatex.def Info: ./svg-inkscape/CF01-architecture_svg-tex.pdf , page2 u
+sed on input line 59.
+(luatex.def)             Requested size: 455.24411pt x 143.28732pt.
+<./svg-inkscape/CF01-architecture_svg-tex.pdf, id=120, page=3, 560.47275pt x 17
+6.40709pt>
+File: ./svg-inkscape/CF01-architecture_svg-tex.pdf Graphic file (type pdf)
+<use ./svg-inkscape/CF01-architecture_svg-tex.pdf, page 3>
+Package luatex.def Info: ./svg-inkscape/CF01-architecture_svg-tex.pdf , page3 u
+sed on input line 62.
+(luatex.def)             Requested size: 455.24411pt x 143.28732pt.
+<./svg-inkscape/CF01-architecture_svg-tex.pdf, id=121, page=4, 560.47275pt x 17
+6.40709pt>
+File: ./svg-inkscape/CF01-architecture_svg-tex.pdf Graphic file (type pdf)
+<use ./svg-inkscape/CF01-architecture_svg-tex.pdf, page 4>
+Package luatex.def Info: ./svg-inkscape/CF01-architecture_svg-tex.pdf , page4 u
+sed on input line 65.
+(luatex.def)             Requested size: 455.24411pt x 143.28732pt.
+<./svg-inkscape/CF01-architecture_svg-tex.pdf, id=122, page=5, 560.47275pt x 17
+6.40709pt>
+File: ./svg-inkscape/CF01-architecture_svg-tex.pdf Graphic file (type pdf)
+<use ./svg-inkscape/CF01-architecture_svg-tex.pdf, page 5>
+Package luatex.def Info: ./svg-inkscape/CF01-architecture_svg-tex.pdf , page5 u
+sed on input line 68.
+(luatex.def)             Requested size: 455.24411pt x 143.28732pt.
+<./svg-inkscape/CF01-architecture_svg-tex.pdf, id=123, page=6, 560.47275pt x 17
+6.40709pt>
+File: ./svg-inkscape/CF01-architecture_svg-tex.pdf Graphic file (type pdf)
+<use ./svg-inkscape/CF01-architecture_svg-tex.pdf, page 6>
+Package luatex.def Info: ./svg-inkscape/CF01-architecture_svg-tex.pdf , page6 u
+sed on input line 71.
+(luatex.def)             Requested size: 455.24411pt x 143.28732pt.
+<./svg-inkscape/CF01-architecture_svg-tex.pdf, id=124, page=7, 560.47275pt x 17
+6.40709pt>
+File: ./svg-inkscape/CF01-architecture_svg-tex.pdf Graphic file (type pdf)
+<use ./svg-inkscape/CF01-architecture_svg-tex.pdf, page 7>
+Package luatex.def Info: ./svg-inkscape/CF01-architecture_svg-tex.pdf , page7 u
+sed on input line 74.
+(luatex.def)             Requested size: 455.24411pt x 143.28732pt.
+<./svg-inkscape/CF01-architecture_svg-tex.pdf, id=125, page=8, 560.47275pt x 17
+6.40709pt>
+File: ./svg-inkscape/CF01-architecture_svg-tex.pdf Graphic file (type pdf)
+<use ./svg-inkscape/CF01-architecture_svg-tex.pdf, page 8>
+Package luatex.def Info: ./svg-inkscape/CF01-architecture_svg-tex.pdf , page8 u
+sed on input line 77.
+(luatex.def)             Requested size: 455.24411pt x 143.28732pt.
+) [3<./svg-inkscape/CF01-architecture_svg-tex.pdf><./svg-inkscape/CF01-architect
+ure_svg-tex.pdf><./svg-inkscape/CF01-architecture_svg-tex.pdf><./svg-inkscape/CF
+01-architecture_svg-tex.pdf><./svg-inkscape/CF01-architecture_svg-tex.pdf><./svg
+-inkscape/CF01-architecture_svg-tex.pdf><./svg-inkscape/CF01-architecture_svg-te
+x.pdf><./svg-inkscape/CF01-architecture_svg-tex.pdf>]
+Package svg Info: Last page of `./svg-inkscape/CF02-portability_svg-tex.pdf' is
+ 20 on input line 234.
+
+(./svg-inkscape/CF02-portability_svg-tex.pdf_tex
+<./svg-inkscape/CF02-portability_svg-tex.pdf, id=131, page=1, 488.31834pt x 200
+.59193pt>
+File: ./svg-inkscape/CF02-portability_svg-tex.pdf Graphic file (type pdf)
+<use ./svg-inkscape/CF02-portability_svg-tex.pdf, page 1>
+Package luatex.def Info: ./svg-inkscape/CF02-portability_svg-tex.pdf , page1 us
+ed on input line 60.
+(luatex.def)             Requested size: 455.24411pt x 187.00461pt.
+<./svg-inkscape/CF02-portability_svg-tex.pdf, id=132, page=2, 488.31834pt x 200
+.59193pt>
+File: ./svg-inkscape/CF02-portability_svg-tex.pdf Graphic file (type pdf)
+<use ./svg-inkscape/CF02-portability_svg-tex.pdf, page 2>
+Package luatex.def Info: ./svg-inkscape/CF02-portability_svg-tex.pdf , page2 us
+ed on input line 62.
+(luatex.def)             Requested size: 455.24411pt x 187.00461pt.
+<./svg-inkscape/CF02-portability_svg-tex.pdf, id=133, page=3, 488.31834pt x 200
+.59193pt>
+File: ./svg-inkscape/CF02-portability_svg-tex.pdf Graphic file (type pdf)
+<use ./svg-inkscape/CF02-portability_svg-tex.pdf, page 3>
+Package luatex.def Info: ./svg-inkscape/CF02-portability_svg-tex.pdf , page3 us
+ed on input line 65.
+(luatex.def)             Requested size: 455.24411pt x 187.00461pt.
+<./svg-inkscape/CF02-portability_svg-tex.pdf, id=134, page=4, 488.31834pt x 200
+.59193pt>
+File: ./svg-inkscape/CF02-portability_svg-tex.pdf Graphic file (type pdf)
+<use ./svg-inkscape/CF02-portability_svg-tex.pdf, page 4>
+Package luatex.def Info: ./svg-inkscape/CF02-portability_svg-tex.pdf , page4 us
+ed on input line 67.
+(luatex.def)             Requested size: 455.24411pt x 187.00461pt.
+<./svg-inkscape/CF02-portability_svg-tex.pdf, id=135, page=5, 488.31834pt x 200
+.59193pt>
+File: ./svg-inkscape/CF02-portability_svg-tex.pdf Graphic file (type pdf)
+<use ./svg-inkscape/CF02-portability_svg-tex.pdf, page 5>
+Package luatex.def Info: ./svg-inkscape/CF02-portability_svg-tex.pdf , page5 us
+ed on input line 70.
+(luatex.def)             Requested size: 455.24411pt x 187.00461pt.
+<./svg-inkscape/CF02-portability_svg-tex.pdf, id=136, page=6, 488.31834pt x 200
+.59193pt>
+File: ./svg-inkscape/CF02-portability_svg-tex.pdf Graphic file (type pdf)
+<use ./svg-inkscape/CF02-portability_svg-tex.pdf, page 6>
+Package luatex.def Info: ./svg-inkscape/CF02-portability_svg-tex.pdf , page6 us
+ed on input line 72.
+(luatex.def)             Requested size: 455.24411pt x 187.00461pt.
+<./svg-inkscape/CF02-portability_svg-tex.pdf, id=137, page=7, 488.31834pt x 200
+.59193pt>
+File: ./svg-inkscape/CF02-portability_svg-tex.pdf Graphic file (type pdf)
+<use ./svg-inkscape/CF02-portability_svg-tex.pdf, page 7>
+Package luatex.def Info: ./svg-inkscape/CF02-portability_svg-tex.pdf , page7 us
+ed on input line 75.
+(luatex.def)             Requested size: 455.24411pt x 187.00461pt.
+<./svg-inkscape/CF02-portability_svg-tex.pdf, id=138, page=8, 488.31834pt x 200
+.59193pt>
+File: ./svg-inkscape/CF02-portability_svg-tex.pdf Graphic file (type pdf)
+<use ./svg-inkscape/CF02-portability_svg-tex.pdf, page 8>
+Package luatex.def Info: ./svg-inkscape/CF02-portability_svg-tex.pdf , page8 us
+ed on input line 77.
+(luatex.def)             Requested size: 455.24411pt x 187.00461pt.
+<./svg-inkscape/CF02-portability_svg-tex.pdf, id=139, page=9, 488.31834pt x 200
+.59193pt>
+File: ./svg-inkscape/CF02-portability_svg-tex.pdf Graphic file (type pdf)
+<use ./svg-inkscape/CF02-portability_svg-tex.pdf, page 9>
+Package luatex.def Info: ./svg-inkscape/CF02-portability_svg-tex.pdf , page9 us
+ed on input line 80.
+(luatex.def)             Requested size: 455.24411pt x 187.00461pt.
+<./svg-inkscape/CF02-portability_svg-tex.pdf, id=140, page=10, 488.31834pt x 20
+0.59193pt>
+File: ./svg-inkscape/CF02-portability_svg-tex.pdf Graphic file (type pdf)
+<use ./svg-inkscape/CF02-portability_svg-tex.pdf, page 10>
+Package luatex.def Info: ./svg-inkscape/CF02-portability_svg-tex.pdf , page10 u
+sed on input line 82.
+(luatex.def)             Requested size: 455.24411pt x 187.00461pt.
+<./svg-inkscape/CF02-portability_svg-tex.pdf, id=141, page=11, 488.31834pt x 20
+0.59193pt>
+File: ./svg-inkscape/CF02-portability_svg-tex.pdf Graphic file (type pdf)
+<use ./svg-inkscape/CF02-portability_svg-tex.pdf, page 11>
+Package luatex.def Info: ./svg-inkscape/CF02-portability_svg-tex.pdf , page11 u
+sed on input line 85.
+(luatex.def)             Requested size: 455.24411pt x 187.00461pt.
+<./svg-inkscape/CF02-portability_svg-tex.pdf, id=142, page=12, 488.31834pt x 20
+0.59193pt>
+File: ./svg-inkscape/CF02-portability_svg-tex.pdf Graphic file (type pdf)
+<use ./svg-inkscape/CF02-portability_svg-tex.pdf, page 12>
+Package luatex.def Info: ./svg-inkscape/CF02-portability_svg-tex.pdf , page12 u
+sed on input line 87.
+(luatex.def)             Requested size: 455.24411pt x 187.00461pt.
+<./svg-inkscape/CF02-portability_svg-tex.pdf, id=143, page=13, 488.31834pt x 20
+0.59193pt>
+File: ./svg-inkscape/CF02-portability_svg-tex.pdf Graphic file (type pdf)
+<use ./svg-inkscape/CF02-portability_svg-tex.pdf, page 13>
+Package luatex.def Info: ./svg-inkscape/CF02-portability_svg-tex.pdf , page13 u
+sed on input line 90.
+(luatex.def)             Requested size: 455.24411pt x 187.00461pt.
+<./svg-inkscape/CF02-portability_svg-tex.pdf, id=144, page=14, 488.31834pt x 20
+0.59193pt>
+File: ./svg-inkscape/CF02-portability_svg-tex.pdf Graphic file (type pdf)
+<use ./svg-inkscape/CF02-portability_svg-tex.pdf, page 14>
+Package luatex.def Info: ./svg-inkscape/CF02-portability_svg-tex.pdf , page14 u
+sed on input line 92.
+(luatex.def)             Requested size: 455.24411pt x 187.00461pt.
+<./svg-inkscape/CF02-portability_svg-tex.pdf, id=145, page=15, 488.31834pt x 20
+0.59193pt>
+File: ./svg-inkscape/CF02-portability_svg-tex.pdf Graphic file (type pdf)
+<use ./svg-inkscape/CF02-portability_svg-tex.pdf, page 15>
+Package luatex.def Info: ./svg-inkscape/CF02-portability_svg-tex.pdf , page15 u
+sed on input line 95.
+(luatex.def)             Requested size: 455.24411pt x 187.00461pt.
+<./svg-inkscape/CF02-portability_svg-tex.pdf, id=146, page=16, 488.31834pt x 20
+0.59193pt>
+File: ./svg-inkscape/CF02-portability_svg-tex.pdf Graphic file (type pdf)
+<use ./svg-inkscape/CF02-portability_svg-tex.pdf, page 16>
+Package luatex.def Info: ./svg-inkscape/CF02-portability_svg-tex.pdf , page16 u
+sed on input line 97.
+(luatex.def)             Requested size: 455.24411pt x 187.00461pt.
+<./svg-inkscape/CF02-portability_svg-tex.pdf, id=147, page=17, 488.31834pt x 20
+0.59193pt>
+File: ./svg-inkscape/CF02-portability_svg-tex.pdf Graphic file (type pdf)
+<use ./svg-inkscape/CF02-portability_svg-tex.pdf, page 17>
+Package luatex.def Info: ./svg-inkscape/CF02-portability_svg-tex.pdf , page17 u
+sed on input line 100.
+(luatex.def)             Requested size: 455.24411pt x 187.00461pt.
+<./svg-inkscape/CF02-portability_svg-tex.pdf, id=148, page=18, 488.31834pt x 20
+0.59193pt>
+File: ./svg-inkscape/CF02-portability_svg-tex.pdf Graphic file (type pdf)
+<use ./svg-inkscape/CF02-portability_svg-tex.pdf, page 18>
+Package luatex.def Info: ./svg-inkscape/CF02-portability_svg-tex.pdf , page18 u
+sed on input line 102.
+(luatex.def)             Requested size: 455.24411pt x 187.00461pt.
+<./svg-inkscape/CF02-portability_svg-tex.pdf, id=149, page=19, 488.31834pt x 20
+0.59193pt>
+File: ./svg-inkscape/CF02-portability_svg-tex.pdf Graphic file (type pdf)
+<use ./svg-inkscape/CF02-portability_svg-tex.pdf, page 19>
+Package luatex.def Info: ./svg-inkscape/CF02-portability_svg-tex.pdf , page19 u
+sed on input line 105.
+(luatex.def)             Requested size: 455.24411pt x 187.00461pt.
+<./svg-inkscape/CF02-portability_svg-tex.pdf, id=150, page=20, 488.31834pt x 20
+0.59193pt>
+File: ./svg-inkscape/CF02-portability_svg-tex.pdf Graphic file (type pdf)
+<use ./svg-inkscape/CF02-portability_svg-tex.pdf, page 20>
+Package luatex.def Info: ./svg-inkscape/CF02-portability_svg-tex.pdf , page20 u
+sed on input line 107.
+(luatex.def)             Requested size: 455.24411pt x 187.00461pt.
+)
+Overfull \hbox (53.7994pt too wide) in paragraph at lines 251--259
+\TU/LatinModernMono(0)/m/n/10.95 bind_and_validate \TU/LatinModernRoman(0)/m/n/
+10.95 re-solves them against a \TU/LatinModernMono(0)/m/n/10.95 MemoryCatalog\T
+U/LatinModernRoman(0)/m/n/10.95 ; \TU/LatinModernMono(0)/m/n/10.95 analyze_click
+house \TU/LatinModernRoman(0)/m/n/10.95 and \TU/LatinModernMono(0)/m/n/10.95 ana
+lyze_postgres
+ []
+
+[4<./svg-inkscape/CF02-portability_svg-tex.pdf><./svg-inkscape/CF02-portability_
+svg-tex.pdf><./svg-inkscape/CF02-portability_svg-tex.pdf><./svg-inkscape/CF02-po
+rtability_svg-tex.pdf><./svg-inkscape/CF02-portability_svg-tex.pdf><./svg-inksca
+pe/CF02-portability_svg-tex.pdf><./svg-inkscape/CF02-portability_svg-tex.pdf><./
+svg-inkscape/CF02-portability_svg-tex.pdf><./svg-inkscape/CF02-portability_svg-t
+ex.pdf><./svg-inkscape/CF02-portability_svg-tex.pdf><./svg-inkscape/CF02-portabi
+lity_svg-tex.pdf><./svg-inkscape/CF02-portability_svg-tex.pdf><./svg-inkscape/CF
+02-portability_svg-tex.pdf><./svg-inkscape/CF02-portability_svg-tex.pdf><./svg-i
+nkscape/CF02-portability_svg-tex.pdf><./svg-inkscape/CF02-portability_svg-tex.pd
+f><./svg-inkscape/CF02-portability_svg-tex.pdf><./svg-inkscape/CF02-portability_
+svg-tex.pdf><./svg-inkscape/CF02-portability_svg-tex.pdf><./svg-inkscape/CF02-po
+rtability_svg-tex.pdf>]
+Package svg Info: Last page of `./svg-inkscape/CF03-applications_svg-tex.pdf' i
+s 8 on input line 320.
+
+(./svg-inkscape/CF03-applications_svg-tex.pdf_tex
+<./svg-inkscape/CF03-applications_svg-tex.pdf, id=157, page=1, 631.39372pt x 96
+.25311pt>
+File: ./svg-inkscape/CF03-applications_svg-tex.pdf Graphic file (type pdf)
+<use ./svg-inkscape/CF03-applications_svg-tex.pdf, page 1>
+Package luatex.def Info: ./svg-inkscape/CF03-applications_svg-tex.pdf , page1 u
+sed on input line 56.
+(luatex.def)             Requested size: 455.24411pt x 69.40057pt.
+<./svg-inkscape/CF03-applications_svg-tex.pdf, id=158, page=2, 631.39372pt x 96
+.25311pt>
+File: ./svg-inkscape/CF03-applications_svg-tex.pdf Graphic file (type pdf)
+<use ./svg-inkscape/CF03-applications_svg-tex.pdf, page 2>
+Package luatex.def Info: ./svg-inkscape/CF03-applications_svg-tex.pdf , page2 u
+sed on input line 59.
+(luatex.def)             Requested size: 455.24411pt x 69.40057pt.
+<./svg-inkscape/CF03-applications_svg-tex.pdf, id=159, page=3, 631.39372pt x 96
+.25311pt>
+File: ./svg-inkscape/CF03-applications_svg-tex.pdf Graphic file (type pdf)
+<use ./svg-inkscape/CF03-applications_svg-tex.pdf, page 3>
+Package luatex.def Info: ./svg-inkscape/CF03-applications_svg-tex.pdf , page3 u
+sed on input line 61.
+(luatex.def)             Requested size: 455.24411pt x 69.40057pt.
+<./svg-inkscape/CF03-applications_svg-tex.pdf, id=160, page=4, 631.39372pt x 96
+.25311pt>
+File: ./svg-inkscape/CF03-applications_svg-tex.pdf Graphic file (type pdf)
+<use ./svg-inkscape/CF03-applications_svg-tex.pdf, page 4>
+Package luatex.def Info: ./svg-inkscape/CF03-applications_svg-tex.pdf , page4 u
+sed on input line 63.
+(luatex.def)             Requested size: 455.24411pt x 69.40057pt.
+<./svg-inkscape/CF03-applications_svg-tex.pdf, id=161, page=5, 631.39372pt x 96
+.25311pt>
+File: ./svg-inkscape/CF03-applications_svg-tex.pdf Graphic file (type pdf)
+<use ./svg-inkscape/CF03-applications_svg-tex.pdf, page 5>
+Package luatex.def Info: ./svg-inkscape/CF03-applications_svg-tex.pdf , page5 u
+sed on input line 68.
+(luatex.def)             Requested size: 455.24411pt x 69.40057pt.
+<./svg-inkscape/CF03-applications_svg-tex.pdf, id=162, page=6, 631.39372pt x 96
+.25311pt>
+File: ./svg-inkscape/CF03-applications_svg-tex.pdf Graphic file (type pdf)
+<use ./svg-inkscape/CF03-applications_svg-tex.pdf, page 6>
+Package luatex.def Info: ./svg-inkscape/CF03-applications_svg-tex.pdf , page6 u
+sed on input line 71.
+(luatex.def)             Requested size: 455.24411pt x 69.40057pt.
+<./svg-inkscape/CF03-applications_svg-tex.pdf, id=163, page=7, 631.39372pt x 96
+.25311pt>
+File: ./svg-inkscape/CF03-applications_svg-tex.pdf Graphic file (type pdf)
+<use ./svg-inkscape/CF03-applications_svg-tex.pdf, page 7>
+Package luatex.def Info: ./svg-inkscape/CF03-applications_svg-tex.pdf , page7 u
+sed on input line 74.
+(luatex.def)             Requested size: 455.24411pt x 69.40057pt.
+<./svg-inkscape/CF03-applications_svg-tex.pdf, id=164, page=8, 631.39372pt x 96
+.25311pt>
+File: ./svg-inkscape/CF03-applications_svg-tex.pdf Graphic file (type pdf)
+<use ./svg-inkscape/CF03-applications_svg-tex.pdf, page 8>
+Package luatex.def Info: ./svg-inkscape/CF03-applications_svg-tex.pdf , page8 u
+sed on input line 77.
+(luatex.def)             Requested size: 455.24411pt x 69.40057pt.
+) [5<./svg-inkscape/CF03-applications_svg-tex.pdf><./svg-inkscape/CF03-applicati
+ons_svg-tex.pdf><./svg-inkscape/CF03-applications_svg-tex.pdf><./svg-inkscape/CF
+03-applications_svg-tex.pdf><./svg-inkscape/CF03-applications_svg-tex.pdf><./svg
+-inkscape/CF03-applications_svg-tex.pdf><./svg-inkscape/CF03-applications_svg-te
+x.pdf><./svg-inkscape/CF03-applications_svg-tex.pdf>]
+Package svg Info: Last page of `./svg-inkscape/CF04-syndb_svg-tex.pdf' is 26 on
+ input line 384.
+ (./svg-inkscape/CF04-syndb_svg-tex.pdf_tex
+<./svg-inkscape/CF04-syndb_svg-tex.pdf, id=171, page=1, 565.45268pt x 360.22606
+pt>
+File: ./svg-inkscape/CF04-syndb_svg-tex.pdf Graphic file (type pdf)
+<use ./svg-inkscape/CF04-syndb_svg-tex.pdf, page 1>
+Package luatex.def Info: ./svg-inkscape/CF04-syndb_svg-tex.pdf , page1 used on 
+input line 57.
+(luatex.def)             Requested size: 455.24411pt x 290.0226pt.
+<./svg-inkscape/CF04-syndb_svg-tex.pdf, id=172, page=2, 565.45268pt x 360.22606
+pt>
+File: ./svg-inkscape/CF04-syndb_svg-tex.pdf Graphic file (type pdf)
+<use ./svg-inkscape/CF04-syndb_svg-tex.pdf, page 2>
+Package luatex.def Info: ./svg-inkscape/CF04-syndb_svg-tex.pdf , page2 used on 
+input line 60.
+(luatex.def)             Requested size: 455.24411pt x 290.0226pt.
+<./svg-inkscape/CF04-syndb_svg-tex.pdf, id=173, page=3, 565.45268pt x 360.22606
+pt>
+File: ./svg-inkscape/CF04-syndb_svg-tex.pdf Graphic file (type pdf)
+<use ./svg-inkscape/CF04-syndb_svg-tex.pdf, page 3>
+Package luatex.def Info: ./svg-inkscape/CF04-syndb_svg-tex.pdf , page3 used on 
+input line 64.
+(luatex.def)             Requested size: 455.24411pt x 290.0226pt.
+<./svg-inkscape/CF04-syndb_svg-tex.pdf, id=174, page=4, 565.45268pt x 360.22606
+pt>
+File: ./svg-inkscape/CF04-syndb_svg-tex.pdf Graphic file (type pdf)
+<use ./svg-inkscape/CF04-syndb_svg-tex.pdf, page 4>
+Package luatex.def Info: ./svg-inkscape/CF04-syndb_svg-tex.pdf , page4 used on 
+input line 67.
+(luatex.def)             Requested size: 455.24411pt x 290.0226pt.
+<./svg-inkscape/CF04-syndb_svg-tex.pdf, id=175, page=5, 565.45268pt x 360.22606
+pt>
+File: ./svg-inkscape/CF04-syndb_svg-tex.pdf Graphic file (type pdf)
+<use ./svg-inkscape/CF04-syndb_svg-tex.pdf, page 5>
+Package luatex.def Info: ./svg-inkscape/CF04-syndb_svg-tex.pdf , page5 used on 
+input line 70.
+(luatex.def)             Requested size: 455.24411pt x 290.0226pt.
+<./svg-inkscape/CF04-syndb_svg-tex.pdf, id=176, page=6, 565.45268pt x 360.22606
+pt>
+File: ./svg-inkscape/CF04-syndb_svg-tex.pdf Graphic file (type pdf)
+<use ./svg-inkscape/CF04-syndb_svg-tex.pdf, page 6>
+Package luatex.def Info: ./svg-inkscape/CF04-syndb_svg-tex.pdf , page6 used on 
+input line 73.
+(luatex.def)             Requested size: 455.24411pt x 290.0226pt.
+<./svg-inkscape/CF04-syndb_svg-tex.pdf, id=177, page=7, 565.45268pt x 360.22606
+pt>
+File: ./svg-inkscape/CF04-syndb_svg-tex.pdf Graphic file (type pdf)
+<use ./svg-inkscape/CF04-syndb_svg-tex.pdf, page 7>
+Package luatex.def Info: ./svg-inkscape/CF04-syndb_svg-tex.pdf , page7 used on 
+input line 75.
+(luatex.def)             Requested size: 455.24411pt x 290.0226pt.
+<./svg-inkscape/CF04-syndb_svg-tex.pdf, id=178, page=8, 565.45268pt x 360.22606
+pt>
+File: ./svg-inkscape/CF04-syndb_svg-tex.pdf Graphic file (type pdf)
+<use ./svg-inkscape/CF04-syndb_svg-tex.pdf, page 8>
+Package luatex.def Info: ./svg-inkscape/CF04-syndb_svg-tex.pdf , page8 used on 
+input line 77.
+(luatex.def)             Requested size: 455.24411pt x 290.0226pt.
+<./svg-inkscape/CF04-syndb_svg-tex.pdf, id=179, page=9, 565.45268pt x 360.22606
+pt>
+File: ./svg-inkscape/CF04-syndb_svg-tex.pdf Graphic file (type pdf)
+<use ./svg-inkscape/CF04-syndb_svg-tex.pdf, page 9>
+Package luatex.def Info: ./svg-inkscape/CF04-syndb_svg-tex.pdf , page9 used on 
+input line 79.
+(luatex.def)             Requested size: 455.24411pt x 290.0226pt.
+<./svg-inkscape/CF04-syndb_svg-tex.pdf, id=180, page=10, 565.45268pt x 360.2260
+6pt>
+File: ./svg-inkscape/CF04-syndb_svg-tex.pdf Graphic file (type pdf)
+<use ./svg-inkscape/CF04-syndb_svg-tex.pdf, page 10>
+Package luatex.def Info: ./svg-inkscape/CF04-syndb_svg-tex.pdf , page10 used on
+ input line 81.
+(luatex.def)             Requested size: 455.24411pt x 290.0226pt.
+<./svg-inkscape/CF04-syndb_svg-tex.pdf, id=181, page=11, 565.45268pt x 360.2260
+6pt>
+File: ./svg-inkscape/CF04-syndb_svg-tex.pdf Graphic file (type pdf)
+<use ./svg-inkscape/CF04-syndb_svg-tex.pdf, page 11>
+Package luatex.def Info: ./svg-inkscape/CF04-syndb_svg-tex.pdf , page11 used on
+ input line 84.
+(luatex.def)             Requested size: 455.24411pt x 290.0226pt.
+<./svg-inkscape/CF04-syndb_svg-tex.pdf, id=182, page=12, 565.45268pt x 360.2260
+6pt>
+File: ./svg-inkscape/CF04-syndb_svg-tex.pdf Graphic file (type pdf)
+<use ./svg-inkscape/CF04-syndb_svg-tex.pdf, page 12>
+Package luatex.def Info: ./svg-inkscape/CF04-syndb_svg-tex.pdf , page12 used on
+ input line 86.
+(luatex.def)             Requested size: 455.24411pt x 290.0226pt.
+<./svg-inkscape/CF04-syndb_svg-tex.pdf, id=183, page=13, 565.45268pt x 360.2260
+6pt>
+File: ./svg-inkscape/CF04-syndb_svg-tex.pdf Graphic file (type pdf)
+<use ./svg-inkscape/CF04-syndb_svg-tex.pdf, page 13>
+Package luatex.def Info: ./svg-inkscape/CF04-syndb_svg-tex.pdf , page13 used on
+ input line 88.
+(luatex.def)             Requested size: 455.24411pt x 290.0226pt.
+<./svg-inkscape/CF04-syndb_svg-tex.pdf, id=184, page=14, 565.45268pt x 360.2260
+6pt>
+File: ./svg-inkscape/CF04-syndb_svg-tex.pdf Graphic file (type pdf)
+<use ./svg-inkscape/CF04-syndb_svg-tex.pdf, page 14>
+Package luatex.def Info: ./svg-inkscape/CF04-syndb_svg-tex.pdf , page14 used on
+ input line 90.
+(luatex.def)             Requested size: 455.24411pt x 290.0226pt.
+<./svg-inkscape/CF04-syndb_svg-tex.pdf, id=185, page=15, 565.45268pt x 360.2260
+6pt>
+File: ./svg-inkscape/CF04-syndb_svg-tex.pdf Graphic file (type pdf)
+<use ./svg-inkscape/CF04-syndb_svg-tex.pdf, page 15>
+Package luatex.def Info: ./svg-inkscape/CF04-syndb_svg-tex.pdf , page15 used on
+ input line 93.
+(luatex.def)             Requested size: 455.24411pt x 290.0226pt.
+<./svg-inkscape/CF04-syndb_svg-tex.pdf, id=186, page=16, 565.45268pt x 360.2260
+6pt>
+File: ./svg-inkscape/CF04-syndb_svg-tex.pdf Graphic file (type pdf)
+<use ./svg-inkscape/CF04-syndb_svg-tex.pdf, page 16>
+Package luatex.def Info: ./svg-inkscape/CF04-syndb_svg-tex.pdf , page16 used on
+ input line 95.
+(luatex.def)             Requested size: 455.24411pt x 290.0226pt.
+<./svg-inkscape/CF04-syndb_svg-tex.pdf, id=187, page=17, 565.45268pt x 360.2260
+6pt>
+File: ./svg-inkscape/CF04-syndb_svg-tex.pdf Graphic file (type pdf)
+<use ./svg-inkscape/CF04-syndb_svg-tex.pdf, page 17>
+Package luatex.def Info: ./svg-inkscape/CF04-syndb_svg-tex.pdf , page17 used on
+ input line 97.
+(luatex.def)             Requested size: 455.24411pt x 290.0226pt.
+<./svg-inkscape/CF04-syndb_svg-tex.pdf, id=188, page=18, 565.45268pt x 360.2260
+6pt>
+File: ./svg-inkscape/CF04-syndb_svg-tex.pdf Graphic file (type pdf)
+<use ./svg-inkscape/CF04-syndb_svg-tex.pdf, page 18>
+Package luatex.def Info: ./svg-inkscape/CF04-syndb_svg-tex.pdf , page18 used on
+ input line 99.
+(luatex.def)             Requested size: 455.24411pt x 290.0226pt.
+<./svg-inkscape/CF04-syndb_svg-tex.pdf, id=189, page=19, 565.45268pt x 360.2260
+6pt>
+File: ./svg-inkscape/CF04-syndb_svg-tex.pdf Graphic file (type pdf)
+<use ./svg-inkscape/CF04-syndb_svg-tex.pdf, page 19>
+Package luatex.def Info: ./svg-inkscape/CF04-syndb_svg-tex.pdf , page19 used on
+ input line 102.
+(luatex.def)             Requested size: 455.24411pt x 290.0226pt.
+<./svg-inkscape/CF04-syndb_svg-tex.pdf, id=190, page=20, 565.45268pt x 360.2260
+6pt>
+File: ./svg-inkscape/CF04-syndb_svg-tex.pdf Graphic file (type pdf)
+<use ./svg-inkscape/CF04-syndb_svg-tex.pdf, page 20>
+Package luatex.def Info: ./svg-inkscape/CF04-syndb_svg-tex.pdf , page20 used on
+ input line 104.
+(luatex.def)             Requested size: 455.24411pt x 290.0226pt.
+<./svg-inkscape/CF04-syndb_svg-tex.pdf, id=191, page=21, 565.45268pt x 360.2260
+6pt>
+File: ./svg-inkscape/CF04-syndb_svg-tex.pdf Graphic file (type pdf)
+<use ./svg-inkscape/CF04-syndb_svg-tex.pdf, page 21>
+Package luatex.def Info: ./svg-inkscape/CF04-syndb_svg-tex.pdf , page21 used on
+ input line 106.
+(luatex.def)             Requested size: 455.24411pt x 290.0226pt.
+<./svg-inkscape/CF04-syndb_svg-tex.pdf, id=192, page=22, 565.45268pt x 360.2260
+6pt>
+File: ./svg-inkscape/CF04-syndb_svg-tex.pdf Graphic file (type pdf)
+<use ./svg-inkscape/CF04-syndb_svg-tex.pdf, page 22>
+Package luatex.def Info: ./svg-inkscape/CF04-syndb_svg-tex.pdf , page22 used on
+ input line 108.
+(luatex.def)             Requested size: 455.24411pt x 290.0226pt.
+<./svg-inkscape/CF04-syndb_svg-tex.pdf, id=193, page=23, 565.45268pt x 360.2260
+6pt>
+File: ./svg-inkscape/CF04-syndb_svg-tex.pdf Graphic file (type pdf)
+<use ./svg-inkscape/CF04-syndb_svg-tex.pdf, page 23>
+Package luatex.def Info: ./svg-inkscape/CF04-syndb_svg-tex.pdf , page23 used on
+ input line 111.
+(luatex.def)             Requested size: 455.24411pt x 290.0226pt.
+<./svg-inkscape/CF04-syndb_svg-tex.pdf, id=194, page=24, 565.45268pt x 360.2260
+6pt>
+File: ./svg-inkscape/CF04-syndb_svg-tex.pdf Graphic file (type pdf)
+<use ./svg-inkscape/CF04-syndb_svg-tex.pdf, page 24>
+Package luatex.def Info: ./svg-inkscape/CF04-syndb_svg-tex.pdf , page24 used on
+ input line 113.
+(luatex.def)             Requested size: 455.24411pt x 290.0226pt.
+<./svg-inkscape/CF04-syndb_svg-tex.pdf, id=195, page=25, 565.45268pt x 360.2260
+6pt>
+File: ./svg-inkscape/CF04-syndb_svg-tex.pdf Graphic file (type pdf)
+<use ./svg-inkscape/CF04-syndb_svg-tex.pdf, page 25>
+Package luatex.def Info: ./svg-inkscape/CF04-syndb_svg-tex.pdf , page25 used on
+ input line 115.
+(luatex.def)             Requested size: 455.24411pt x 290.0226pt.
+<./svg-inkscape/CF04-syndb_svg-tex.pdf, id=196, page=26, 565.45268pt x 360.2260
+6pt>
+File: ./svg-inkscape/CF04-syndb_svg-tex.pdf Graphic file (type pdf)
+<use ./svg-inkscape/CF04-syndb_svg-tex.pdf, page 26>
+Package luatex.def Info: ./svg-inkscape/CF04-syndb_svg-tex.pdf , page26 used on
+ input line 117.
+(luatex.def)             Requested size: 455.24411pt x 290.0226pt.
+)
+Overfull \hbox (8.00874pt too wide) in paragraph at lines 405--411
+\TU/LatinModernRoman(0)/m/n/10.95 addressed bun-dles into differently-shaped cat
+-a-logs), em-bed-ded back-ends (Data-Fu-sion and SQLite),
+ []
+
+[6] [7<./svg-inkscape/CF04-syndb_svg-tex.pdf><./svg-inkscape/CF04-syndb_svg-tex.
+pdf><./svg-inkscape/CF04-syndb_svg-tex.pdf><./svg-inkscape/CF04-syndb_svg-tex.pd
+f><./svg-inkscape/CF04-syndb_svg-tex.pdf><./svg-inkscape/CF04-syndb_svg-tex.pdf>
+<./svg-inkscape/CF04-syndb_svg-tex.pdf><./svg-inkscape/CF04-syndb_svg-tex.pdf><.
+/svg-inkscape/CF04-syndb_svg-tex.pdf><./svg-inkscape/CF04-syndb_svg-tex.pdf><./s
+vg-inkscape/CF04-syndb_svg-tex.pdf><./svg-inkscape/CF04-syndb_svg-tex.pdf><./svg
+-inkscape/CF04-syndb_svg-tex.pdf><./svg-inkscape/CF04-syndb_svg-tex.pdf><./svg-i
+nkscape/CF04-syndb_svg-tex.pdf><./svg-inkscape/CF04-syndb_svg-tex.pdf><./svg-ink
+scape/CF04-syndb_svg-tex.pdf><./svg-inkscape/CF04-syndb_svg-tex.pdf><./svg-inksc
+ape/CF04-syndb_svg-tex.pdf><./svg-inkscape/CF04-syndb_svg-tex.pdf><./svg-inkscap
+e/CF04-syndb_svg-tex.pdf><./svg-inkscape/CF04-syndb_svg-tex.pdf><./svg-inkscape/
+CF04-syndb_svg-tex.pdf><./svg-inkscape/CF04-syndb_svg-tex.pdf><./svg-inkscape/CF
+04-syndb_svg-tex.pdf><./svg-inkscape/CF04-syndb_svg-tex.pdf>]
+(./manuscript.aux)
+ ***********
+LaTeX2e <2025-11-01>
+L3 programming layer <2026-01-19>
+ ***********
+Package rerunfilecheck Info: File `manuscript.out' has not changed.
+(rerunfilecheck)             Checksum: D896BCD56192942EE2EF22521D7B5306;3103.
+)
+
+Here is how much of LuaTeX's memory you used:
+ 25045 strings out of 476076
+ 125009,953878 words of node,token memory allocated
+ 540 words of node memory still in use:
+   6 hlist, 2 vlist, 2 rule, 2 glue, 4 kern, 1 glyph, 9 attribute, 59 glue_spec,
+ 9 attribute_list, 2 write, 1 pdf_action nodes
+   avail lists: 2:1432,3:364,4:164,5:611,6:40,7:11447,8:39,9:1146,10:10,11:948
+ 46618 multiletter control sequences out of 65536+600000
+ 101 fonts using 9080463 bytes
+ 102i,14n,101p,621b,583s stack positions out of 10000i,1000n,20000p,200000b,200000s
+</nix/store/dwx0cnswr5fb44f1126kyrvkxrk5i99f-texlive-combined-full-2025-final-te
+xmfdist/fonts/opentype/public/lm/lmroman12-bold.otf></nix/store/dwx0cnswr5fb44f1
+126kyrvkxrk5i99f-texlive-combined-full-2025-final-texmfdist/fonts/opentype/publi
+c/lm/lmmono10-regular.otf></nix/store/dwx0cnswr5fb44f1126kyrvkxrk5i99f-texlive-c
+ombined-full-2025-final-texmfdist/fonts/opentype/public/lm/lmroman10-italic.otf>
+</nix/store/swxn2kgfg47a8r0igh45r51c7x3mk92s-lm-2.005-tex/fonts/opentype/public/
+lm/lmroman10-regular.otf></nix/store/swxn2kgfg47a8r0igh45r51c7x3mk92s-lm-2.005-t
+ex/fonts/opentype/public/lm/lmroman10-bold.otf></nix/store/asajslkxmwv130p2ais12
+8dfxhll7963-texlive-combined-2025-texmfdist/fonts/opentype/public/lm/lmmono12-re
+gular.otf></nix/store/dwx0cnswr5fb44f1126kyrvkxrk5i99f-texlive-combined-full-202
+5-final-texmfdist/fonts/opentype/public/lm/lmroman12-regular.otf></nix/store/dwx
+0cnswr5fb44f1126kyrvkxrk5i99f-texlive-combined-full-2025-final-texmfdist/fonts/o
+pentype/public/lm/lmroman17-regular.otf></nix/store/dwx0cnswr5fb44f1126kyrvkxrk5
+i99f-texlive-combined-full-2025-final-texmfdist/fonts/type1/public/amsfonts/cm/c
+mmi10.pfb></nix/store/dwx0cnswr5fb44f1126kyrvkxrk5i99f-texlive-combined-full-202
+5-final-texmfdist/fonts/type1/public/amsfonts/cm/cmr8.pfb>
+Output written on manuscript.pdf (7 pages, 121651 bytes).
+
+PDF statistics: 273 PDF objects out of 1000 (max. 8388607)
+ 170 compressed objects within 2 object streams
+ 37 named destinations out of 1000 (max. 131072)
+ 184 words of extra memory for PDF output out of 10000 (max. 100000000)
+

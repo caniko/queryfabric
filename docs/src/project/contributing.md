@@ -113,11 +113,15 @@ See the [Crate Catalog](../integration/crate-catalog.md) for the full list.
 
 ## Release Process
 
-Release follows a staged script at `scripts/release.sh`:
+Releases use `simit` for automated version bumps, changelog management,
+tagging, and publish order planning:
 
 1. Run `scripts/release.sh check` — verifies fmt, clippy, test, doc, package.
-2. Run `scripts/release.sh publish` — publishes crates in dependency order.
-3. Push the tag created by the script.
+2. Run `simit release plan --workspace` — previews the dependency-ordered
+   publish plan.
+3. Run `simit release patch --workspace -m "Prepare release v0.x.y"` — bumps
+   versions, promotes CHANGELOG, commits, and creates a signed tag.
+4. Push the tag with `git push --follow-tags` — CI publishes crates.
 
 The release is driven by the `main` maintainer. External contributors do not
 need to worry about this step.

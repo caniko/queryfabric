@@ -1,3 +1,0 @@
-[ci]
-runner = "atlas"
-workspace = true

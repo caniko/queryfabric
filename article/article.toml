@@ -1,0 +1,29 @@
+
+[article]
+name = "queryfabric-article"
+tex-main = "manuscript.tex"
+
+[figures]
+registry = "figures.toml"
+layouts = "figures/layouts"
+panels = "figures/panels"
+composites = "figures/composites"
+
+[tools]
+figurefit = "figurefit"
+python = "uv run python"
+latexmk = "latexmk"
+lualatex = "lualatex"
+
+[sizing]
+page-width-mm = 210
+page-height-mm = 297
+margin-mm = 25
+font-main = "Latin Modern Roman"
+font-sans = "Latin Modern Sans"
+font-mono = "Latin Modern Mono"
+font-small = 7.0
+font-base = 8.0
+font-label-axis = 9.0
+font-big = 10.0
+font-panel = 14.0

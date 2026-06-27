@@ -1,0 +1,19 @@
+[architecture]
+number = 1
+module = "figures.fig1_architecture"
+layout = "CF01"
+
+[portability]
+number = 2
+module = "figures.fig2_portability"
+layout = "CF02"
+
+[applications]
+number = 3
+module = "figures.fig3_applications"
+layout = "CF03"
+
+[syndb]
+number = 4
+module = "figures.fig4_syndb"
+layout = "CF04"

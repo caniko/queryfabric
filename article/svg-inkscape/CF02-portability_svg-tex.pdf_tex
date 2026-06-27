@@ -1,0 +1,110 @@
+%% Creator: Inkscape 1.4.4 (dcaf3e7d9e, 2026-05-05), www.inkscape.org
+%% PDF/EPS/PS + LaTeX output extension by Johan Engelen, 2010
+%% Accompanies image file 'CF02-portability_svg-tex.pdf' (pdf, eps, ps)
+%%
+%% To include the image in your LaTeX document, write
+%%   \input{<filename>.pdf_tex}
+%%  instead of
+%%   \includegraphics{<filename>.pdf}
+%% To scale the image, write
+%%   \def\svgwidth{<desired width>}
+%%   \input{<filename>.pdf_tex}
+%%  instead of
+%%   \includegraphics[width=<desired width>]{<filename>.pdf}
+%%
+%% Images with a different path to the parent latex file can
+%% be accessed with the `import' package (which may need to be
+%% installed) using
+%%   \usepackage{import}
+%% in the preamble, and then including the image with
+%%   \import{<path to file>}{<filename>.pdf_tex}
+%% Alternatively, one can specify
+%%   \graphicspath{{<path to file>/}}
+%% 
+%% For more information, please see info/svg-inkscape on CTAN:
+%%   http://tug.ctan.org/tex-archive/info/svg-inkscape
+%%
+\begingroup%
+  \makeatletter%
+  \providecommand\color[2][]{%
+    \errmessage{(Inkscape) Color is used for the text in Inkscape, but the package 'color.sty' is not loaded}%
+    \renewcommand\color[2][]{}%
+  }%
+  \providecommand\transparent[1]{%
+    \errmessage{(Inkscape) Transparency is used (non-zero) for the text in Inkscape, but the package 'transparent.sty' is not loaded}%
+    \renewcommand\transparent[1]{}%
+  }%
+  \providecommand\rotatebox[2]{#2}%
+  \newcommand*\fsize{\dimexpr\f@size pt\relax}%
+  \newcommand*\lineheight[1]{\fontsize{\fsize}{#1\fsize}\selectfont}%
+  \ifx\svgwidth\undefined%
+    \setlength{\unitlength}{486.49398684bp}%
+    \ifx\svgscale\undefined%
+      \relax%
+    \else%
+      \setlength{\unitlength}{\unitlength * \real{\svgscale}}%
+    \fi%
+  \else%
+    \setlength{\unitlength}{\svgwidth}%
+  \fi%
+  \global\let\svgwidth\undefined%
+  \global\let\svgscale\undefined%
+  \makeatother%
+  \begin{picture}(1,0.41078107)%
+    \lineheight{1}%
+    \setlength\tabcolsep{0pt}%
+    \put(0.71833907,0.384561){\color[rgb]{0.17254902,0.24313725,0.31372549}\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}\textbf{A Capability Matrix}\end{tabular}}}}%
+    \put(0.39204493,0.33794755){\color[rgb]{0.17254902,0.24313725,0.31372549}\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}\textbf{ClickHouse}\end{tabular}}}}%
+    \put(0.55519202,0.33794755){\color[rgb]{0.17254902,0.24313725,0.31372549}\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}\textbf{PostgreSQL}\end{tabular}}}}%
+    \put(0.30755804,0.30444413){\color[rgb]{0.17254902,0.24313725,0.31372549}\makebox(0,0)[rt]{\lineheight{1.25}\smash{\begin{tabular}[t]{r}Aggregates\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=1]{CF02-portability_svg-tex.pdf}}%
+    \put(0.39204493,0.30444413){\color[rgb]{0.10196078,0.36078431,0.10196078}\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}\textbf{[X]}\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=2]{CF02-portability_svg-tex.pdf}}%
+    \put(0.55519202,0.30444413){\color[rgb]{0.10196078,0.36078431,0.10196078}\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}\textbf{[X]}\end{tabular}}}}%
+    \put(0.30755804,0.27239738){\color[rgb]{0.17254902,0.24313725,0.31372549}\makebox(0,0)[rt]{\lineheight{1.25}\smash{\begin{tabular}[t]{r}CTEs\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=3]{CF02-portability_svg-tex.pdf}}%
+    \put(0.39204493,0.27239738){\color[rgb]{0.10196078,0.36078431,0.10196078}\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}\textbf{[X]}\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=4]{CF02-portability_svg-tex.pdf}}%
+    \put(0.55519202,0.27239738){\color[rgb]{0.10196078,0.36078431,0.10196078}\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}\textbf{[X]}\end{tabular}}}}%
+    \put(0.30755804,0.24035063){\color[rgb]{0.17254902,0.24313725,0.31372549}\makebox(0,0)[rt]{\lineheight{1.25}\smash{\begin{tabular}[t]{r}Joins\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=5]{CF02-portability_svg-tex.pdf}}%
+    \put(0.39204493,0.24035063){\color[rgb]{0.10196078,0.36078431,0.10196078}\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}\textbf{[X]}\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=6]{CF02-portability_svg-tex.pdf}}%
+    \put(0.55519202,0.24035063){\color[rgb]{0.10196078,0.36078431,0.10196078}\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}\textbf{[X]}\end{tabular}}}}%
+    \put(0.30755804,0.20830388){\color[rgb]{0.17254902,0.24313725,0.31372549}\makebox(0,0)[rt]{\lineheight{1.25}\smash{\begin{tabular}[t]{r}Windows\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=7]{CF02-portability_svg-tex.pdf}}%
+    \put(0.39204493,0.20830388){\color[rgb]{0.10196078,0.36078431,0.10196078}\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}\textbf{[X]}\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=8]{CF02-portability_svg-tex.pdf}}%
+    \put(0.55519202,0.20830388){\color[rgb]{0.10196078,0.36078431,0.10196078}\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}\textbf{[X]}\end{tabular}}}}%
+    \put(0.30755804,0.17625713){\color[rgb]{0.17254902,0.24313725,0.31372549}\makebox(0,0)[rt]{\lineheight{1.25}\smash{\begin{tabular}[t]{r}Set Ops\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=9]{CF02-portability_svg-tex.pdf}}%
+    \put(0.39204493,0.17625713){\color[rgb]{0.10196078,0.36078431,0.10196078}\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}\textbf{[X]}\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=10]{CF02-portability_svg-tex.pdf}}%
+    \put(0.55519202,0.17625713){\color[rgb]{0.10196078,0.36078431,0.10196078}\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}\textbf{[X]}\end{tabular}}}}%
+    \put(0.30755804,0.14421038){\color[rgb]{0.17254902,0.24313725,0.31372549}\makebox(0,0)[rt]{\lineheight{1.25}\smash{\begin{tabular}[t]{r}Subqueries\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=11]{CF02-portability_svg-tex.pdf}}%
+    \put(0.39204493,0.14421038){\color[rgb]{0.10196078,0.36078431,0.10196078}\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}\textbf{[X]}\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=12]{CF02-portability_svg-tex.pdf}}%
+    \put(0.55519202,0.14421038){\color[rgb]{0.10196078,0.36078431,0.10196078}\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}\textbf{[X]}\end{tabular}}}}%
+    \put(0.30755804,0.11216363){\color[rgb]{0.17254902,0.24313725,0.31372549}\makebox(0,0)[rt]{\lineheight{1.25}\smash{\begin{tabular}[t]{r}Limit/Offset\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=13]{CF02-portability_svg-tex.pdf}}%
+    \put(0.39204493,0.11216363){\color[rgb]{0.10196078,0.36078431,0.10196078}\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}\textbf{[X]}\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=14]{CF02-portability_svg-tex.pdf}}%
+    \put(0.55519202,0.11216363){\color[rgb]{0.10196078,0.36078431,0.10196078}\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}\textbf{[X]}\end{tabular}}}}%
+    \put(0.30755804,0.08011688){\color[rgb]{0.17254902,0.24313725,0.31372549}\makebox(0,0)[rt]{\lineheight{1.25}\smash{\begin{tabular}[t]{r}Namespaced Funcs\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=15]{CF02-portability_svg-tex.pdf}}%
+    \put(0.39204493,0.08011688){\color[rgb]{0.10196078,0.36078431,0.10196078}\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}\textbf{[X]}\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=16]{CF02-portability_svg-tex.pdf}}%
+    \put(0.55519202,0.08011688){\color[rgb]{0.54509804,0,0}\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}\textbf{[ ]}\end{tabular}}}}%
+    \put(0.30755804,0.04807013){\color[rgb]{0.17254902,0.24313725,0.31372549}\makebox(0,0)[rt]{\lineheight{1.25}\smash{\begin{tabular}[t]{r}Approx Agg\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=17]{CF02-portability_svg-tex.pdf}}%
+    \put(0.39204493,0.04807013){\color[rgb]{0.10196078,0.36078431,0.10196078}\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}\textbf{[X]}\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=18]{CF02-portability_svg-tex.pdf}}%
+    \put(0.55519202,0.04807013){\color[rgb]{0.54509804,0,0}\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}\textbf{[ ]}\end{tabular}}}}%
+    \put(0.30755804,0.01602338){\color[rgb]{0.17254902,0.24313725,0.31372549}\makebox(0,0)[rt]{\lineheight{1.25}\smash{\begin{tabular}[t]{r}Isolated Exec\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=19]{CF02-portability_svg-tex.pdf}}%
+    \put(0.39204493,0.01602338){\color[rgb]{0.10196078,0.36078431,0.10196078}\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}\textbf{[X]}\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=20]{CF02-portability_svg-tex.pdf}}%
+    \put(0.55519202,0.01602338){\color[rgb]{0.54509804,0,0}\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}\textbf{[ ]}\end{tabular}}}}%
+  \end{picture}%
+\endgroup%

@@ -3,10 +3,10 @@ use std::sync::Arc;
 use async_trait::async_trait;
 use queryfabric_cluster::{DhtNaming, HealthMonitorActor, HubRegistryState, ResetCircuitBreaker};
 use queryfabric_contract::{ClusterProbe, NodeId, ResourceRef};
-use thespis::Actor;
-use thespis::actor::ActorRef;
-use thespis::error::Infallible;
-use thespis::message::{Context, Message};
+use piying::Actor;
+use piying::actor::ActorRef;
+use piying::error::Infallible;
+use piying::message::{Context, Message};
 use tracing::{info, warn};
 
 use crate::host::FederationHost;

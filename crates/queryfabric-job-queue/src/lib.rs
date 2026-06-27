@@ -1,4 +1,4 @@
-//! Generic thespis-backed job queue orchestration.
+//! Generic piying-backed job queue orchestration.
 //!
 //! This crate owns reusable queue behavior: priority dispatch, cancellation,
 //! startup recovery, result cleanup, storage/executor boundaries, and a small
@@ -35,7 +35,7 @@ mod tests {
 
     use async_trait::async_trait;
     use chrono::Utc;
-    use thespis::actor::ActorRef;
+    use piying::actor::ActorRef;
     use tokio::sync::{Mutex, Semaphore};
     use uuid::Uuid;
 

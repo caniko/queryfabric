@@ -20,7 +20,7 @@ use queryfabric_federation::{
     ResourceAnnouncement, ResourceLocalityIndex, SchemaMigration, SyncAllSchemas, TransportProbe,
     get_healthy_flight_endpoint, resolve_locality,
 };
-use thespis::actor::Spawn;
+use piying::actor::Spawn;
 use uuid::Uuid;
 
 const NAMING: DhtNaming = DhtNaming::new("fabric-cluster", "fabric-hub");

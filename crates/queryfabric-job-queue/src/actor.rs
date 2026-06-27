@@ -8,10 +8,10 @@ use std::time::Duration;
 
 use crate::priority::{CancelOutcome, PriorityRunner};
 use futures::FutureExt;
-use thespis::Actor;
-use thespis::actor::{ActorRef, Spawn};
-use thespis::error::Infallible;
-use thespis::message::{Context, Message};
+use piying::Actor;
+use piying::actor::{ActorRef, Spawn};
+use piying::error::Infallible;
+use piying::message::{Context, Message};
 use tokio::sync::Semaphore;
 use tracing::{debug, info, warn};
 use uuid::Uuid;
@@ -72,7 +72,7 @@ pub struct JobQueueArgs<S, E, R, O = NoopObserver> {
     pub observer: O,
 }
 
-/// Generic thespis actor that manages queued jobs.
+/// Generic piying actor that manages queued jobs.
 pub struct JobQueueActor<K, P, S, E, R, U = Uuid, O = NoopObserver>
 where
     K: Clone + Eq + Display + Send + Sync + 'static,

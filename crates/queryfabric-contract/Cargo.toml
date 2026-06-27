@@ -2,7 +2,8 @@
 name = "queryfabric-contract"
 description = "Domain-neutral contract traits for resource identity, provenance, access control, and statistics injection"
 version.workspace = true
-publish = false
+# Published: part of the public API surface, depended on by queryfabric-catalog
+publish = true
 edition.workspace = true
 license.workspace = true
 repository.workspace = true

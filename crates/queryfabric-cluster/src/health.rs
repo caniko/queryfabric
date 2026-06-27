@@ -5,7 +5,7 @@ use chrono::{DateTime, Utc};
 use papaya::HashMap as PapayaMap;
 use queryfabric_contract::{Health, NodeId};
 use serde::{Deserialize, Serialize};
-use thespis::Reply;
+use piying::Reply;
 
 /// Cached cluster health state.
 pub type HealthCache<C = NodeId> = Arc<PapayaMap<C, Health>>;

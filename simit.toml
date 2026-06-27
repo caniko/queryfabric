@@ -1,0 +1,6 @@
+[ci]
+runner = "atlas"
+workspace = true
+with_audit = true
+with_deny = true
+with_docs = true

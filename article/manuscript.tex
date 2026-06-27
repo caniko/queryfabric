@@ -1,0 +1,412 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage{fontspec}
+\usepackage{tikz}
+\usepackage{svg}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{booktabs}
+\usepackage[margin=25mm]{geometry}
+\usepackage{hyperref}
+\usepackage{setspace}
+
+\input{figure_sizes.tex}
+\input{tikz/fonts.tex}
+\input{tikz/palette.tex}
+
+\setmainfont{Latin Modern Roman}
+\setsansfont{Latin Modern Sans}
+\setmonofont{Latin Modern Mono}
+
+\title{QueryFabric: A Portable Analytical Query Compiler\\for Scientific Platforms}
+\author{Can H. Tartanoglu\\\texttt{codeberg.org/caniko/queryfabric}}
+\date{}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+Scientific data platforms increasingly span multiple storage backends, yet their
+query surfaces remain tightly coupled to individual engines---forcing operators
+to choose between portability and backend-specific performance.
+QueryFabric is an open-source Rust library that decouples query authoring from
+backend execution through a four-stage compiler pipeline: \textit{parse},
+\textit{bind}, \textit{analyze}, and \textit{emit}.
+It provides a verified portable SQL subset, pre-emission capability analysis
+with structured diagnostics, provenance receipts for every compiled artifact,
+and a data-sovereignty layer covering GDPR-aligned access, content-addressed
+export bundles, and DOI minting.
+We describe QueryFabric's architecture, its extensible backend adapter model
+(ClickHouse, PostgreSQL, and custom targets), and its role as the federation
+backbone for downstream projects.
+A production deployment---SynDB, a federated microscopy platform on the
+NRP Nautilus Kubernetes cluster---demonstrates real-world query latency
+(p50~1.9--3.6~s on a Kubernetes cluster) and a verified data-minimising
+federation pipeline.
+QueryFabric is available at \url{https://codeberg.org/caniko/queryfabric}
+under the Apache License, Version~2.0.
+\end{abstract}
+
+\section{Introduction}
+\label{sec:introduction}
+
+Scientific data platforms face a fundamental tension: users need expressive,
+backend-independent query capabilities, while operators rely on specialised
+storage engines for performance.
+A platform that starts with PostgreSQL may later adopt ClickHouse for
+columnar analytics, DuckDB for embedded workloads, or a federated topology
+spanning multiple sites.
+Without a compiler boundary between query text and backend execution, each new
+backend duplicates parsing, validation, and emission logic---or, worse, couples
+the query surface to a single engine's dialect.
+
+QueryFabric addresses this gap with a portable analytical query compiler
+designed as a backbone for data federations.
+It sits between the query surface and the execution layer, providing a
+four-stage pipeline---\texttt{parse}, \texttt{bind\_and\_validate},
+\texttt{analyze}, and \texttt{emit}---that converts text queries into
+typed, backend-specific artifacts with full provenance.
+By design, QueryFabric stops short of execution, authentication, routing,
+and orchestration; those responsibilities belong to the host platform.
+This boundary keeps the compiler small, auditable, and embeddable.
+
+The project originated from the need to decouple a scientific query
+dialect (SyQL) from its ClickHouse and PostgreSQL backends in a federated
+microscopy data platform deployed on the NRP Nautilus Kubernetes cluster.
+It has since been extracted into a standalone library with 35~internal
+crates, a facade crate that exposes the public API, Python bindings
+via PyO3, and a hardened NixOS deployment module.
+
+This paper makes the following contributions:
+\begin{enumerate}
+  \item The architecture of a portable four-stage query compiler with
+        capability analysis and provenance receipts.
+  \item A verified portable SQL subset with machine-readable backend
+        capability manifests.
+  \item A data-sovereignty and federation toolkit for self-hosted
+        and multi-instance deployments.
+  \item A production case study---SynDB---demonstrating real-world
+        query performance and a verified federation pipeline.
+\end{enumerate}
+
+\section{Architecture}
+\label{sec:architecture}
+
+QueryFabric is organised around four explicit compilation stages that form
+a semantic boundary between raw query text and executable backend artifacts.
+Figure~\ref{fig:architecture} shows the pipeline and its Rust API.
+
+\subsection{Parsed Query}
+\label{sec:parse}
+
+\texttt{Dialect::parse(\&str)} produces a \texttt{ParsedQuery}.
+Parsing handles syntax validation, source-span tracking, and dialect-specific
+metadata such as SyQL's \texttt{SCOPE} and \texttt{DOWNLOAD} directives,
+which are preserved as opaque execution hints rather than relational operators.
+The generic SQL dialect uses \texttt{sqlparser} internally; SyQL and custom
+dialects extend the same trait.
+
+At this stage the query is unresolved: column names, function signatures,
+and data types have not been validated against a catalog.
+
+\subsection{Bound Query}
+\label{sec:bind}
+
+\texttt{bind\_and\_validate(parsed, catalog, params)} produces a
+\texttt{BoundQuery}.
+This is where QueryFabric commits to meaning.
+The catalog---a neutral trait-based interface---resolves relation names,
+column types, function signatures, and parameter placeholders.
+Coercions and result shapes are checked here; if a query fails because of
+schema mismatches, missing functions, or type errors, it fails at binding
+with structured diagnostics.
+
+The catalog contract is deliberately generic.
+Hosts provide relation schemas (\texttt{RelationSchema}), function signatures,
+and a snapshot identifier for provenance tracking.
+A \texttt{MemoryCatalog} is provided for testing and small deployments;
+production hosts implement the trait against their own schema store.
+
+\subsection{Backend Analysis}
+\label{sec:analysis}
+
+\texttt{analyze(bound, adapter, catalog)} produces \texttt{BackendAnalysis}.
+Analysis is intentionally separate from emission: it lets a host ask each
+candidate backend whether it supports a given query before choosing where to
+run it.
+
+Each backend adapter declares a \texttt{CapabilitySet}---the set of SQL
+features it supports---and analysis checks every capability requirement
+that binding computed.
+The result is a structured diagnostic with stable codes, severity levels,
+remediation hints, and backend context.
+The difference between ``backend unsupported'' and ``PostgreSQL rejects this
+query because it requires a ClickHouse namespaced function'' is a concrete
+engineering improvement for multi-backend hosts.
+
+\subsection{Emission}
+\label{sec:emit}
+
+\texttt{emit(bound, adapter, catalog)} produces \texttt{EmitArtifact}.
+For the current release, emission produces SQL text for ClickHouse and
+PostgreSQL.
+Each artifact carries a \texttt{ProvenanceReceipt} recording the compiler
+version, catalog snapshot identifier, and dialect, so downstream systems
+can answer ``where did this SQL come from?'' without out-of-band metadata.
+
+The artifact seam is kept open for non-SQL targets: the same \texttt{BoundQuery}
+that emits ClickHouse SQL today could emit a DataFusion logical plan or a
+Substrait message tomorrow, without changing the facade.
+
+\subsection{Host Boundary}
+\label{sec:boundary}
+
+A deliberate design principle (documented in the project's decision log as
+D003) keeps host execution outside QueryFabric.
+The library does not execute queries, manage authentication, or own job
+orchestration.
+This boundary is not a gap; it is the feature that keeps the core small
+(\textasciitilde17~MB release binary, \textasciitilde63~MB Nix closure),
+simple to audit, and trivial to embed in platforms with existing auth,
+routing, and scheduling layers.
+
+\begin{figure}[ht]
+  \centering
+  \includesvg[width=\linewidth]{figures/composites/CF01-architecture.svg}
+  \caption{\textbf{Compiler pipeline architecture.}
+    \textbf{(A)} The four-stage pipeline: \texttt{parse} converts dialect text
+    into a \texttt{ParsedQuery}; \texttt{bind\_and\_validate} resolves names
+    and types through a catalog into a \texttt{BoundQuery}; \texttt{analyze}
+    checks backend support via capability manifests; \texttt{emit} produces
+    backend-specific SQL with provenance receipts.
+    \textbf{(B)} Rust API example showing the pipeline in use.}
+  \label{fig:architecture}
+\end{figure}
+
+\section{Portability and Conformance}
+\label{sec:portability}
+
+Portability in QueryFabric is defined by a machine-readable capability model
+and a verified conformance corpus, not by what the parser happens to accept.
+
+\subsection{Verified Portable Subset}
+
+The first public release targets a documented, test-backed subset of SQL:
+\begin{itemize}
+  \item \texttt{SELECT}, \texttt{WHERE}, \texttt{GROUP BY},
+        \texttt{HAVING}, \texttt{ORDER BY}, \texttt{LIMIT},
+        \texttt{OFFSET}, \texttt{DISTINCT}
+  \item \texttt{CASE} expressions
+  \item Typed positional (\texttt{\$1}) and named (\texttt{:name}) parameters
+  \item All join types: \texttt{INNER}, \texttt{LEFT}, \texttt{RIGHT},
+        \texttt{FULL}, \texttt{CROSS}
+  \item Non-recursive CTEs (\texttt{WITH})
+  \item Derived subqueries in \texttt{FROM}
+  \item Scalar subqueries and \texttt{IN} subqueries (where validated)
+  \item \texttt{UNION ALL}
+  \item Common scalar and aggregate functions through the function registry
+  \item Window functions: \texttt{RANK}, \texttt{DENSE\_RANK},
+        \texttt{ROW\_NUMBER}, \texttt{LAG}, \texttt{LEAD},
+        \texttt{FIRST\_VALUE}, \texttt{LAST\_VALUE}
+\end{itemize}
+
+This subset is enforced by 28~conformance test cases in the portable-subset
+corpus, each specifying expected schemas and backend support status.
+
+\subsection{Backend Capability Manifests}
+
+Each backend adapter declares its capabilities in a machine-readable JSON
+manifest.
+Both ClickHouse and PostgreSQL currently support CTEs, derived tables, joins,
+window functions, set operations, aggregates, scalar and IN subqueries,
+limit/offset, and \texttt{EXPLAIN}.
+ClickHouse additionally supports namespaced functions, approximate aggregates,
+isolated execution via Kubernetes, and UUID-to-string conversion in Arrow
+output.
+
+When a query requires a capability that a backend does not support, analysis
+produces a structured diagnostic before emission---catching incompatibilities
+at compile time rather than at execution time.
+
+\begin{figure}[ht]
+  \centering
+  \includesvg[width=\linewidth]{figures/composites/CF02-portability.svg}
+  \caption{\textbf{Portability and capabilities.}
+    \textbf{(A)} Capability matrix showing supported features for ClickHouse
+    and PostgreSQL backends.
+    \textbf{(B)} Conformance test results for the 28 portable-subset cases,
+    grouped by feature category.}
+  \label{fig:portability}
+\end{figure}
+
+\section{Applications as a Federation Backbone}
+\label{sec:applications}
+
+QueryFabric's architecture supports several integration patterns beyond
+simple single-backend compilation.
+
+\subsection{Python Bindings}
+
+Python bindings via PyO3 expose the same four-stage API to data scientists.
+The \texttt{queryfabric} Python package mirrors the Rust facade:
+\texttt{parse\_sql}~and~\texttt{parse\_syql} produce parsed queries;
+\texttt{bind\_and\_validate} resolves them against a \texttt{MemoryCatalog};
+\texttt{analyze\_clickhouse}~and~\texttt{analyze\_postgres} check backend
+support; and \texttt{emit\_clickhouse\_sql}~and~\texttt{emit\_postgres\_sql}
+produce executable artifacts.
+This enables server-side validation of user-written SyQL before execution.
+
+\subsection{Custom Backend Adapters}
+
+The \texttt{BackendAdapter} trait defines the contract for new backends:
+\begin{verbatim}
+trait BackendAdapter {
+    fn name(&self) -> &'static str;
+    fn capabilities(&self) -> CapabilitySet;
+    fn analyze(&self, query: &BoundQuery,
+               catalog: &dyn Catalog) -> BackendAnalysis;
+    fn emit(&self, query: &BoundQuery,
+            catalog: &dyn Catalog) -> Result<EmitArtifact>;
+}
+\end{verbatim}
+
+A DuckDB adapter, for example, requires roughly 50~lines of Rust:
+declare capabilities (aggregates, joins, CTEs, windows, limit/offset),
+delegate analysis to the generic capability checker, and reuse the generic
+SQL emitter with \texttt{SqlBackend::Other("duckdb")}.
+The host gains parsing, binding, capability analysis, provenance, and
+parameter validation for free.
+
+\subsection{Data Sovereignty Layer}
+
+Beyond compilation, QueryFabric provides a data-sovereignty toolkit for
+self-hosted services:
+\begin{itemize}
+  \item \texttt{queryfabric-access}: GDPR~Art.~15/16/17 traits for access,
+        rectification, and erasure over generic resources.
+  \item \texttt{queryfabric-portability}: content-addressed export bundles
+        with BLAKE3 content hashing, JSON-LD manifests, and DOI minting
+        via DataCite.
+  \item \texttt{queryfabric-tenancy}: multi-tenant accounts, collections,
+        and groups with isolation outside the compiler core.
+\end{itemize}
+
+\subsection{Federation Substrate}
+
+The federation crate set (\texttt{queryfabric-cluster} and
+\texttt{queryfabric-federation}) provides a libp2p-based substrate for
+multi-node deployments.
+It includes hub/cluster actor models, a DHT-based node registry, health
+monitoring with a wire-stable vocabulary (\texttt{healthy},
+\texttt{degraded}, \texttt{unreachable}), and a schema-sync protocol.
+The hub decomposes aggregate queries (\texttt{SUM}, \texttt{COUNT},
+\texttt{AVG}, \texttt{MIN}, \texttt{MAX}) into scatter-gather plans:
+each node computes local summaries; the hub merges them using parallel
+algorithms (e.g., Welford's method for variance).
+This enables data-minimising meta-analysis where raw data never leaves
+individual clusters.
+
+\subsection{NixOS Deployment}
+
+QueryFabric ships a hardened NixOS module with systemd credentials for
+secrets, a multi-instance option, and an end-to-end VM test.
+The total deployment footprint is \textasciitilde17~MB for the release
+binary and \textasciitilde63~MB for the Nix closure; idle RSS is
+\textasciitilde2.9~MiB, and peak under load is \textasciitilde14~MiB.
+
+\begin{figure}[ht]
+  \centering
+  \includesvg[width=\linewidth]{figures/composites/CF03-applications.svg}
+  \caption{\textbf{Applications and integration patterns.}
+    \textbf{(A)} Python embedding: data scientists write SyQL, the server
+    validates it through QueryFabric's pipeline, then emits and executes.
+    \textbf{(B)} Custom adapter pattern: implement \texttt{BackendAdapter}
+    for any backend (DuckDB shown). \textbf{(C)} Data sovereignty workflow:
+    GDPR request triggers access-policy evaluation, resource collection,
+    content-addressed bundle assembly, and optional DOI minting.}
+  \label{fig:applications}
+\end{figure}
+
+\section{Case Study: SynDB}
+\label{sec:syndb}
+
+SynDB is a downstream project that uses QueryFabric as its query compiler
+and federation backbone.
+It is a federated neuroanatomical data platform running on the NRP Nautilus
+Kubernetes cluster with 5~shard regions across US partner institutions,
+ingesting connectomics datasets including Hemibrain, FlyWire, MICrONS,
+and MANC.
+
+\subsection{Architecture}
+
+SynDB combines PostgreSQL for metadata, user accounts, and dataset
+annotations with ClickHouse for columnar neuroanatomical data.
+QueryFabric sits as the semantic compiler boundary: SyQL---a dialect
+extending SQL with \texttt{SCOPE} directives for federation and
+\texttt{DOWNLOAD} for data export---is parsed, bound against a facility
+catalog, analyzed for ClickHouse and PostgreSQL support, and emitted
+to the appropriate backend.
+A single query compiles once and executes against either backend.
+
+\subsection{Live Query Performance}
+
+To characterise production query performance, a cluster-resident benchmark
+controller ran 160~direct-query measurements against the Hemibrain dataset
+on a Kubernetes cluster.
+Four query templates were tested across cold and warm cache states:
+\begin{itemize}
+  \item \textbf{Neuron scan 1K}: p50~2,154~ms (cold), 2,079~ms (warm)
+  \item \textbf{Primary-key lookup}: p50~1,869~ms (cold), 1,910~ms (warm)
+  \item \textbf{Synapse scan 1K}: p50~2,043~ms (cold), 2,038~ms (warm)
+  \item \textbf{Neuron wide 10K}: p50~2,941~ms (cold), 3,623~ms (warm)
+\end{itemize}
+p95 latencies ranged from 2,024~ms (primary-key lookup, cold) to
+12,329~ms (neuron wide 10K, warm).
+All analytics API endpoints backed by materialised views achieved sub-10~ms
+p50 latency.
+
+\subsection{Federated Meta-Analysis}
+
+SynDB's federation pipeline --- built on QueryFabric's federation
+substrate --- implements a two-phase data-minimising meta-analysis.
+Phase~1 computes summary statistics ($N$, mean, std) locally at each
+cluster via ClickHouse's \texttt{remoteSecure()}.
+Phase~2 combines these summaries at the hub using Welford's parallel
+variance algorithm, computing effect sizes (Cohen's~d, Hedges'~g)
+and heterogeneity metrics (Cochran's~Q, $I^2$) without transferring
+individual-level data.
+Validation against centralised production-cache partitions confirmed
+that summary-only and full-data estimates agree to numerical precision.
+
+\begin{figure}[ht]
+  \centering
+  \includesvg[width=\linewidth]{figures/composites/CF04-syndb.svg}
+  \caption{\textbf{SynDB case study.}
+    \textbf{(A)} Simplified architecture: SynDB uses QueryFabric as the
+    compiler layer between its SyQL dialect and ClickHouse/PostgreSQL
+    backends, across 5~shard regions on NRP Nautilus.
+    \textbf{(B)} Live query latency summary from the Hemibrain production
+    cluster: p50 and p95 latencies for four query templates under cold
+    and warm cache states.}
+  \label{fig:syndb}
+\end{figure}
+
+\section{Conclusion}
+\label{sec:conclusion}
+
+QueryFabric is a portable analytical query compiler that decouples query
+authoring from backend execution through a four-stage pipeline with
+capability analysis, provenance receipts, and a data-sovereignty toolkit.
+Its verified portable SQL subset, extensible backend adapter model, and
+federation substrate make it suitable as a backbone for multi-backend
+and multi-instance scientific data platforms.
+
+The project is open-source under the Apache License, Version~2.0, at
+\url{https://codeberg.org/caniko/queryfabric}.
+Future work includes import-side portability (ingesting content-addressed
+bundles into differently-shaped catalogs), embedded backends (DataFusion
+and SQLite), and federation hardening (hub failover, NAT traversal,
+schema-sync conflict resolution).
+
+\end{document}

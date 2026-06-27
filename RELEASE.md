@@ -1,53 +1,52 @@
 # Release Process
 
-QueryFabric releases are performed manually from `trunk`. CI verifies the
-documented gates, but crates.io publication, tag pushes, and the Codeberg
-release are intentionally local, explicit steps.
+Releases use `simit` for version bumps, changelog management, tagging, and
+publish order planning. CI (`simit init ci`) runs per-crate gates on every push.
 
 ## Release Flow
 
 1. Update [`CHANGELOG.md`](CHANGELOG.md), [`COMPATIBILITY.md`](COMPATIBILITY.md),
    and [`MIGRATION.md`](MIGRATION.md) as needed.
+
 2. Run the staged local release gate:
 
    ```bash
+   nix flake check
    scripts/release.sh check
    ```
 
-3. Rehearse the current publishable step without pushing anything:
+3. Preview the dependency-ordered publish plan:
 
    ```bash
-   scripts/release.sh publish --version <x.y.z>
+   simit release plan --workspace
    ```
 
-   This non-executing rehearsal uses `cargo publish --dry-run --allow-dirty`
-   for the current staged step so local release prep can be validated before the
-   final commit is in place.
-
-4. Publish crates in dependency order from `trunk`:
+4. Bump versions, commit, and tag with a single command:
 
    ```bash
-   scripts/release.sh publish --version <x.y.z> --execute
+   simit release patch --workspace -m "Prepare release v0.2.1"
    ```
 
-5. Wait for crates.io propagation between crates. The publish script polls
-   crates.io visibility after each successful publish before moving to the next
-   crate.
-6. If a publish is interrupted, resume at the next staged step:
+   This runs local release checks, promotes the CHANGELOG, bumps all publishable
+   workspace crates, commits, and creates a signed annotated tag. Use `minor` or
+   `major` instead of `patch` for larger bumps. Use `--dry-run` to preview
+   without changing files.
+
+5. Push the release commit and tag:
 
    ```bash
-   scripts/release.sh publish --version <x.y.z> --from <crate> --execute
+   git push --follow-tags
    ```
 
-7. Create the local annotated tag:
+6. CI publishes crates to crates.io automatically when it detects the tag. If
+   automatic publish fails, publish manually:
 
    ```bash
-   scripts/release.sh tag --version <x.y.z>
+   simit release patch --workspace --no-tag --no-changelog
+   cargo publish -p <crate>
    ```
 
-8. Push `trunk`.
-9. Push the release tag.
-10. Create the Codeberg release from the finalized changelog entry.
+7. Create the Codeberg release from the finalized changelog entry.
 
 ## Staged Publish Constraint
 
@@ -55,14 +54,8 @@ The workspace cannot promise a single "dry-run all crates" path before
 publication. Dependent crates such as `queryfabric` cannot dry-run or publish
 cleanly until earlier crates are visible on crates.io for the same version.
 
-That is a real staged-publication constraint, not a repository bug.
-
-The release helper handles this by:
-
-- validating the current publishable step with `cargo publish --dry-run`
-- publishing only when `--execute` is passed
-- polling crates.io visibility before continuing
-- supporting `--from <crate>` so interrupted releases can resume cleanly
+`simit release plan --workspace` shows the correct dependency order. To resume
+a partial publish, publish the remaining crates individually with `cargo publish`.
 
 ## What `check` Runs
 
@@ -82,21 +75,27 @@ Manual release review should also verify:
 - [`capabilities/builtin-capability-manifest.json`](capabilities/builtin-capability-manifest.json)
 - [`conformance/portable-subset.json`](conformance/portable-subset.json)
 - a short `cargo fuzz run` session for both targets
-- green stable, MSRV, and fuzz CI runs
+- green CI runs (per-crate CI + msrv + fuzz + audit + deny)
 
 ## Publishing Order
 
-Crates are published in this order:
+Resolved by `simit release plan --workspace` at release time. As of 0.2.0:
 
-1. `queryfabric-ir`
-2. `queryfabric-catalog`
-3. `queryfabric-runtime`
-4. `queryfabric-opt`
-5. `queryfabric-dialect-sql`
-6. `queryfabric-dialect-syql`
-7. `queryfabric-adapter-clickhouse`
+1. `queryfabric-changelog`
+2. `queryfabric-cli-toolbelt`
+3. `queryfabric-cmd-runner`
+4. `queryfabric-contract`
+5. `queryfabric-ir`
+6. `queryfabric-dialect-sql`
+7. `queryfabric-catalog`
 8. `queryfabric-adapter-postgres`
-9. `queryfabric`
-
-The facade crate is published last because it depends on the full public leaf
-set.
+9. `queryfabric-dialect-syql`
+10. `queryfabric-runtime`
+11. `queryfabric-adapter-clickhouse`
+12. `queryfabric-opt`
+13. `queryfabric`
+14. `queryfabric-runtime-k8s`
+15. `queryfabric-seaorm-ext`
+16. `queryfabric-test-rig`
+17. `queryfabric-types`
+18. `queryfabric-worker`

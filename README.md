@@ -1,7 +1,7 @@
 # QueryFabric
 
 <!-- simit:badges:start -->
-[![Nix](https://img.shields.io/badge/Nix-managed-5277c3)](flake.nix) [![docs](https://img.shields.io/badge/docs-enabled-6f42c1)](docs) [![crates.io](https://img.shields.io/badge/crates.io-ready-f46623)](https://crates.io/crates/queryfabric)
+![CI](https://img.shields.io/badge/CI-managed+extra-2088ff) [![Nix](https://img.shields.io/badge/Nix-managed-5277c3)](flake.nix) [![docs](https://img.shields.io/badge/docs-enabled-6f42c1)](docs) [![crates.io](https://img.shields.io/badge/crates.io-ready-f46623)](https://crates.io/crates/queryfabric)
 <!-- simit:badges:end -->
 
 [![REUSE status](https://api.reuse.software/badge/codeberg.org/caniko/queryfabric)](https://api.reuse.software/info/codeberg.org/caniko/queryfabric)
@@ -156,8 +156,9 @@ and emit.
 - [`conformance/portable-subset.json`](conformance/portable-subset.json):
   public conformance corpus for the portable subset
 - [`examples/host/README.md`](examples/host/README.md): host integration notes
-- [`scripts/release.sh`](scripts/release.sh): staged release helper for local checks,
-  crates.io publication order, and local tagging
+- [`scripts/release.sh`](scripts/release.sh): staged release helper for local checks
+  (kept for fuzz and Python-binding gates; use `simit release plan --workspace` and
+  `simit release patch --workspace` for version bumps, changelog, and tagging)
 
 ## Fuzzing
 

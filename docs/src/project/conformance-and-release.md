@@ -34,14 +34,14 @@ samples so fuzzing starts from real shapes rather than random junk alone.
 
 ## Release Flow
 
-The release helper is `scripts/release.sh`.
+Releases use `simit` for automated version bumps, changelog management,
+tagging, and publish order planning:
 
-Use it to:
-
-- run the full non-publishing release gate
-- publish crates in dependency order
-- resume a partial publish from a specific crate
-- tag a successful release locally
+- `simit release plan --workspace` — preview the publish order
+- `simit release patch --workspace -m "Prepare release v0.x.y"` — bump
+  versions, promote CHANGELOG, commit, and create a signed tag
+- `scripts/release.sh check` — run the full non-publishing release gate
+  (fuzz targets, Python bindings, etc.)
 
 Read
 [`RELEASE.md`](https://codeberg.org/caniko/queryfabric/src/branch/trunk/RELEASE.md)

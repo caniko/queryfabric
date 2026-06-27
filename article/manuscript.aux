@@ -1,0 +1,47 @@
+\relax 
+\providecommand{\transparent@use}[1]{}
+\providecommand\hyper@newdestlabel[2]{}
+\providecommand\HyField@AuxAddToFields[1]{}
+\providecommand\HyField@AuxAddToCoFields[2]{}
+\@writefile{toc}{\contentsline {section}{\numberline {1}Introduction}{1}{section.1}\protected@file@percent }
+\newlabel{sec:introduction}{{1}{1}{Introduction}{section.1}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {2}Architecture}{2}{section.2}\protected@file@percent }
+\newlabel{sec:architecture}{{2}{2}{Architecture}{section.2}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.1}Parsed Query}{2}{subsection.2.1}\protected@file@percent }
+\newlabel{sec:parse}{{2.1}{2}{Parsed Query}{subsection.2.1}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.2}Bound Query}{2}{subsection.2.2}\protected@file@percent }
+\newlabel{sec:bind}{{2.2}{2}{Bound Query}{subsection.2.2}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.3}Backend Analysis}{2}{subsection.2.3}\protected@file@percent }
+\newlabel{sec:analysis}{{2.3}{2}{Backend Analysis}{subsection.2.3}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.4}Emission}{2}{subsection.2.4}\protected@file@percent }
+\newlabel{sec:emit}{{2.4}{2}{Emission}{subsection.2.4}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.5}Host Boundary}{3}{subsection.2.5}\protected@file@percent }
+\newlabel{sec:boundary}{{2.5}{3}{Host Boundary}{subsection.2.5}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {1}{\ignorespaces \textbf  {Compiler pipeline architecture.} \textbf  {(A)} The four-stage pipeline: \texttt  {parse} converts dialect text into a \texttt  {ParsedQuery}; \texttt  {bind\_and\_validate} resolves names and types through a catalog into a \texttt  {BoundQuery}; \texttt  {analyze} checks backend support via capability manifests; \texttt  {emit} produces backend-specific SQL with provenance receipts. \textbf  {(B)} Rust API example showing the pipeline in use.}}{3}{figure.1}\protected@file@percent }
+\newlabel{fig:architecture}{{1}{3}{\textbf {Compiler pipeline architecture.} \textbf {(A)} The four-stage pipeline: \texttt {parse} converts dialect text into a \texttt {ParsedQuery}; \texttt {bind\_and\_validate} resolves names and types through a catalog into a \texttt {BoundQuery}; \texttt {analyze} checks backend support via capability manifests; \texttt {emit} produces backend-specific SQL with provenance receipts. \textbf {(B)} Rust API example showing the pipeline in use}{figure.1}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {3}Portability and Conformance}{3}{section.3}\protected@file@percent }
+\newlabel{sec:portability}{{3}{3}{Portability and Conformance}{section.3}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.1}Verified Portable Subset}{3}{subsection.3.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.2}Backend Capability Manifests}{4}{subsection.3.2}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces \textbf  {Portability and capabilities.} \textbf  {(A)} Capability matrix showing supported features for ClickHouse and PostgreSQL backends. \textbf  {(B)} Conformance test results for the 28 portable-subset cases, grouped by feature category.}}{4}{figure.2}\protected@file@percent }
+\newlabel{fig:portability}{{2}{4}{\textbf {Portability and capabilities.} \textbf {(A)} Capability matrix showing supported features for ClickHouse and PostgreSQL backends. \textbf {(B)} Conformance test results for the 28 portable-subset cases, grouped by feature category}{figure.2}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {4}Applications as a Federation Backbone}{4}{section.4}\protected@file@percent }
+\newlabel{sec:applications}{{4}{4}{Applications as a Federation Backbone}{section.4}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.1}Python Bindings}{4}{subsection.4.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.2}Custom Backend Adapters}{4}{subsection.4.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.3}Data Sovereignty Layer}{5}{subsection.4.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.4}Federation Substrate}{5}{subsection.4.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.5}NixOS Deployment}{5}{subsection.4.5}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {3}{\ignorespaces \textbf  {Applications and integration patterns.} \textbf  {(A)} Python embedding: data scientists write SyQL, the server validates it through QueryFabric's pipeline, then emits and executes. \textbf  {(B)} Custom adapter pattern: implement \texttt  {BackendAdapter} for any backend (DuckDB shown). \textbf  {(C)} Data sovereignty workflow: GDPR request triggers access-policy evaluation, resource collection, content-addressed bundle assembly, and optional DOI minting.}}{5}{figure.3}\protected@file@percent }
+\newlabel{fig:applications}{{3}{5}{\textbf {Applications and integration patterns.} \textbf {(A)} Python embedding: data scientists write SyQL, the server validates it through QueryFabric's pipeline, then emits and executes. \textbf {(B)} Custom adapter pattern: implement \texttt {BackendAdapter} for any backend (DuckDB shown). \textbf {(C)} Data sovereignty workflow: GDPR request triggers access-policy evaluation, resource collection, content-addressed bundle assembly, and optional DOI minting}{figure.3}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {5}Case Study: SynDB}{6}{section.5}\protected@file@percent }
+\newlabel{sec:syndb}{{5}{6}{Case Study: SynDB}{section.5}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.1}Architecture}{6}{subsection.5.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.2}Live Query Performance}{6}{subsection.5.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.3}Federated Meta-Analysis}{6}{subsection.5.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {6}Conclusion}{6}{section.6}\protected@file@percent }
+\newlabel{sec:conclusion}{{6}{6}{Conclusion}{section.6}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {4}{\ignorespaces \textbf  {SynDB case study.} \textbf  {(A)} Simplified architecture: SynDB uses QueryFabric as the compiler layer between its SyQL dialect and ClickHouse/PostgreSQL backends, across 5~shard regions on NRP Nautilus. \textbf  {(B)} Live query latency summary from the Hemibrain production cluster: p50 and p95 latencies for four query templates under cold and warm cache states.}}{7}{figure.4}\protected@file@percent }
+\newlabel{fig:syndb}{{4}{7}{\textbf {SynDB case study.} \textbf {(A)} Simplified architecture: SynDB uses QueryFabric as the compiler layer between its SyQL dialect and ClickHouse/PostgreSQL backends, across 5~shard regions on NRP Nautilus. \textbf {(B)} Live query latency summary from the Hemibrain production cluster: p50 and p95 latencies for four query templates under cold and warm cache states}{figure.4}{}}
+\gdef\svg@ink@ver@settings{{\m@ne }{inkscape}{1}}
+\gdef \@abspage@last{7}
