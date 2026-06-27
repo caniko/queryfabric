@@ -54,11 +54,11 @@
             fileset = lib.fileset.unions [
               (craneLib.fileset.commonCargoSources ./.)
               ./crates/queryfabric-demo/src/index.html
-              ./vendor/rs-thespis/README.md
+              ./vendor
             ];
           };
           strictDeps = true;
-          cargoExtraArgs = "-p queryfabric-demo";
+          cargoExtraArgs = "-p queryfabric-demo --locked";
           meta = {
             description = "QueryFabric self-host demonstrator service";
             license = lib.licenses.asl20;
