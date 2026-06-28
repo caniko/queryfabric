@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## [Unreleased]
 
 ### Added
 
@@ -38,6 +38,8 @@
 ### Fixed
 
 - `queryfabric-adapter-clickhouse::driver` — replace 3 `.expect()` in retry loop with safe error propagation
+
+### Added
 
 - vendored libp2p (v0.56.0, typed-builder fork) and rs-thespis (v0.19.2) under `vendor/`
 - Plinth project-site definition replacing Zola website at `website/plinth-project.toml`

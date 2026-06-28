@@ -29,8 +29,8 @@
   cargo-msrv = {
     enable = true;
     name = "cargo check MSRV";
-    entry = "cargo check --workspace --all-features";
-    extraPackages = pkgs.lib.optional (rustToolchain != null) rustToolchain;
+    entry = "${pkgs.rust-bin.stable."1.94.0".default}/bin/cargo check --workspace --all-features";
+    extraPackages = [pkgs.rust-bin.stable."1.94.0".default];
     pass_filenames = false;
     stages = ["pre-push" "manual"];
   };

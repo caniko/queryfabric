@@ -4,3 +4,4 @@ workspace = true
 with_audit = true
 with_deny = true
 with_docs = true
+step_runners = { cargo-clippy = "codeberg-small", cargo-doc = "codeberg-small", cargo-fmt = "codeberg-tiny", cargo-package = "codeberg-medium", cargo-test = "codeberg-medium", quality-tools = "codeberg-small" }

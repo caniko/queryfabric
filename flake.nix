@@ -209,6 +209,12 @@
               echo "Documentation: cd docs && mdbook serve"
             '';
         };
+
+      apps = {
+        deploy-pages = plinth.lib.${system}.mkDeployPagesApp {
+          domain = "queryfabric.tartanoglu.com";
+        };
+      };
       }
     )
     // {

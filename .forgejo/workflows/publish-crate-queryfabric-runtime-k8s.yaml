@@ -21,7 +21,7 @@ jobs:
   publish:
     enable-openid-connect: true
     runs-on: atlas
-    container: rust:1.88-bookworm
+    container: rust:1.94-trixie
     steps:
       - name: Checkout
         uses: https://code.forgejo.org/actions/checkout@v4
