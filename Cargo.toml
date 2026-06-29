@@ -25,6 +25,7 @@ members = [
     "crates/queryfabric-prom",
     "crates/queryfabric-content-hash",
     "crates/queryfabric-fetch",
+    "crates/queryfabric-release",
     "crates/queryfabric-cli-toolbelt",
     "crates/queryfabric-cmd-runner",
     "crates/queryfabric-test-rig",
