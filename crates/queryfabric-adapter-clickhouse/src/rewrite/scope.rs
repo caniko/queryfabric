@@ -142,29 +142,12 @@ impl WrapperSpec {
         }
     }
 
-    pub(crate) fn is_supported(&self) -> bool {
-        matches!(
-            self.name,
-            "sumMerge" | "countMerge" | "avgMerge" | "stddevPopMerge"
-        )
-    }
-
     pub(crate) fn merge_fn_name(&self) -> &'static str {
         self.name
     }
 
     pub(crate) fn display_name(&self) -> &'static str {
         self.name
-    }
-
-    pub(crate) fn match_name(&self) -> &'static str {
-        match self.name {
-            "sumMerge" => "sum",
-            "countMerge" => "count",
-            "avgMerge" => "avg",
-            "stddevPopMerge" => "stddevPop",
-            other => other,
-        }
     }
 
     pub(crate) fn from_function(function: &FunctionRef) -> Option<Self> {
@@ -272,7 +255,7 @@ pub(crate) struct ClickHouseMvSummary {
 }
 
 impl ClickHouseMvSummary {
-    pub(crate) fn record_wrap(&mut self, resolved: &ResolvedWrapper, node: &SyntaxNode) {
+    pub(crate) fn record_wrap(&mut self, resolved: &ResolvedWrapper, _node: &SyntaxNode) {
         self.rewritten_relations
             .insert(resolved.relation_display.clone());
         self.wrap_events.push(WrapEvent {
@@ -284,9 +267,10 @@ impl ClickHouseMvSummary {
     }
 
     pub(crate) fn record_near_miss(&mut self, mismatch: WrapperNearMiss, node: &SyntaxNode) {
+        let column_name = mismatch.column_name.clone();
         self.near_misses.push(NearMissEvent {
             near_miss: mismatch,
-            column_name: String::new(),
+            column_name,
             node: node.clone(),
         });
     }
@@ -301,7 +285,7 @@ impl ClickHouseMvSummary {
         })
     }
 
-    pub(crate) fn analysis_diagnostics(&self, backend: &str) -> Vec<QueryDiagnostic> {
+    pub(crate) fn analysis_diagnostics(&self, _backend: &str) -> Vec<QueryDiagnostic> {
         let mut diagnostics = Vec::new();
         let mut seen_wraps = BTreeSet::new();
         for event in &self.wrap_events {
@@ -335,7 +319,8 @@ impl ClickHouseMvSummary {
                 format!("MV relation not found for column {}", miss.column_name)
             } else {
                 format!(
-                    "column {} expects wrapper {:?} but found {:?}",
+                    "column {}.{} expects wrapper {:?} but found {:?}",
+                    miss.near_miss.binding_name,
                     miss.column_name,
                     miss.near_miss.expected_wrapper.name,
                     miss.near_miss.current_wrapper.name,

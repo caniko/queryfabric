@@ -1,6 +1,6 @@
 use anyhow::{Context, Result, bail};
 use clap::{Parser, Subcommand};
-use std::process::Command;
+use std::process::Command as ProcessCommand;
 
 const CRATES: &[&str] = &[
     "queryfabric-ir",
@@ -92,7 +92,10 @@ fn run_check() -> Result<()> {
         ),
     ] {
         println!("==> {step}");
-        let status = Command::new(cmd).args(args).current_dir(&root).status()?;
+        let status = ProcessCommand::new(cmd)
+            .args(args)
+            .current_dir(&root)
+            .status()?;
         if !status.success() {
             bail!("{step} failed");
         }
@@ -114,7 +117,7 @@ fn run_publish(version: &str, from: Option<&str>, execute: bool) -> Result<()> {
         .transpose()?
         .unwrap_or(0);
 
-    let plan: Vec<&str> = CRATES[start_idx..].iter().copied().collect();
+    let plan: Vec<&str> = CRATES[start_idx..].to_vec();
     println!("==> publish order: {}", plan.join(", "));
 
     if !execute {
@@ -122,7 +125,7 @@ fn run_publish(version: &str, from: Option<&str>, execute: bool) -> Result<()> {
         let crate_name = plan[0];
         println!("Dry-running {crate_name} {version}...");
         let manifest = root.join("crates").join(crate_name).join("Cargo.toml");
-        let status = Command::new("cargo")
+        let status = ProcessCommand::new("cargo")
             .args([
                 "publish",
                 "--manifest-path",
@@ -147,7 +150,7 @@ fn run_publish(version: &str, from: Option<&str>, execute: bool) -> Result<()> {
 
         println!("==> Publishing {crate_name} {version}...");
 
-        let status = Command::new("cargo")
+        let status = ProcessCommand::new("cargo")
             .args(["publish", "--manifest-path", &manifest.to_string_lossy()])
             .current_dir(&root)
             .status()?;
@@ -166,7 +169,7 @@ fn run_tag(version: &str) -> Result<()> {
     let root = workspace_root()?;
     println!("==> creating annotated tag v{version}");
 
-    let status = Command::new("git")
+    let status = ProcessCommand::new("git")
         .args([
             "tag",
             "-a",
@@ -188,7 +191,7 @@ fn wait_for_crates_io(crate_name: &str, version: &str) -> Result<()> {
     println!("Waiting for {crate_name} {version} on crates.io...");
 
     for attempt in 1..=60 {
-        let status = Command::new("curl")
+        let status = ProcessCommand::new("curl")
             .args(["--fail", "--silent", "--show-error", &url])
             .output()
             .map(|o| o.status.success())
@@ -204,7 +207,7 @@ fn wait_for_crates_io(crate_name: &str, version: &str) -> Result<()> {
 }
 
 fn workspace_root() -> Result<std::path::PathBuf> {
-    let output = Command::new("git")
+    let output = ProcessCommand::new("git")
         .args(["rev-parse", "--show-toplevel"])
         .output()
         .context("finding workspace root")?;

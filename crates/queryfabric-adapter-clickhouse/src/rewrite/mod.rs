@@ -1,14 +1,11 @@
 mod scope;
-use scope::{ClickHouseMvSummary, ResolvedWrapper, SelectScope, WrapperNearMiss, WrapperSpec};
+use scope::{ClickHouseMvSummary, SelectScope};
 
-use std::collections::BTreeSet;
-
-use queryfabric_catalog::{Catalog, RelationKind, RelationSchema};
+use queryfabric_catalog::Catalog;
 use queryfabric_ir::{
-    BinaryOperator, BoundColumnRef, BoundExpr, BoundExprKind, BoundFunctionCall, BoundOrderByExpr,
-    BoundProjectionExpr, BoundProjectionItem, BoundQuery, BoundQueryPlan, BoundRelation,
-    BoundSelect, BoundSetExpr, BoundTableWithJoins, DataType, FunctionRef, LiteralValue,
-    QueryDiagnostic, Result, ResultField, ResultSchema, SyntaxNode,
+    BoundColumnRef, BoundExpr, BoundExprKind, BoundFunctionCall, BoundOrderByExpr,
+    BoundProjectionItem, BoundQuery, BoundQueryPlan, BoundRelation, BoundSelect, BoundSetExpr,
+    BoundTableWithJoins, DataType, FunctionRef, ResultField, ResultSchema, SyntaxNode,
 };
 
 pub(super) fn rewrite_query_for_clickhouse(

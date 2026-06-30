@@ -1,17 +1,9 @@
-use std::collections::BTreeSet;
-
 use queryfabric_catalog::{
     BackendAdapter, BackendAnalysis, BackendExecutionLimits, BackendFeature, CapabilitySet,
-    Catalog, CostEstimateError, EmitArtifact, EstimatedCost, PlanCostEstimator, RelationKind,
-    RelationSchema, ResultDeliveryFormat, SqlBackend, analyze_backend_support, emit_sql_artifact,
-    unsupported,
+    Catalog, CostEstimateError, EmitArtifact, EstimatedCost, PlanCostEstimator,
+    ResultDeliveryFormat, SqlBackend, analyze_backend_support, emit_sql_artifact, unsupported,
 };
-use queryfabric_ir::{
-    BinaryOperator, BoundColumnRef, BoundExpr, BoundExprKind, BoundFunctionCall, BoundOrderByExpr,
-    BoundProjectionItem, BoundQuery, BoundQueryPlan, BoundRelation, BoundSelect, BoundSetExpr,
-    BoundTableWithJoins, DataType, FunctionRef, LiteralValue, QueryDiagnostic, Result, ResultField,
-    ResultSchema, SyntaxNode,
-};
+use queryfabric_ir::{BoundQuery, QueryDiagnostic, Result};
 
 mod cost;
 mod rewrite;
