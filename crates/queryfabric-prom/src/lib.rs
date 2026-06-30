@@ -55,6 +55,10 @@ pub fn unix_timestamp_seconds() -> u64 {
         .unwrap_or(0)
 }
 
+fn unix_timestamp_seconds_i64() -> i64 {
+    i64::try_from(unix_timestamp_seconds()).unwrap_or(i64::MAX)
+}
+
 /// Thin wrapper over `prometheus_client::registry::Registry` that owns a
 /// `Mutex` and exposes a `render()` method.
 ///
@@ -86,7 +90,7 @@ impl MetricsRegistry {
     {
         self.registry
             .lock()
-            .expect("metrics registry mutex poisoned")
+            .unwrap_or_else(|poisoned| poisoned.into_inner())
             .register(name, help, metric);
     }
 
@@ -99,7 +103,7 @@ impl MetricsRegistry {
         let registry = self
             .registry
             .lock()
-            .expect("metrics registry mutex poisoned");
+            .unwrap_or_else(|poisoned| poisoned.into_inner());
         encode(&mut out, &registry)?;
         Ok(out)
     }

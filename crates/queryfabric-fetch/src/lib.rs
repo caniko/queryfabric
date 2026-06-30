@@ -249,6 +249,8 @@ impl DownloadManager {
             tokio::time::sleep(delay).await;
         }
 
-        unreachable!()
+        Err(FetchError::Download(format!(
+            "retry loop exhausted unexpectedly for {url}"
+        )))
     }
 }

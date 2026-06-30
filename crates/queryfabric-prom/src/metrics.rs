@@ -10,7 +10,7 @@ use std::sync::{Arc, LazyLock};
 
 use crate::{
     MetricsRegistry, QueryMetrics, bytes_histogram, job_duration_histogram, latency_histogram,
-    unix_timestamp_seconds,
+    unix_timestamp_seconds_i64,
 };
 use prometheus_client::encoding::EncodeLabelSet;
 use prometheus_client::metrics::counter::Counter;
@@ -560,7 +560,7 @@ pub fn record_provenance_write(activity: &str, source: &str, success: bool) {
     if success {
         METRICS
             .provenance_last_success_unixtime
-            .set(unix_timestamp_seconds() as i64);
+            .set(unix_timestamp_seconds_i64());
     }
 }
 
@@ -581,7 +581,7 @@ pub fn set_dependency_probe(dependency: &str, up: bool, duration_seconds: f64) {
         METRICS
             .dependency_last_success_unixtime
             .get_or_create(&labels)
-            .set(unix_timestamp_seconds() as i64);
+            .set(unix_timestamp_seconds_i64());
     }
 }
 

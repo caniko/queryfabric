@@ -141,7 +141,11 @@ impl FlightService for WorkerFlightService {
             .map(|data| data.map_err(Status::from));
 
         // Signal shutdown after serving.
-        if let Some(tx) = self.shutdown.lock().unwrap().take() {
+        let mut shutdown = self
+            .shutdown
+            .lock()
+            .map_err(|_| Status::internal("worker shutdown mutex poisoned"))?;
+        if let Some(tx) = shutdown.take() {
             let _ = tx.send(());
         }
 
