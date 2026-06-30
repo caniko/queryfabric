@@ -65,6 +65,16 @@
 - Resource footprint benchmark numbers refreshed from local rerun
 - NixOS module: harden instance `enable` checks with explicit attribute-or-false
 
+### Added
+
+- REUSE.toml: add `.envrc` and `article/` to SPDX path annotations
+
+### Changed
+
+- CI: regenerate Forgejo Pages workflow under simit management with domain validation and `atlas` runner
+- simit.toml: add `[ci.pages]` section with repo and canonical domain config
+- Website: refresh plinth-project site content with updated nav, features, quick-start steps, and coverage trust panel
+
 ## 0.2.0 - 2026-06-13
 
 ### Added
