@@ -1,12 +1,12 @@
 use std::sync::Arc;
 
 use async_trait::async_trait;
-use queryfabric_cluster::{DhtNaming, HealthMonitorActor, HubRegistryState, ResetCircuitBreaker};
-use queryfabric_contract::{ClusterProbe, NodeId, ResourceRef};
 use piying::Actor;
 use piying::actor::ActorRef;
 use piying::error::Infallible;
 use piying::message::{Context, Message};
+use queryfabric_cluster::{DhtNaming, HealthMonitorActor, HubRegistryState, ResetCircuitBreaker};
+use queryfabric_contract::{ClusterProbe, NodeId, ResourceRef};
 use tracing::{info, warn};
 
 use crate::host::FederationHost;

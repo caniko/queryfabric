@@ -6,11 +6,11 @@ use std::sync::Arc;
 use std::time::Duration;
 
 use futures::{FutureExt, future::join_all};
-use queryfabric_contract::{ClusterProbe, Health, NodeId, ProbeResult};
 use piying::Actor;
 use piying::actor::{ActorRef, Spawn};
 use piying::error::Infallible;
 use piying::message::{Context, Message};
+use queryfabric_contract::{ClusterProbe, Health, NodeId, ProbeResult};
 use tokio::time::Instant;
 use tracing::{debug, info, warn};
 

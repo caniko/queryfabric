@@ -3,11 +3,11 @@ use std::sync::atomic::{AtomicI32, Ordering};
 use std::time::Instant;
 
 use chrono::Utc;
-use queryfabric_contract::Health;
 use piying::Actor;
 use piying::actor::ActorRef;
 use piying::error::Infallible;
 use piying::message::{Context, Message};
+use queryfabric_contract::Health;
 use tracing::info;
 
 use crate::host::FederationHost;

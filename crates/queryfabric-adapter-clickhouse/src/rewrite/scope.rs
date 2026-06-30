@@ -102,21 +102,51 @@ pub(crate) struct WrapperSpec {
 impl WrapperSpec {
     pub(crate) fn from_merge_fn(name: &str) -> Option<Self> {
         match name.to_ascii_lowercase().as_str() {
-            "summerge" => Some(Self { namespace: Some("ch"), name: "sum_merge" }),
-            "countmerge" => Some(Self { namespace: Some("ch"), name: "count_merge" }),
-            "avgmerge" => Some(Self { namespace: Some("ch"), name: "avg_merge" }),
-            "stddevpopmerge" => Some(Self { namespace: Some("ch"), name: "stddevpop_merge" }),
-            "sum" => Some(Self { namespace: None, name: "sum" }),
-            "count" => Some(Self { namespace: None, name: "count" }),
-            "min" => Some(Self { namespace: None, name: "min" }),
-            "max" => Some(Self { namespace: None, name: "max" }),
-            "avg" => Some(Self { namespace: None, name: "avg" }),
+            "summerge" => Some(Self {
+                namespace: Some("ch"),
+                name: "sum_merge",
+            }),
+            "countmerge" => Some(Self {
+                namespace: Some("ch"),
+                name: "count_merge",
+            }),
+            "avgmerge" => Some(Self {
+                namespace: Some("ch"),
+                name: "avg_merge",
+            }),
+            "stddevpopmerge" => Some(Self {
+                namespace: Some("ch"),
+                name: "stddevpop_merge",
+            }),
+            "sum" => Some(Self {
+                namespace: None,
+                name: "sum",
+            }),
+            "count" => Some(Self {
+                namespace: None,
+                name: "count",
+            }),
+            "min" => Some(Self {
+                namespace: None,
+                name: "min",
+            }),
+            "max" => Some(Self {
+                namespace: None,
+                name: "max",
+            }),
+            "avg" => Some(Self {
+                namespace: None,
+                name: "avg",
+            }),
             _ => None,
         }
     }
 
     pub(crate) fn is_supported(&self) -> bool {
-        matches!(self.name, "sumMerge" | "countMerge" | "avgMerge" | "stddevPopMerge")
+        matches!(
+            self.name,
+            "sumMerge" | "countMerge" | "avgMerge" | "stddevPopMerge"
+        )
     }
 
     pub(crate) fn merge_fn_name(&self) -> &'static str {
@@ -271,10 +301,7 @@ impl ClickHouseMvSummary {
         })
     }
 
-    pub(crate) fn analysis_diagnostics(
-        &self,
-        backend: &str,
-    ) -> Vec<QueryDiagnostic> {
+    pub(crate) fn analysis_diagnostics(&self, backend: &str) -> Vec<QueryDiagnostic> {
         let mut diagnostics = Vec::new();
         let mut seen_wraps = BTreeSet::new();
         for event in &self.wrap_events {
@@ -323,10 +350,7 @@ impl ClickHouseMvSummary {
     }
 }
 
-fn diagnostic_with_node(
-    mut diagnostic: QueryDiagnostic,
-    node: &SyntaxNode,
-) -> QueryDiagnostic {
+fn diagnostic_with_node(mut diagnostic: QueryDiagnostic, node: &SyntaxNode) -> QueryDiagnostic {
     diagnostic.node_id = Some(node.node_id.clone());
     diagnostic
 }

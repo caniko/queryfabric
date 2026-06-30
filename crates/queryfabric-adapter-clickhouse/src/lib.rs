@@ -131,7 +131,6 @@ fn diagnostic_summary(diagnostics: &[QueryDiagnostic]) -> String {
         .join("; ")
 }
 
-
 #[cfg(test)]
 mod tests {
     use queryfabric_catalog::{

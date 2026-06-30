@@ -1,6 +1,6 @@
+use piying::Reply;
 use queryfabric_contract::{NodeId, ResourceRef};
 use serde::{Deserialize, Serialize};
-use piying::Reply;
 
 use crate::schema::SchemaMigration;
 

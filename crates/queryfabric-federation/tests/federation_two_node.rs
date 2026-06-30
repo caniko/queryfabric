@@ -9,6 +9,7 @@ use std::time::Duration;
 
 use async_trait::async_trait;
 use papaya::HashMap as PapayaMap;
+use piying::actor::Spawn;
 use queryfabric_cluster::{
     CheckAllClusters, CircuitConfig, DhtNaming, GetHealth, HealthMonitorActor, HealthMonitorArgs,
     HubRegistryState,
@@ -20,7 +21,6 @@ use queryfabric_federation::{
     ResourceAnnouncement, ResourceLocalityIndex, SchemaMigration, SyncAllSchemas, TransportProbe,
     get_healthy_flight_endpoint, resolve_locality,
 };
-use piying::actor::Spawn;
 use uuid::Uuid;
 
 const NAMING: DhtNaming = DhtNaming::new("fabric-cluster", "fabric-hub");

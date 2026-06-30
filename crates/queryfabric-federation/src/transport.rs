@@ -3,8 +3,8 @@ use std::sync::Arc;
 use async_trait::async_trait;
 use chrono::Utc;
 use papaya::HashMap as PapayaMap;
-use queryfabric_contract::{ClusterProbe, Health, NodeId, ProbeResult};
 use piying::actor::ActorRef;
+use queryfabric_contract::{ClusterProbe, Health, NodeId, ProbeResult};
 use thiserror::Error;
 
 use crate::host::FederationHost;

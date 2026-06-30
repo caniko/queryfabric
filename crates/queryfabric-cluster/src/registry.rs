@@ -2,11 +2,11 @@ use std::hash::Hash;
 use std::sync::Arc;
 
 use papaya::HashMap as PapayaMap;
-use queryfabric_contract::{NodeId, ResourceRef};
 use piying::Actor;
 use piying::actor::{ActorRef, Spawn};
 use piying::error::RegistryError;
 use piying::remote::RemoteActor;
+use queryfabric_contract::{NodeId, ResourceRef};
 
 use crate::routing::ResourceLocation;
 

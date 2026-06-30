@@ -49,7 +49,11 @@ fn main() -> Result<()> {
     let cli = Cli::parse();
     match cli.command {
         Command::Check => run_check(),
-        Command::Publish { version, from, execute } => run_publish(&version, from.as_deref(), execute),
+        Command::Publish {
+            version,
+            from,
+            execute,
+        } => run_publish(&version, from.as_deref(), execute),
         Command::Tag { version } => run_tag(&version),
     }
 }
@@ -58,9 +62,34 @@ fn run_check() -> Result<()> {
     let root = workspace_root()?;
 
     for (step, cmd, args) in [
-        ("cargo fmt --all --check", "cargo", &["fmt", "--all", "--check"] as &[&str]),
-        ("cargo clippy --workspace", "cargo", &["clippy", "--workspace", "--all-targets", "--", "-D", "warnings"]),
-        ("cargo test --workspace", "cargo", &["test", "--workspace", "--all-targets", "--exclude", "queryfabric-python"]),
+        (
+            "cargo fmt --all --check",
+            "cargo",
+            &["fmt", "--all", "--check"] as &[&str],
+        ),
+        (
+            "cargo clippy --workspace",
+            "cargo",
+            &[
+                "clippy",
+                "--workspace",
+                "--all-targets",
+                "--",
+                "-D",
+                "warnings",
+            ],
+        ),
+        (
+            "cargo test --workspace",
+            "cargo",
+            &[
+                "test",
+                "--workspace",
+                "--all-targets",
+                "--exclude",
+                "queryfabric-python",
+            ],
+        ),
     ] {
         println!("==> {step}");
         let status = Command::new(cmd).args(args).current_dir(&root).status()?;
@@ -77,7 +106,9 @@ fn run_publish(version: &str, from: Option<&str>, execute: bool) -> Result<()> {
     let root = workspace_root()?;
     let start_idx = from
         .map(|c| {
-            CRATES.iter().position(|&x| x == c)
+            CRATES
+                .iter()
+                .position(|&x| x == c)
                 .ok_or_else(|| anyhow::anyhow!("unknown crate '{c}'"))
         })
         .transpose()?
@@ -92,7 +123,13 @@ fn run_publish(version: &str, from: Option<&str>, execute: bool) -> Result<()> {
         println!("Dry-running {crate_name} {version}...");
         let manifest = root.join("crates").join(crate_name).join("Cargo.toml");
         let status = Command::new("cargo")
-            .args(["publish", "--manifest-path", &manifest.to_string_lossy(), "--dry-run", "--allow-dirty"])
+            .args([
+                "publish",
+                "--manifest-path",
+                &manifest.to_string_lossy(),
+                "--dry-run",
+                "--allow-dirty",
+            ])
             .current_dir(&root)
             .status()?;
         if !status.success() {
@@ -130,7 +167,13 @@ fn run_tag(version: &str) -> Result<()> {
     println!("==> creating annotated tag v{version}");
 
     let status = Command::new("git")
-        .args(["tag", "-a", &format!("v{version}"), "-m", &format!("queryfabric {version}")])
+        .args([
+            "tag",
+            "-a",
+            &format!("v{version}"),
+            "-m",
+            &format!("queryfabric {version}"),
+        ])
         .current_dir(&root)
         .status()?;
     if !status.success() {

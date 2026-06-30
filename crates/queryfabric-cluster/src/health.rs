@@ -3,9 +3,9 @@ use std::sync::Arc;
 
 use chrono::{DateTime, Utc};
 use papaya::HashMap as PapayaMap;
+use piying::Reply;
 use queryfabric_contract::{Health, NodeId};
 use serde::{Deserialize, Serialize};
-use piying::Reply;
 
 /// Cached cluster health state.
 pub type HealthCache<C = NodeId> = Arc<PapayaMap<C, Health>>;
