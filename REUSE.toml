@@ -5,6 +5,7 @@ path = [
   "*.md",
   "*.toml",
   "*.lock",
+  ".envrc",
   ".gitignore",
   ".forgejo/workflows/*.yml",
   ".forgejo/workflows/*.yaml",
@@ -28,6 +29,7 @@ path = [
   "capabilities/**",
   "vendor/**",
   "website/**",
+  "article/**",
 ]
 SPDX-FileCopyrightText = "2026 QueryFabric maintainers"
 SPDX-License-Identifier = "Apache-2.0"
