@@ -4,6 +4,8 @@
 
 ### Added
 
+- CI workflows for `queryfabric-release` crate, PyPI publishing, and release orchestration
+- `release.yml` — tag-pushed release workflow with smoke checks and crate publication
 - Documentation: new mdBook config (`docs/book.toml`), narrative pages (Why QueryFabric?, user scenarios, tutorials, contributing guide, crate catalog, CLI tooling, custom adapter, Docker deployment), and reorganized sidebar navigation
 - `README.md` — 'Who is this for?' audience section and links to crate catalog and user scenarios
 - `CONTRIBUTING.md` — cross-reference to the new contributing guide in the documentation
@@ -30,6 +32,11 @@
 
 ### Changed
 
+- CI: migrate all workflow runners from Codeberg shared runners to self-hosted `atlas` with Nix-based tooling
+- Publish: migrate all crate publish workflows to Nix-based atlas runner with flake checks and audit/deny gates
+- Flake: add `rust-overlay` input and pin input-follows for `plinth`, `treefmt-nix`, and `git-hooks`
+- `simit.toml`: enable Nix runtime, PyPI publishing, nextest, and release GPG signing
+- README: update CI badge from `managed+extra` to `drift`
 - `queryfabric-runtime` Cargo.toml: add `tokio` and `tracing` deps
 - `queryfabric-adapter-clickhouse` Cargo.toml: add `secrecy`, `serde_json`, `thiserror` deps
 - `queryfabric-cli-toolbelt`: add `flight` and `polars` features
