@@ -5,9 +5,23 @@
     nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
     flake-utils.url = "github:numtide/flake-utils";
     crane.url = "github:ipetkov/crane";
-    plinth.url = "git+https://codeberg.org/caniko/plinth";
-    treefmt-nix.url = "github:numtide/treefmt-nix";
-    git-hooks.url = "github:cachix/git-hooks.nix";
+    plinth = {
+      url = "git+https://codeberg.org/caniko/plinth";
+      inputs.nixpkgs.follows = "nixpkgs";
+      inputs.flake-utils.follows = "flake-utils";
+    };
+    treefmt-nix = {
+      url = "github:numtide/treefmt-nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+    git-hooks = {
+      url = "github:cachix/git-hooks.nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+    rust-overlay = {
+      url = "github:oxalica/rust-overlay";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs =
@@ -19,12 +33,13 @@
       plinth,
       treefmt-nix,
       git-hooks,
+      rust-overlay,
       ...
     }:
     flake-utils.lib.eachDefaultSystem (
       system:
       let
-        pkgs = import nixpkgs { inherit system; };
+        pkgs = import nixpkgs { inherit system; overlays = [ (import rust-overlay) ]; };
         lib = pkgs.lib;
         craneLib = crane.mkLib pkgs;
         nixfmt = pkgs.nixfmt;
