@@ -8,5 +8,9 @@ with_pypi_publish = true
 runtime = "nix"
 with_nextest = true
 
+[ci.pages]
+repo = "caniko/queryfabric"
+canonical_domain = "queryfabric.tartanoglu.com"
+
 [release.signing]
 key = "818D507F1E62139F8A17EAA64623DEA06FDACFE1"
