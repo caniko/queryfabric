@@ -40,6 +40,7 @@ flight = ["dep:arrow", "dep:arrow-flight", "dep:futures", "dep:parquet", "dep:to
 polars = ["dep:polars"]
 
 [package.metadata.cargo-udeps.ignore]
+normal = ["thiserror"]
 development = ["tempfile"]
 
 [dev-dependencies]

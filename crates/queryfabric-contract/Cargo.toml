@@ -17,6 +17,3 @@ categories = ["database", "science"]
 async-trait = { workspace = true }
 serde = { workspace = true }
 uuid = { workspace = true, features = ["serde"] }
-
-[dev-dependencies]
-serde_json = { workspace = true }

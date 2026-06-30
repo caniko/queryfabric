@@ -11,7 +11,8 @@ use queryfabric::{
     BoundQuery, IsolatedExecutionDriver, IsolatedJobSpec, ParsedQuery, ResourceRequest,
     StorageAccessMode,
 };
-use syndb_runtime_k8s::{K8sDriverConfig, K8sIsolatedDriver};
+use queryfabric_runtime_k8s::job_spec::LABEL_COMPONENT;
+use queryfabric_runtime_k8s::{K8sDriverConfig, K8sIsolatedDriver};
 use tempfile::NamedTempFile;
 use tokio_util::sync::CancellationToken;
 

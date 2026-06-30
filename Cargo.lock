@@ -6049,7 +6049,6 @@ name = "queryfabric-catalog"
 version = "0.2.0"
 dependencies = [
  "queryfabric-contract",
- "queryfabric-dialect-sql",
  "queryfabric-ir",
  "serde",
  "serde_json",
@@ -6065,7 +6064,6 @@ dependencies = [
  "reqwest 0.13.4",
  "serde",
  "serde_json",
- "thiserror 2.0.18",
  "tokio",
 ]
 
@@ -6137,7 +6135,6 @@ version = "0.2.0"
 dependencies = [
  "async-trait",
  "serde",
- "serde_json",
  "uuid",
 ]
 
@@ -6368,8 +6365,6 @@ version = "0.1.0"
 dependencies = [
  "anyhow",
  "clap",
- "serde",
- "serde_json",
 ]
 
 [[package]]
