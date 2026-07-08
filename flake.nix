@@ -3,12 +3,11 @@
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
-    flake-utils.url = "github:numtide/flake-utils";
+    flake-parts.url = "github:hercules-ci/flake-parts";
     crane.url = "github:ipetkov/crane";
     plinth = {
       url = "git+https://codeberg.org/caniko/plinth";
       inputs.nixpkgs.follows = "nixpkgs";
-      inputs.flake-utils.follows = "flake-utils";
     };
     treefmt-nix = {
       url = "github:numtide/treefmt-nix";
@@ -24,22 +23,30 @@
     };
   };
 
-  outputs =
-    {
-      self,
-      nixpkgs,
-      flake-utils,
-      crane,
-      plinth,
-      treefmt-nix,
-      git-hooks,
-      rust-overlay,
-      ...
-    }:
-    flake-utils.lib.eachDefaultSystem (
-      system:
-      let
-        pkgs = import nixpkgs { inherit system; overlays = [ (import rust-overlay) ]; };
+  outputs = inputs @ {
+    self,
+    nixpkgs,
+    flake-parts,
+    crane,
+    plinth,
+    treefmt-nix,
+    git-hooks,
+    rust-overlay,
+    ...
+  }:
+    flake-parts.lib.mkFlake {inherit inputs;} {
+      systems = [
+        "aarch64-darwin"
+        "aarch64-linux"
+        "x86_64-darwin"
+        "x86_64-linux"
+      ];
+
+      perSystem = {system, ...}: let
+        pkgs = import nixpkgs {
+          inherit system;
+          overlays = [(import rust-overlay)];
+        };
         lib = pkgs.lib;
         craneLib = crane.mkLib pkgs;
         nixfmt = pkgs.nixfmt;
@@ -100,7 +107,7 @@
             root = ./.;
             fileset = lib.fileset.maybeMissing ./docs;
           };
-          nativeBuildInputs = [ pkgs.mdbook ];
+          nativeBuildInputs = [pkgs.mdbook];
           phases = [
             "buildPhase"
             "installPhase"
@@ -122,7 +129,7 @@
             root = ./.;
             fileset = lib.fileset.maybeMissing ./website;
           };
-          nativeBuildInputs = [ plinthProject ];
+          nativeBuildInputs = [plinthProject];
           phases = [
             "buildPhase"
             "installPhase"
@@ -139,8 +146,7 @@
             cp -r ${docs}/. "$out/docs/"
           '';
         };
-      in
-      {
+      in {
         formatter = nixFormatter;
 
         packages = {
@@ -153,20 +159,19 @@
           website = site;
         };
 
-        checks = {
-          # Fast gate: the demonstrator builds (and its unit tests pass)
-          # on every check run.
-          inherit queryfabric-demo;
+        checks =
+          {
+            # Fast gate: the demonstrator builds (and its unit tests pass)
+            # on every check run.
+            inherit queryfabric-demo;
 
-          legacyAliasEval =
-            let
+            legacyAliasEval = let
               _ = nixpkgs.lib.nixosSystem {
                 system = pkgs.stdenv.hostPlatform.system;
                 modules = [
                   self.nixosModules.queryfabric
                   (
-                    { ... }:
-                    {
+                    {...}: {
                       services.queryfabric = {
                         enable = true;
                         database.url = "postgres://queryfabric@/queryfabric?host=/run/postgresql";
@@ -177,24 +182,24 @@
                 ];
               };
             in
-            pkgs.runCommand "queryfabric-legacy-alias-eval" { } ''
+              pkgs.runCommand "queryfabric-legacy-alias-eval" {} ''
+                touch "$out"
+              '';
+
+            nixfmt = pkgs.runCommand "queryfabric-nixfmt-check" {nativeBuildInputs = [nixfmt];} ''
+              set -euo pipefail
+              find ${nixSources} -name '*.nix' -print0 | xargs -0 nixfmt --check
               touch "$out"
             '';
-
-          nixfmt = pkgs.runCommand "queryfabric-nixfmt-check" { nativeBuildInputs = [ nixfmt ]; } ''
-            set -euo pipefail
-            find ${nixSources} -name '*.nix' -print0 | xargs -0 nixfmt --check
-            touch "$out"
-          '';
-        }
-        // lib.optionalAttrs pkgs.stdenv.hostPlatform.isLinux {
-          # Heavy gate: boot a VM with Postgres + MinIO + the NixOS
-          # module and drive query/export/GDPR end-to-end.
-          selfhost = import ./nix/tests/selfhost.nix {
-            inherit pkgs;
-            nixosModule = self.nixosModules.queryfabric;
+          }
+          // lib.optionalAttrs pkgs.stdenv.hostPlatform.isLinux {
+            # Heavy gate: boot a VM with Postgres + MinIO + the NixOS
+            # module and drive query/export/GDPR end-to-end.
+            selfhost = import ./nix/tests/selfhost.nix {
+              inherit pkgs;
+              nixosModule = self.nixosModules.queryfabric;
+            };
           };
-        };
 
         devShells.default = pkgs.mkShell {
           packages =
@@ -225,23 +230,21 @@
             '';
         };
 
-      apps = {
-        deploy-pages = plinth.lib.${system}.mkDeployPagesApp {
-          domain = "queryfabric.tartanoglu.com";
+        apps = {
+          deploy-pages = plinth.lib.${system}.mkDeployPagesApp {
+            domain = "queryfabric.tartanoglu.com";
+          };
         };
       };
-      }
-    )
-    // {
-      nixosModules = {
-        default = self.nixosModules.queryfabric;
-        queryfabric =
-          {
+
+      flake = {
+        nixosModules = {
+          default = self.nixosModules.queryfabric;
+          queryfabric = {
             pkgs,
             lib,
             ...
-          }:
-          {
+          }: {
             imports = [
               (import ./nix/modules/queryfabric.nix {
                 defaultPackage = self.packages.${pkgs.stdenv.hostPlatform.system}.queryfabric-demo;
@@ -249,8 +252,9 @@
             ];
             services.queryfabric.package =
               lib.mkDefault
-                self.packages.${pkgs.stdenv.hostPlatform.system}.queryfabric-demo;
+              self.packages.${pkgs.stdenv.hostPlatform.system}.queryfabric-demo;
           };
+        };
       };
     };
 }
