@@ -117,6 +117,7 @@ const QUERYFABRIC_SYQL_EDITOR_JS: StaticAsset = StaticAsset {
 
 const STATIC_ASSETS: &[StaticAsset] = &[QUERYFABRIC_SYQL_EDITOR_JS];
 
+#[cfg(feature = "ssr")]
 pub fn validate_syql(
     query: &str,
     catalog: &dyn queryfabric_catalog::Catalog,
@@ -157,7 +158,7 @@ pub fn static_assets() -> &'static [StaticAsset] {
     STATIC_ASSETS
 }
 
-#[cfg(test)]
+#[cfg(all(test, feature = "ssr"))]
 mod tests {
     use super::*;
     use queryfabric::{ColumnSchema, DataType, MemoryCatalog, RelationKind, RelationSchema};

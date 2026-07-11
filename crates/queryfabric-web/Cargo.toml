@@ -15,8 +15,8 @@ categories = ["web-programming", "database", "science"]
 
 [dependencies]
 http = { version = "1", optional = true }
-queryfabric = { workspace = true }
-queryfabric-catalog = { workspace = true }
+queryfabric = { workspace = true, optional = true }
+queryfabric-catalog = { workspace = true, optional = true }
 reqwest = { version = "0.13", default-features = false, features = ["json", "rustls"], optional = true }
 serde = { workspace = true }
 serde_json = { workspace = true, optional = true }
@@ -24,7 +24,7 @@ urlencoding = "2"
 
 [features]
 default = []
-ssr = ["dep:http", "dep:reqwest", "dep:serde_json"]
+ssr = ["dep:http", "dep:queryfabric", "dep:queryfabric-catalog", "dep:reqwest", "dep:serde_json"]
 
 [dev-dependencies]
 queryfabric-catalog = { workspace = true }
