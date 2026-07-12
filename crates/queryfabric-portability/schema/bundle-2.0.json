@@ -1,0 +1,87 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://queryfabric.dev/schema/bundle-2.0.json",
+  "title": "QueryFabric import-ready bundle 2.0",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["exportBundle", "metadataJsonld", "citations", "provenance", "artifacts"],
+  "properties": {
+    "exportBundle": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["version", "resource", "exportedAtUnixMs"],
+      "properties": {
+        "version": { "const": "2.0" },
+        "resource": { "$ref": "#/$defs/resourceRef" },
+        "exportedAtUnixMs": { "type": "integer" }
+      }
+    },
+    "metadataJsonld": {},
+    "citations": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["bibtex", "ris", "cslJson", "cff", "apa", "message"],
+      "properties": {
+        "bibtex": { "type": "string" },
+        "ris": { "type": "string" },
+        "cslJson": {},
+        "cff": { "type": "string" },
+        "apa": { "type": "string" },
+        "message": { "type": "string" }
+      }
+    },
+    "provenance": {
+      "type": "object",
+      "required": ["resource", "entries"],
+      "properties": {
+        "resource": { "$ref": "#/$defs/resourceRef" },
+        "entries": { "type": "array" }
+      }
+    },
+    "license": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["spdxId", "rightsUri"],
+      "properties": {
+        "spdxId": { "type": "string", "minLength": 1 },
+        "rightsUri": { "type": "string", "format": "uri" }
+      }
+    },
+    "dataUseRestriction": { "type": "object" },
+    "artifacts": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/artifact" }
+    }
+  },
+  "$defs": {
+    "resourceRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["namespace", "id"],
+      "properties": {
+        "namespace": { "type": "string", "format": "uuid" },
+        "id": { "type": "string", "format": "uuid" }
+      }
+    },
+    "artifact": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "storageUri", "format", "schemaFingerprint", "contentHash", "rowCount", "manifestJson"],
+      "properties": {
+        "kind": { "const": "table_export" },
+        "storageUri": { "type": "string", "minLength": 1 },
+        "format": { "const": "csv" },
+        "schemaFingerprint": { "$ref": "#/$defs/typedDigest" },
+        "contentHash": { "$ref": "#/$defs/typedDigest" },
+        "rowCount": { "type": "integer", "minimum": 0 },
+        "byteCount": { "type": "integer", "minimum": 0 },
+        "manifestJson": { "$ref": "tabular-csv-1.json" }
+      }
+    },
+    "typedDigest": {
+      "type": "string",
+      "pattern": "^blake3-256:[0-9a-f]{64}$"
+    }
+  }
+}

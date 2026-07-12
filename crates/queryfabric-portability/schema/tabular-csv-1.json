@@ -1,0 +1,25 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://queryfabric.dev/schema/tabular-csv-1.json",
+  "title": "QueryFabric tabular CSV profile 1 schema extension",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["profile", "columns"],
+  "properties": {
+    "profile": { "const": "queryfabric.tabular-csv/1" },
+    "columns": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 128,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["name", "type"],
+        "properties": {
+          "name": { "type": "string", "minLength": 1, "maxLength": 256 },
+          "type": { "enum": ["Boolean", "Int64", "Float64", "String", "Uuid", "Timestamp"] }
+        }
+      }
+    }
+  }
+}
