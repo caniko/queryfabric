@@ -122,10 +122,7 @@ fn compiler_counts_join_and_cte_nodes_before_binding() {
         ..QueryBudget::default()
     });
     assert!(matches!(
-        ctes.parse(
-            &GenericSqlDialect,
-            "WITH recent AS (SELECT 1) SELECT 1"
-        ),
+        ctes.parse(&GenericSqlDialect, "WITH recent AS (SELECT 1) SELECT 1"),
         Err(QueryFabricError::BudgetExceeded {
             dimension: queryfabric::QueryBudgetDimension::Ctes,
             ..
