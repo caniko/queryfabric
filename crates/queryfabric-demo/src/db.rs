@@ -12,6 +12,7 @@ use tokio_postgres::types::{ToSql, Type};
 use tokio_postgres::{Client, NoTls, Row};
 use uuid::Uuid;
 
+use crate::config::ImportFailureStage;
 use crate::dataset::{READINGS_PER_STATION, SEED_EPOCH_MS, STATIONS, readings_for};
 
 /// Database errors, kept close to the failing statement.
@@ -35,6 +36,8 @@ pub enum DbError {
     QuerySerialization(#[source] serde_json::Error),
     #[error("existing import receipt does not match the requested plan ({0})")]
     ConflictingReplay(String),
+    #[error("import transaction failure injected at {0}")]
+    InjectedFailure(&'static str),
 }
 
 /// Handle on the metadata/query database.
@@ -59,6 +62,7 @@ pub struct ImportCommit<'a> {
     pub source_evidence: &'a Value,
     pub mapping: &'a Value,
     pub byte_count: u64,
+    pub failure_stage: Option<ImportFailureStage>,
 }
 
 impl Database {
@@ -228,6 +232,7 @@ impl Database {
             source_evidence,
             mapping,
             byte_count,
+            failure_stage,
         } = request;
         let idempotency_key = format!("{bundle_digest}:{station_id}:{target_revision}");
         let mut client = Self::client_for(&self.import_url).await?;
@@ -259,6 +264,10 @@ impl Database {
             }
             let value: Value = existing.try_get(0)?;
             return Ok((value, true));
+        }
+
+        if failure_stage == Some(ImportFailureStage::BeforeRows) {
+            return Err(DbError::InjectedFailure("before-rows"));
         }
 
         let insert = transaction
@@ -302,6 +311,9 @@ impl Database {
                 .map_err(|error| {
                     DbError::InvalidImport(format!("row {ordinal} could not be inserted: {error}"))
                 })?;
+            if failure_stage == Some(ImportFailureStage::DuringRows) && ordinal == 0 {
+                return Err(DbError::InjectedFailure("during-rows"));
+            }
         }
         let receipt_id = Uuid::now_v7();
         let receipt = json!({
@@ -347,6 +359,9 @@ impl Database {
                 ],
             )
             .await?;
+        if failure_stage == Some(ImportFailureStage::BeforeCommit) {
+            return Err(DbError::InjectedFailure("before-commit"));
+        }
         transaction.commit().await?;
         Ok((receipt, false))
     }

@@ -358,6 +358,10 @@ struct ImportRequest {
     artifact: String,
     expected_bundle_digest: String,
     target: String,
+    /// Optional target snapshot revision; defaults to the demonstrator's
+    /// current snapshot. Changing it creates a new idempotency scope.
+    #[serde(default)]
+    target_revision: Option<String>,
     /// The plan digest returned by dry-run. Required by apply.
     #[serde(default)]
     plan_digest: Option<String>,
@@ -392,7 +396,10 @@ async fn prepare_import(
         queryfabric_portability::PlanTarget {
             target_resource: station.resource(),
             relation: "readings".to_owned(),
-            target_revision: dataset::SNAPSHOT_ID.to_owned(),
+            target_revision: request
+                .target_revision
+                .clone()
+                .unwrap_or_else(|| dataset::SNAPSHOT_ID.to_owned()),
             expected_schema: sovereignty::readings_schema(),
             local_owner: state.operator,
         },
@@ -501,6 +508,7 @@ async fn import_apply(
             source_evidence: &source_evidence,
             mapping: &mapping,
             byte_count: request.artifact.len() as u64,
+            failure_stage: state.config.import_failure,
         })
         .await?;
     Ok(Json(json!({
@@ -644,6 +652,7 @@ mod tests {
                     hub_multiaddrs: Vec::new(),
                     flight_port: 50051,
                 },
+                import_failure: None,
             },
             db: crate::db::Database::new_with_roles(
                 "postgres://invalid".to_owned(),

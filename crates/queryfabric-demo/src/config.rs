@@ -66,6 +66,15 @@ pub struct FederationConfig {
     pub flight_port: u16,
 }
 
+/// Deliberate transaction-failure seam used only by the Nix rollback proof.
+/// It is disabled unless `QFDEMO_ENABLE_FAILURE_INJECTION=1` is also set.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum ImportFailureStage {
+    BeforeRows,
+    DuringRows,
+    BeforeCommit,
+}
+
 /// Parsed S3 credentials.
 #[derive(Clone)]
 pub struct S3Credentials {
@@ -96,6 +105,7 @@ pub struct DemoConfig {
     pub seed_demo_data: bool,
     pub store: StoreConfig,
     pub federation: FederationConfig,
+    pub import_failure: Option<ImportFailureStage>,
 }
 
 impl std::fmt::Debug for DemoConfig {
@@ -111,6 +121,7 @@ impl std::fmt::Debug for DemoConfig {
             .field("seed_demo_data", &self.seed_demo_data)
             .field("store", &self.store)
             .field("federation", &self.federation)
+            .field("import_failure", &self.import_failure)
             .finish()
     }
 }
@@ -305,6 +316,31 @@ impl DemoConfig {
             flight_port,
         };
 
+        let import_failure = match env_var("QFDEMO_IMPORT_FAILURE") {
+            None => None,
+            Some(raw) => {
+                if env_var("QFDEMO_ENABLE_FAILURE_INJECTION").as_deref() != Some("1") {
+                    return Err(ConfigError::Invalid {
+                        name: "QFDEMO_IMPORT_FAILURE",
+                        value: raw,
+                        expected: "unset unless QFDEMO_ENABLE_FAILURE_INJECTION=1",
+                    });
+                }
+                Some(match raw.as_str() {
+                    "before-rows" => ImportFailureStage::BeforeRows,
+                    "during-rows" => ImportFailureStage::DuringRows,
+                    "before-commit" => ImportFailureStage::BeforeCommit,
+                    _ => {
+                        return Err(ConfigError::Invalid {
+                            name: "QFDEMO_IMPORT_FAILURE",
+                            value: raw,
+                            expected: "before-rows, during-rows, or before-commit",
+                        });
+                    }
+                })
+            }
+        };
+
         Ok(Self {
             listen_addr,
             database_migration_url,
@@ -316,6 +352,7 @@ impl DemoConfig {
             seed_demo_data,
             store,
             federation,
+            import_failure,
         })
     }
 }
@@ -368,6 +405,7 @@ mod tests {
                 hub_multiaddrs: Vec::new(),
                 flight_port: 50051,
             },
+            import_failure: None,
         };
         let debug = format!("{config:?}");
         assert!(!debug.contains("tops3cret"));

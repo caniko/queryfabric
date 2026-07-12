@@ -213,6 +213,47 @@ pkgs.testers.runNixOSTest {
         after_restart = json_post(beta, 8781, "/imports/apply", payload)
         assert after_restart["replayed"] is True
 
+    with subtest("injected transaction failure rolls back rows and receipts"):
+        rollback = dict(payload)
+        rollback["targetRevision"] = "qfdemo-air-quality-v2"
+        rollback_dry_run = json_post(beta, 8781, "/imports/dry-run", rollback)
+        rollback["planDigest"] = rollback_dry_run["planDigest"]
+        rollback["stagedObject"] = rollback_dry_run["stagedObject"]
+        rows_before = int(beta.succeed(
+            "su -s /bin/sh postgres -c \"psql -d qfbeta -tAc 'SELECT count(*) FROM readings'\""
+        ).strip())
+        receipts_before = int(beta.succeed(
+            "su -s /bin/sh postgres -c \"psql -d qfbeta -tAc 'SELECT count(*) FROM queryfabric_import_receipts'\""
+        ).strip())
+        beta.succeed(
+            "mkdir -p /run/systemd/system/queryfabric-beta.service.d && "
+            "printf '%s\\n' '[Service]' 'Environment=QFDEMO_ENABLE_FAILURE_INJECTION=1' "
+            "'Environment=QFDEMO_IMPORT_FAILURE=during-rows' > "
+            "/run/systemd/system/queryfabric-beta.service.d/failure.conf && "
+            "systemctl daemon-reload && systemctl restart queryfabric-beta.service"
+        )
+        beta.wait_until_succeeds("curl -sf http://127.0.0.1:8781/healthz")
+        assert json_post_status(beta, 8781, "/imports/apply", rollback) == "502"
+        assert int(beta.succeed(
+            "su -s /bin/sh postgres -c \"psql -d qfbeta -tAc 'SELECT count(*) FROM readings'\""
+        ).strip()) == rows_before
+        assert int(beta.succeed(
+            "su -s /bin/sh postgres -c \"psql -d qfbeta -tAc 'SELECT count(*) FROM queryfabric_import_receipts'\""
+        ).strip()) == receipts_before
+        beta.succeed(
+            "rm /run/systemd/system/queryfabric-beta.service.d/failure.conf && "
+            "systemctl daemon-reload && systemctl restart queryfabric-beta.service"
+        )
+        beta.wait_until_succeeds("curl -sf http://127.0.0.1:8781/healthz")
+        recovered = json_post(beta, 8781, "/imports/apply", rollback)
+        assert recovered["replayed"] is False
+        assert int(beta.succeed(
+            "su -s /bin/sh postgres -c \"psql -d qfbeta -tAc 'SELECT count(*) FROM readings'\""
+        ).strip()) == rows_before + 72
+        assert int(beta.succeed(
+            "su -s /bin/sh postgres -c \"psql -d qfbeta -tAc 'SELECT count(*) FROM queryfabric_import_receipts'\""
+        ).strip()) == receipts_before + 1
+
     with subtest("tampered artifact is rejected before apply"):
         tampered = dict(payload)
         tampered["artifact"] = tampered["artifact"].replace("11.0", "11.1", 1)

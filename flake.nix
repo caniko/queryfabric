@@ -116,6 +116,26 @@
             };
           };
           queryfabric-demo = craneLib.buildPackage queryfabricDemoArgs;
+          bundleSchemaArgs = {
+            pname = "queryfabric-portability-schema-fixtures";
+            version = "0.2.0";
+            src = lib.fileset.toSource {
+              root = ./.;
+              fileset = lib.fileset.unions [
+                (craneLib.fileset.commonCargoSources ./.)
+                ./crates/queryfabric-portability/schema
+                ./crates/queryfabric-portability/fixtures
+                ./crates/queryfabric-portability/tests/schema_fixtures.rs
+              ];
+            };
+            strictDeps = true;
+            cargoExtraArgs = "-p queryfabric-portability --test schema_fixtures --locked";
+          };
+          bundleSchemaArtifacts = craneLib.buildDepsOnly bundleSchemaArgs;
+          bundle-schema = craneLib.cargoTest (
+            bundleSchemaArgs
+            // { cargoArtifacts = bundleSchemaArtifacts; }
+          );
           crossPackageSet = rs-harbor.lib.mkCrossPackages ({
             inherit pkgs craneLib cross;
             commonArgs = queryfabricDemoArgs;
@@ -193,6 +213,9 @@
             # Fast gate: the demonstrator builds (and its unit tests pass)
             # on every check run.
             inherit queryfabric-demo;
+            # Public schemas and cross-language JCS/digest fixtures are an
+            # independent offline gate.
+            inherit bundle-schema;
 
             legacyAliasEval =
               let
