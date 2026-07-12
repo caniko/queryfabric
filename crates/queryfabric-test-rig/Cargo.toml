@@ -1,5 +1,6 @@
 [package]
 name = "queryfabric-test-rig"
+publish = false
 description = "Generic Docker/Podman primitives for integration test harnesses (network, container, image, push)"
 version.workspace = true
 edition.workspace = true

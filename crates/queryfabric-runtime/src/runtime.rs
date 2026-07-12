@@ -19,18 +19,3 @@ pub trait ExecutionRuntime: Send + Sync {
         cancel: CancellationToken,
     ) -> Result<RecordBatchStream, RuntimeError>;
 }
-
-#[derive(Debug, Default, Clone, Copy)]
-pub struct InteractiveRuntime;
-
-#[async_trait]
-impl ExecutionRuntime for InteractiveRuntime {
-    async fn execute(
-        &self,
-        _plan: BoundQuery,
-        _mode: ExecutionRuntimeMode,
-        _cancel: CancellationToken,
-    ) -> Result<RecordBatchStream, RuntimeError> {
-        Err(RuntimeError::NotImplemented)
-    }
-}

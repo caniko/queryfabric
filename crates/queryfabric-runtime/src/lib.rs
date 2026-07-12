@@ -13,7 +13,7 @@ pub use driver::{
 };
 pub use error::{DriverError, RuntimeError};
 pub use mode::{ExecutionRuntimeMode, resolve_runtime_mode, runtime_mode_for_estimate};
-pub use runtime::{ExecutionRuntime, InteractiveRuntime, RecordBatchStream};
+pub use runtime::{ExecutionRuntime, RecordBatchStream};
 
 #[cfg(test)]
 mod tests {
@@ -28,11 +28,10 @@ mod tests {
     use tokio_util::sync::CancellationToken;
 
     use super::{
-        ExecutionRuntime, ExecutionRuntimeMode, InteractiveRuntime, IsolatedExecutionDriver,
-        IsolatedJobSpec, ObjectStoreFormat, ResourceRequest, RuntimeError, StorageAccessMode,
+        ExecutionRuntimeMode, IsolatedExecutionDriver, IsolatedJobSpec, ObjectStoreFormat,
+        ResourceRequest, StorageAccessMode,
     };
 
-    fn assert_runtime_object(_: Box<dyn ExecutionRuntime>) {}
     fn assert_driver_object(_: Box<dyn IsolatedExecutionDriver>) {}
 
     #[test]
@@ -129,41 +128,7 @@ mod tests {
 
     #[test]
     fn runtime_traits_are_object_safe_send_sync() {
-        assert_runtime_object(Box::new(InteractiveRuntime));
         assert_driver_object(Box::new(StubDriver));
-    }
-
-    #[test]
-    fn interactive_runtime_returns_not_implemented() {
-        let mut catalog = MemoryCatalog::default();
-        catalog.register_relation(RelationSchema {
-            namespace: None,
-            name: "records".into(),
-            aliases: Vec::new(),
-            kind: RelationKind::Table,
-            columns: vec![ColumnSchema {
-                name: "record_id".into(),
-                data_type: DataType::Uuid,
-                nullable: false,
-                metadata: Default::default(),
-            }],
-            metadata: Default::default(),
-        });
-        let parsed = GenericSqlDialect
-            .parse("SELECT record_id FROM records")
-            .expect("parse");
-        let query =
-            bind_and_validate(&parsed, &catalog, &QueryParameters::default()).expect("bind query");
-        let result = futures::executor::block_on(InteractiveRuntime.execute(
-            query,
-            ExecutionRuntimeMode::Interactive,
-            CancellationToken::new(),
-        ));
-        match result {
-            Err(RuntimeError::NotImplemented) => {}
-            Err(error) => panic!("unexpected runtime error: {error}"),
-            Ok(_) => panic!("interactive runtime should be a phase-03 stub"),
-        }
     }
 
     struct StubDriver;

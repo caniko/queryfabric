@@ -86,9 +86,14 @@ impl std::fmt::Debug for S3Credentials {
 #[derive(Clone)]
 pub struct DemoConfig {
     pub listen_addr: SocketAddr,
-    pub database_url: String,
+    pub database_migration_url: String,
+    pub database_query_url: String,
+    pub database_import_url: String,
+    /// Secret used to validate host-issued PASETO bearer credentials.
+    pub auth_secret: String,
     pub db_wait_secs: u64,
     pub public_base_url: String,
+    pub seed_demo_data: bool,
     pub store: StoreConfig,
     pub federation: FederationConfig,
 }
@@ -97,9 +102,13 @@ impl std::fmt::Debug for DemoConfig {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         f.debug_struct("DemoConfig")
             .field("listen_addr", &self.listen_addr)
-            .field("database_url", &"<redacted>")
+            .field("database_migration_url", &"<redacted>")
+            .field("database_query_url", &"<redacted>")
+            .field("database_import_url", &"<redacted>")
+            .field("auth_secret", &"<redacted>")
             .field("db_wait_secs", &self.db_wait_secs)
             .field("public_base_url", &self.public_base_url)
+            .field("seed_demo_data", &self.seed_demo_data)
             .field("store", &self.store)
             .field("federation", &self.federation)
             .finish()
@@ -177,6 +186,40 @@ impl DemoConfig {
             },
         )?;
 
+        let auth_secret = env_or_file("QFDEMO_AUTH_SECRET", "QFDEMO_AUTH_SECRET_FILE")?.ok_or(
+            ConfigError::Missing {
+                name: "QFDEMO_AUTH_SECRET",
+            },
+        )?;
+        queryfabric_paseto::validate_paseto_secret(&auth_secret).map_err(|error| {
+            ConfigError::Invalid {
+                name: "QFDEMO_AUTH_SECRET",
+                value: "<redacted>".to_owned(),
+                expected: match error {
+                    queryfabric_paseto::AuthTokenError::SecretTooShort => {
+                        "a secret of at least 32 bytes"
+                    }
+                    _ => "a valid PASETO secret",
+                },
+            }
+        })?;
+
+        let database_migration_url = env_or_file(
+            "QFDEMO_DATABASE_MIGRATION_URL",
+            "QFDEMO_DATABASE_MIGRATION_URL_FILE",
+        )?
+        .unwrap_or_else(|| database_url.clone());
+        let database_query_url = env_or_file(
+            "QFDEMO_DATABASE_QUERY_URL",
+            "QFDEMO_DATABASE_QUERY_URL_FILE",
+        )?
+        .unwrap_or_else(|| database_url.clone());
+        let database_import_url = env_or_file(
+            "QFDEMO_DATABASE_IMPORT_URL",
+            "QFDEMO_DATABASE_IMPORT_URL_FILE",
+        )?
+        .unwrap_or_else(|| database_url.clone());
+
         let db_wait_secs = match env_var("QFDEMO_DB_WAIT_SECS") {
             None => 60,
             Some(raw) => raw.parse().map_err(|_| ConfigError::Invalid {
@@ -188,6 +231,18 @@ impl DemoConfig {
 
         let public_base_url =
             env_var("QFDEMO_PUBLIC_BASE_URL").unwrap_or_else(|| format!("http://{listen_addr}"));
+
+        let seed_demo_data = match env_var("QFDEMO_SEED_DATA").as_deref() {
+            None | Some("true") | Some("1") => true,
+            Some("false") | Some("0") => false,
+            Some(other) => {
+                return Err(ConfigError::Invalid {
+                    name: "QFDEMO_SEED_DATA",
+                    value: other.to_owned(),
+                    expected: "'true' or 'false'",
+                });
+            }
+        };
 
         let backend = env_var("QFDEMO_STORE_BACKEND").unwrap_or_else(|| "memory".to_owned());
         let store = match backend.as_str() {
@@ -252,9 +307,13 @@ impl DemoConfig {
 
         Ok(Self {
             listen_addr,
-            database_url,
+            database_migration_url,
+            database_query_url,
+            database_import_url,
+            auth_secret,
             db_wait_secs,
             public_base_url,
+            seed_demo_data,
             store,
             federation,
         })
@@ -295,9 +354,13 @@ mod tests {
     fn secrets_never_appear_in_debug_output() {
         let config = DemoConfig {
             listen_addr: "127.0.0.1:8780".parse().expect("addr"),
-            database_url: "postgres://user:tops3cret@localhost/db".to_owned(),
+            database_migration_url: "postgres://migration@localhost/db".to_owned(),
+            database_query_url: "postgres://query@localhost/db".to_owned(),
+            database_import_url: "postgres://import@localhost/db".to_owned(),
+            auth_secret: "test-auth-secret-which-is-at-least-32-bytes".to_owned(),
             db_wait_secs: 60,
             public_base_url: "http://127.0.0.1:8780".to_owned(),
+            seed_demo_data: true,
             store: StoreConfig::Memory,
             federation: FederationConfig {
                 enable: false,

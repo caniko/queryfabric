@@ -4,8 +4,9 @@ use queryfabric_provenance::{HistoryFilter, ProvenanceError, ProvenanceHistory, 
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 
-use crate::canonical::canonical_json_string;
+use crate::canonical::{canonical_json_string, canonical_json_string_v2};
 use crate::citation::{CitationFormat, CitationInput, csl_json_value, generate_citation};
+use crate::import::IMPORT_BUNDLE_VERSION;
 use crate::manifest::{ArtifactManifest, content_hash_hex};
 
 /// Export bundle schema version.
@@ -99,6 +100,23 @@ pub struct BundleRequest {
     pub artifacts: Vec<ArtifactManifest>,
 }
 
+/// A sealed import-ready 2.0 bundle.  Its digest is typed so it cannot be
+/// confused with the historical 1.0 hexadecimal-only address.
+#[derive(Debug, Clone, PartialEq)]
+pub struct ImportSealedBundle {
+    pub bundle: ExportBundle,
+    pub canonical_json: String,
+    pub content_hash: String,
+}
+
+impl ImportSealedBundle {
+    /// Size of the canonical 2.0 serialization in bytes.
+    #[must_use]
+    pub fn byte_count(&self) -> u64 {
+        self.canonical_json.len() as u64
+    }
+}
+
 /// A built bundle together with its canonical bytes and content address.
 #[derive(Debug, Clone, PartialEq)]
 pub struct SealedBundle {
@@ -129,6 +147,29 @@ pub async fn build_bundle(
     request: BundleRequest,
     store: &dyn ProvenanceStore,
 ) -> Result<SealedBundle, BundleError> {
+    build_bundle_version(request, store, BUNDLE_VERSION, false).await
+}
+
+/// Assemble an import-ready 2.0 bundle using RFC 8785 canonicalization and a
+/// typed `blake3-256:` content digest.
+pub async fn build_import_bundle(
+    request: BundleRequest,
+    store: &dyn ProvenanceStore,
+) -> Result<ImportSealedBundle, BundleError> {
+    let bundle = build_bundle_version(request, store, IMPORT_BUNDLE_VERSION, true).await?;
+    Ok(ImportSealedBundle {
+        bundle: bundle.bundle,
+        canonical_json: bundle.canonical_json,
+        content_hash: format!("blake3-256:{}", bundle.content_hash),
+    })
+}
+
+async fn build_bundle_version(
+    request: BundleRequest,
+    store: &dyn ProvenanceStore,
+    version: &str,
+    jcs: bool,
+) -> Result<SealedBundle, BundleError> {
     let provenance = store
         .history(request.resource, &HistoryFilter::default())
         .await?;
@@ -149,7 +190,7 @@ pub async fn build_bundle(
 
     let bundle = ExportBundle {
         export_bundle: BundleHeader {
-            version: BUNDLE_VERSION.to_owned(),
+            version: version.to_owned(),
             resource: request.resource,
             exported_at_unix_ms: request.exported_at_unix_ms,
         },
@@ -161,7 +202,12 @@ pub async fn build_bundle(
         artifacts: request.artifacts,
     };
 
-    let canonical_json = canonical_json_string(&serde_json::to_value(&bundle)?);
+    let value = serde_json::to_value(&bundle)?;
+    let canonical_json = if jcs {
+        canonical_json_string_v2(&value)
+    } else {
+        canonical_json_string(&value)
+    };
     let content_hash = content_hash_hex(canonical_json.as_bytes());
     Ok(SealedBundle {
         bundle,

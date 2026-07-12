@@ -3,12 +3,13 @@ use std::collections::BTreeMap;
 use queryfabric_ir::{
     BackendClause, BoundExpr, BoundExprKind, BoundFunctionCall, BoundOrderByExpr,
     BoundProjectionItem, BoundQuery, BoundQueryPlan, BoundRelation, BoundSelect, BoundSetExpr,
-    NameRef, ParameterRef, Result,
+    ParameterRef, Result,
 };
 
 use super::helpers::DataTypeExt;
 use super::helpers::{
-    backend_type_name, ordered_parameters, render_binary_operator, render_literal, unsupported,
+    backend_type_name, ordered_parameters, render_binary_operator, render_function_ref,
+    render_identifier, render_literal, render_name_ref, render_qualified_name, unsupported,
 };
 use crate::model::{Catalog, SqlArtifact};
 
@@ -89,25 +90,29 @@ impl<'a> SqlRenderer<'a> {
         let mut sql = String::new();
         if !query.ctes.is_empty() {
             sql.push_str("WITH ");
-            sql.push_str(
-                &query
-                    .ctes
-                    .iter()
-                    .map(|cte| {
-                        let mut text = cte.name.clone();
-                        if !cte.columns.is_empty() {
-                            text.push_str(" (");
-                            text.push_str(&cte.columns.join(", "));
-                            text.push(')');
-                        }
-                        text.push_str(" AS (");
-                        text.push_str(&self.render_query_inner(&cte.query).unwrap_or_default());
+            let rendered_ctes = query
+                .ctes
+                .iter()
+                .map(|cte| {
+                    let mut text = render_identifier(self.backend, &cte.name)?;
+                    if !cte.columns.is_empty() {
+                        text.push_str(" (");
+                        text.push_str(
+                            &cte.columns
+                                .iter()
+                                .map(|column| render_identifier(self.backend, column))
+                                .collect::<Result<Vec<_>>>()?
+                                .join(", "),
+                        );
                         text.push(')');
-                        text
-                    })
-                    .collect::<Vec<_>>()
-                    .join(", "),
-            );
+                    }
+                    text.push_str(" AS (");
+                    text.push_str(&self.render_query_inner(&cte.query)?);
+                    text.push(')');
+                    Ok(text)
+                })
+                .collect::<Result<Vec<_>>>()?;
+            sql.push_str(&rendered_ctes.join(", "));
             sql.push(' ');
         }
         sql.push_str(&self.render_set_expr(&query.body)?);
@@ -221,13 +226,15 @@ impl<'a> SqlRenderer<'a> {
     fn render_projection(&self, item: &BoundProjectionItem) -> Result<String> {
         match item {
             BoundProjectionItem::Wildcard { qualifier, .. } => Ok(match qualifier {
-                Some(qualifier) => format!("{qualifier}.*"),
+                Some(qualifier) => format!("{}.*", render_qualified_name(self.backend, qualifier)?),
                 None => "*".into(),
             }),
             BoundProjectionItem::Expr(details) => {
                 let rendered = self.render_expr(&details.expr)?;
                 Ok(match &details.alias {
-                    Some(alias) => format!("{rendered} AS {alias}"),
+                    Some(alias) => {
+                        format!("{rendered} AS {}", render_identifier(self.backend, alias)?)
+                    }
                     None => rendered,
                 })
             }
@@ -267,22 +274,22 @@ impl<'a> SqlRenderer<'a> {
                 let mut sql = binding
                     .relation_name
                     .as_ref()
-                    .map(NameRef::display_name)
-                    .unwrap_or_else(|| binding.binding_name.clone());
+                    .map(|name| render_name_ref(self.backend, name))
+                    .unwrap_or_else(|| render_identifier(self.backend, &binding.binding_name))?;
                 if binding
                     .relation_name
                     .as_ref()
                     .is_some_and(|name| !name.name.eq_ignore_ascii_case(&binding.binding_name))
                 {
                     sql.push_str(" AS ");
-                    sql.push_str(&binding.binding_name);
+                    sql.push_str(&render_identifier(self.backend, &binding.binding_name)?);
                 }
                 Ok(sql)
             }
             BoundRelation::Derived { binding, query, .. } => {
                 let mut sql = format!("({})", self.render_query_inner(query)?);
                 sql.push_str(" AS ");
-                sql.push_str(&binding.binding_name);
+                sql.push_str(&render_identifier(self.backend, &binding.binding_name)?);
                 Ok(sql)
             }
             BoundRelation::NestedJoin {
@@ -292,7 +299,7 @@ impl<'a> SqlRenderer<'a> {
             } => {
                 let mut sql = format!("({})", self.render_table_with_joins(table_with_joins)?);
                 sql.push_str(" AS ");
-                sql.push_str(&binding.binding_name);
+                sql.push_str(&render_identifier(self.backend, &binding.binding_name)?);
                 Ok(sql)
             }
             BoundRelation::Unsupported { description, .. } => Err(unsupported(
@@ -320,8 +327,12 @@ impl<'a> SqlRenderer<'a> {
     fn render_expr(&self, expr: &BoundExpr) -> Result<String> {
         match &expr.kind {
             BoundExprKind::Column(column) => Ok(match &column.relation {
-                Some(relation) => format!("{relation}.{}", column.name),
-                None => column.name.clone(),
+                Some(relation) => format!(
+                    "{}.{}",
+                    render_qualified_name(self.backend, relation)?,
+                    render_identifier(self.backend, &column.name)?
+                ),
+                None => render_identifier(self.backend, &column.name)?,
             }),
             BoundExprKind::Literal(value) => Ok(render_literal(value)),
             BoundExprKind::Parameter(reference) => self.render_parameter(reference),
@@ -522,7 +533,7 @@ impl<'a> SqlRenderer<'a> {
             };
         let mut sql = format!(
             "{}({}{})",
-            mapped.display_name(),
+            render_function_ref(self.backend, &mapped)?,
             if function.distinct { "DISTINCT " } else { "" },
             args_sql
         );

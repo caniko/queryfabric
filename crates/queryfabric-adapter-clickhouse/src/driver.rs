@@ -86,6 +86,37 @@ fn clickhouse_url(scheme: &str, host: &str, port: u16) -> String {
     format!("{scheme}://{host}:{port}")
 }
 
+fn render_table_identifier(table_fqn: &str) -> Result<String> {
+    if table_fqn.is_empty() || table_fqn.chars().any(char::is_control) {
+        return Err(ClickHouseError::InvalidIdentifier(
+            "table names must be non-empty and contain no control characters".into(),
+        ));
+    }
+    let segments = table_fqn.split('.').collect::<Vec<_>>();
+    if segments.iter().any(|segment| segment.is_empty()) {
+        return Err(ClickHouseError::InvalidIdentifier(
+            "qualified table names cannot contain empty segments".into(),
+        ));
+    }
+    segments
+        .into_iter()
+        .map(|segment| {
+            let mut chars = segment.chars();
+            let simple = chars
+                .next()
+                .is_some_and(|character| character == '_' || character.is_ascii_alphabetic())
+                && chars.all(|character| {
+                    character == '_' || character == '$' || character.is_ascii_alphanumeric()
+                });
+            if simple {
+                return Ok(segment.to_owned());
+            }
+            Ok(format!("`{}`", segment.replace('`', "``")))
+        })
+        .collect::<Result<Vec<_>>>()
+        .map(|segments| segments.join("."))
+}
+
 fn select_send_error_is_retryable(error: &reqwest::Error) -> bool {
     error.status().is_none() && !error.is_body() && !error.is_decode()
 }
@@ -162,12 +193,9 @@ impl DynamicClient {
     }
 
     pub async fn insert_json_each_row(&self, table_fqn: &str, json_body: &str) -> Result<()> {
-        let sql = format!("INSERT INTO {table_fqn} FORMAT JSONEachRow\n{json_body}");
-        debug!(
-            table = table_fqn,
-            bytes = json_body.len(),
-            "DynamicClient INSERT"
-        );
+        let table = render_table_identifier(table_fqn)?;
+        let sql = format!("INSERT INTO {table} FORMAT JSONEachRow\n{json_body}");
+        debug!(table, bytes = json_body.len(), "DynamicClient INSERT");
         let resp = self
             .http
             .post(&self.base_url)
@@ -180,6 +208,7 @@ impl DynamicClient {
     }
 
     pub async fn insert_arrow(&self, table_fqn: &str, batches: &[RecordBatch]) -> Result<()> {
+        let table = render_table_identifier(table_fqn)?;
         if batches.is_empty() {
             return Ok(());
         }
@@ -187,7 +216,7 @@ impl DynamicClient {
         let batches: &[RecordBatch] = &batches;
         let schema = batches[0].schema();
         let total_rows: usize = batches.iter().map(|b| b.num_rows()).sum();
-        let sql_prefix = format!("INSERT INTO {table_fqn} FORMAT ArrowStream\n");
+        let sql_prefix = format!("INSERT INTO {table} FORMAT ArrowStream\n");
         let mut body = sql_prefix.into_bytes();
         {
             let mut writer = StreamWriter::try_new(&mut body, &schema)?;
@@ -197,7 +226,7 @@ impl DynamicClient {
             writer.finish()?;
         }
         debug!(
-            table = table_fqn,
+            table,
             rows = total_rows,
             ipc_bytes = body.len(),
             "DynamicClient INSERT Arrow"
@@ -495,5 +524,32 @@ fn panic_message(payload: &(dyn std::any::Any + Send)) -> std::borrow::Cow<'stat
         std::borrow::Cow::Owned(message.clone())
     } else {
         std::borrow::Cow::Borrowed("<non-string panic payload>")
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::render_table_identifier;
+
+    #[test]
+    fn table_identifiers_are_segmented_and_quoted() {
+        assert_eq!(
+            render_table_identifier("analytics.readings").unwrap(),
+            "analytics.readings"
+        );
+        assert_eq!(
+            render_table_identifier("analytics.readings; DROP TABLE users").unwrap(),
+            "analytics.`readings; DROP TABLE users`"
+        );
+        assert_eq!(
+            render_table_identifier("analytics.`readings`").unwrap(),
+            "analytics.```readings```"
+        );
+    }
+
+    #[test]
+    fn table_identifiers_reject_empty_segments_and_controls() {
+        assert!(render_table_identifier("analytics.").is_err());
+        assert!(render_table_identifier("analytics\nreadings").is_err());
     }
 }

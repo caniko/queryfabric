@@ -1,5 +1,6 @@
 [package]
 name = "queryfabric-runtime-k8s"
+publish = false
 version.workspace = true
 description = "Kubernetes isolated execution driver for QueryFabric burst workers"
 edition.workspace = true

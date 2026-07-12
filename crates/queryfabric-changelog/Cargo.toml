@@ -1,5 +1,6 @@
 [package]
 name = "queryfabric-changelog"
+publish = false
 description = "Multi-ecosystem changelog compilation from git diffs"
 version.workspace = true
 edition.workspace = true

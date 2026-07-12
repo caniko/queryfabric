@@ -70,15 +70,14 @@ pub use queryfabric_ir::{
     BoundQuery, CapabilityRequirement, CapabilityRequirements, CatalogSnapshotId, DataType,
     DiagnosticSeverity, Dialect, DialectMetadata, FieldMetadata, FunctionRef, ParameterBinding,
     ParameterRef, ParameterSchema, ParameterSummary, ParameterValue, ParsedQuery,
-    ProvenanceReceipt, QueryDiagnostic, QueryFabricError, QueryParameters, QuerySourceSpan, Result,
-    ResultField, ResultSchema,
+    ProvenanceReceipt, QueryBudget, QueryBudgetDimension, QueryBudgetUsage, QueryDiagnostic,
+    QueryFabricError, QueryParameters, QuerySourceSpan, Result, ResultField, ResultSchema,
 };
 pub use queryfabric_opt::{IdentityPass, OptimizationPass, OptimizationPipeline, RewriteAdvisory};
 pub use queryfabric_runtime::util::spawn_traced;
 pub use queryfabric_runtime::{
-    DriverError, ExecutionRuntime, ExecutionRuntimeMode, InteractiveRuntime,
-    IsolatedExecutionDriver, IsolatedJobSpec, ObjectStoreFormat, RecordBatchStream,
-    ResourceRequest, RuntimeError, StorageAccessMode,
+    DriverError, ExecutionRuntime, ExecutionRuntimeMode, IsolatedExecutionDriver, IsolatedJobSpec,
+    ObjectStoreFormat, RecordBatchStream, ResourceRequest, RuntimeError, StorageAccessMode,
 };
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
@@ -94,6 +93,7 @@ pub struct BackendCapabilityManifest {
 #[derive(Default)]
 pub struct QueryCompiler {
     optimization_pipeline: OptimizationPipeline,
+    budget: QueryBudget,
 }
 
 impl QueryCompiler {
@@ -107,8 +107,20 @@ impl QueryCompiler {
         self
     }
 
+    /// Configure bounded parsing and binding for untrusted query input.
+    pub fn with_budget(mut self, budget: QueryBudget) -> Self {
+        self.budget = budget;
+        self
+    }
+
+    pub fn budget(&self) -> QueryBudget {
+        self.budget
+    }
+
     pub fn parse(&self, dialect: &dyn Dialect, input: &str) -> Result<ParsedQuery> {
-        dialect.parse(input)
+        let parsed = dialect.parse(input)?;
+        self.budget.check(&QueryBudgetUsage::for_parsed(&parsed))?;
+        Ok(parsed)
     }
 
     pub fn bind_and_validate(
@@ -117,6 +129,7 @@ impl QueryCompiler {
         catalog: &dyn Catalog,
         parameters: &QueryParameters,
     ) -> Result<BoundQuery> {
+        self.budget.check(&QueryBudgetUsage::for_parsed(parsed))?;
         let compiler_version = env!("CARGO_PKG_VERSION");
         let bound = match queryfabric_catalog::bind_and_validate(parsed, catalog, parameters) {
             Ok(bound) => bound,
@@ -127,6 +140,10 @@ impl QueryCompiler {
             .provenance()
             .clone()
             .with_compiler_version(compiler_version);
+        self.budget.check(
+            &QueryBudgetUsage::for_parsed(normalized.parsed())
+                .with_parameters(normalized.parameters().len()),
+        )?;
         Ok(normalized.with_provenance(provenance))
     }
 

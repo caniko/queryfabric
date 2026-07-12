@@ -1,6 +1,7 @@
 use serde::{Deserialize, Serialize};
 
 use crate::bound::ParsedQuery;
+use crate::budget::QueryBudgetDimension;
 use crate::diagnostics::{ProvenanceReceipt, QueryDiagnostic};
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
@@ -45,6 +46,14 @@ pub enum QueryFabricError {
 
     #[error("Emission failed: {0}")]
     Emission(String),
+
+    #[error("Query budget exceeded for {dimension}: limit {limit}, actual {actual}")]
+    #[diagnostic(help("Reduce the query input or ask the host for a larger explicit budget."))]
+    BudgetExceeded {
+        dimension: QueryBudgetDimension,
+        limit: usize,
+        actual: usize,
+    },
 }
 
 impl QueryFabricError {

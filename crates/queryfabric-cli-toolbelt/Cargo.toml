@@ -1,5 +1,6 @@
 [package]
 name = "queryfabric-cli-toolbelt"
+publish = false
 description = "CLI ergonomics: subprocess runner, repo-root finder, tracing init, HTTP client builders"
 version.workspace = true
 edition.workspace = true

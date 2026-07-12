@@ -65,7 +65,7 @@ fernet = { version = "0.2", default-features = false, features = ["rustcrypto"] 
 libp2p-identity = "0.2"
 papaya = "0.2"
 secrecy = { version = "0.10", features = ["serde"] }
-piying = { version = "0.1.0", features = [
+piying = { version = "0.1.1", features = [
     "remote",
     "serde-codec",
 ] }
@@ -78,6 +78,7 @@ tokio = { version = "1", default-features = false, features = [
 tracing = "0.1"
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
+serde_jcs = "0.2.0"
 arrow = { version = "58", default-features = false }
 async-trait = "0.1"
 futures = "0.3"
@@ -129,4 +130,3 @@ queryfabric-changelog = { version = "0.1.0", path = "crates/queryfabric-changelo
 queryfabric-types = { version = "0.1.0", path = "crates/queryfabric-types" }
 queryfabric-worker = { version = "0.1.0", path = "crates/queryfabric-worker" }
 leptos = { version = "=0.8.19", default-features = false }
-

@@ -1,5 +1,6 @@
 [package]
 name = "queryfabric-worker"
+publish = false
 description = "One-shot Arrow Flight worker for isolated query execution"
 version.workspace = true
 edition.workspace = true

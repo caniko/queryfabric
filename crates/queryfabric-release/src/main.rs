@@ -1,18 +1,7 @@
 use anyhow::{Context, Result, bail};
 use clap::{Parser, Subcommand};
+use serde::Deserialize;
 use std::process::Command as ProcessCommand;
-
-const CRATES: &[&str] = &[
-    "queryfabric-ir",
-    "queryfabric-catalog",
-    "queryfabric-runtime",
-    "queryfabric-opt",
-    "queryfabric-dialect-sql",
-    "queryfabric-dialect-syql",
-    "queryfabric-adapter-clickhouse",
-    "queryfabric-adapter-postgres",
-    "queryfabric",
-];
 
 #[derive(Parser)]
 #[command(name = "queryfabric-release", about = "QueryFabric release tool")]
@@ -107,22 +96,23 @@ fn run_check() -> Result<()> {
 
 fn run_publish(version: &str, from: Option<&str>, execute: bool) -> Result<()> {
     let root = workspace_root()?;
+    let crates = publishable_crates(&root)?;
     let start_idx = from
         .map(|c| {
-            CRATES
+            crates
                 .iter()
-                .position(|&x| x == c)
+                .position(|x| x == c)
                 .ok_or_else(|| anyhow::anyhow!("unknown crate '{c}'"))
         })
         .transpose()?
         .unwrap_or(0);
 
-    let plan: Vec<&str> = CRATES[start_idx..].to_vec();
+    let plan = &crates[start_idx..];
     println!("==> publish order: {}", plan.join(", "));
 
     if !execute {
         // Dry-run the first crate only
-        let crate_name = plan[0];
+        let crate_name = &plan[0];
         println!("Dry-running {crate_name} {version}...");
         let manifest = root.join("crates").join(crate_name).join("Cargo.toml");
         let status = ProcessCommand::new("cargo")
@@ -145,7 +135,7 @@ fn run_publish(version: &str, from: Option<&str>, execute: bool) -> Result<()> {
     }
 
     // Execute: publish each crate sequentially, wait for crates.io propagation
-    for &crate_name in &plan {
+    for crate_name in plan {
         let manifest = root.join("crates").join(crate_name).join("Cargo.toml");
 
         println!("==> Publishing {crate_name} {version}...");
@@ -163,6 +153,121 @@ fn run_publish(version: &str, from: Option<&str>, execute: bool) -> Result<()> {
 
     println!("All crates published.");
     Ok(())
+}
+
+#[derive(Debug, Deserialize)]
+struct Metadata {
+    packages: Vec<Package>,
+    resolve: Resolve,
+    workspace_members: Vec<String>,
+}
+
+#[derive(Debug, Deserialize)]
+struct Package {
+    id: String,
+    name: String,
+    publish: Option<Vec<String>>,
+}
+
+#[derive(Debug, Deserialize)]
+struct Resolve {
+    nodes: Vec<ResolveNode>,
+}
+
+#[derive(Debug, Deserialize)]
+struct ResolveNode {
+    id: String,
+    dependencies: Vec<serde_json::Value>,
+}
+
+/// Return publishable packages in dependency order from Cargo metadata.
+/// `publish = false` packages cannot accidentally become release inputs just
+/// because a workflow or tool forgot to update a second hard-coded list.
+fn publishable_crates(root: &std::path::Path) -> Result<Vec<String>> {
+    let output = ProcessCommand::new("cargo")
+        .args(["metadata", "--format-version", "1", "--locked"])
+        .current_dir(root)
+        .output()
+        .context("reading Cargo metadata")?;
+    if !output.status.success() {
+        bail!(
+            "cargo metadata failed: {}",
+            String::from_utf8_lossy(&output.stderr).trim()
+        );
+    }
+    let metadata: Metadata =
+        serde_json::from_slice(&output.stdout).context("parsing Cargo metadata")?;
+    let workspace_members = metadata
+        .workspace_members
+        .iter()
+        .collect::<std::collections::BTreeSet<_>>();
+    let publishable = metadata
+        .packages
+        .iter()
+        .filter(|package| workspace_members.contains(&&package.id))
+        .filter(|package| {
+            package
+                .publish
+                .as_ref()
+                .is_none_or(|registries| !registries.is_empty())
+        })
+        .map(|package| package.id.clone())
+        .collect::<std::collections::BTreeSet<_>>();
+    let names = metadata
+        .packages
+        .iter()
+        .map(|package| (package.id.clone(), package.name.clone()))
+        .collect::<std::collections::BTreeMap<_, _>>();
+    let dependencies = metadata
+        .resolve
+        .nodes
+        .into_iter()
+        .map(|node| {
+            (
+                node.id,
+                node.dependencies
+                    .into_iter()
+                    .filter_map(|dependency| {
+                        dependency
+                            .as_str()
+                            .map(str::to_owned)
+                            .or_else(|| dependency.get("pkg")?.as_str().map(str::to_owned))
+                    })
+                    .collect::<std::collections::BTreeSet<_>>(),
+            )
+        })
+        .collect::<std::collections::BTreeMap<_, _>>();
+
+    let mut remaining = publishable;
+    let mut ordered = Vec::with_capacity(remaining.len());
+    while !remaining.is_empty() {
+        let ready = remaining
+            .iter()
+            .filter(|package| {
+                dependencies
+                    .get(*package)
+                    .into_iter()
+                    .flatten()
+                    .filter(|dependency| remaining.contains(*dependency))
+                    .count()
+                    == 0
+            })
+            .cloned()
+            .collect::<Vec<_>>();
+        if ready.is_empty() {
+            bail!("publishable Cargo packages contain a dependency cycle");
+        }
+        for package in ready {
+            remaining.remove(&package);
+            ordered.push(
+                names
+                    .get(&package)
+                    .cloned()
+                    .ok_or_else(|| anyhow::anyhow!("missing package name for `{package}`"))?,
+            );
+        }
+    }
+    Ok(ordered)
 }
 
 fn run_tag(version: &str) -> Result<()> {
@@ -213,4 +318,31 @@ fn workspace_root() -> Result<std::path::PathBuf> {
         .context("finding workspace root")?;
     let path = String::from_utf8_lossy(&output.stdout).trim().to_string();
     Ok(std::path::PathBuf::from(path))
+}
+
+#[cfg(test)]
+mod tests {
+    use super::{publishable_crates, workspace_root};
+
+    #[test]
+    fn metadata_drives_the_ten_crate_publish_tier() {
+        let crates = publishable_crates(&workspace_root().expect("workspace root"))
+            .expect("publishable crate metadata");
+        assert_eq!(crates.len(), 10);
+        assert_eq!(crates.last().map(String::as_str), Some("queryfabric"));
+        assert!(crates.iter().all(|name| {
+            !matches!(
+                name.as_str(),
+                "queryfabric-changelog"
+                    | "queryfabric-cli-toolbelt"
+                    | "queryfabric-cmd-runner"
+                    | "queryfabric-release"
+                    | "queryfabric-runtime-k8s"
+                    | "queryfabric-seaorm-ext"
+                    | "queryfabric-test-rig"
+                    | "queryfabric-types"
+                    | "queryfabric-worker"
+            )
+        }));
+    }
 }

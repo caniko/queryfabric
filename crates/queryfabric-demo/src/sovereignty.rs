@@ -14,7 +14,8 @@ use queryfabric_portability::datacite::{
 };
 use queryfabric_portability::{
     ArtifactManifest, BundleRequest, CitationInput, DoiError, DoiProvider, DoiRecord, DoiStatus,
-    SealedBundle, build_bundle, content_hash_hex,
+    ImportSealedBundle, TABULAR_CSV_PROFILE, TabularColumn, TabularColumnType, TabularSchema,
+    build_import_bundle, content_hash_hex, tabular_schema_fingerprint, write_tabular_csv,
 };
 use queryfabric_provenance::{ProvenanceEntry, ProvenanceError, ProvenanceStore, RecordedActivity};
 use queryfabric_store::ObjectStore;
@@ -107,22 +108,35 @@ pub fn station_citation(
 /// Render readings rows (as returned by the readings export query) to CSV.
 #[must_use]
 pub fn readings_csv(rows: &[Value]) -> String {
-    let mut csv = String::from("measured_at,pm25,no2,ozone\n");
-    for row in rows {
-        let field = |key: &str| match row.get(key) {
-            Some(Value::String(text)) => text.clone(),
-            Some(Value::Number(number)) => number.to_string(),
-            _ => String::new(),
-        };
-        csv.push_str(&format!(
-            "{},{},{},{}\n",
-            field("measured_at"),
-            field("pm25"),
-            field("no2"),
-            field("ozone")
-        ));
+    let bytes =
+        write_tabular_csv(&readings_schema(), rows).expect("demo rows match profile schema");
+    String::from_utf8(bytes).expect("normative CSV is UTF-8")
+}
+
+/// The one importable table profile implemented by the reference host.
+#[must_use]
+pub fn readings_schema() -> TabularSchema {
+    TabularSchema {
+        profile: TABULAR_CSV_PROFILE.to_owned(),
+        columns: vec![
+            TabularColumn {
+                name: "measured_at".to_owned(),
+                column_type: TabularColumnType::Timestamp,
+            },
+            TabularColumn {
+                name: "pm25".to_owned(),
+                column_type: TabularColumnType::Float64,
+            },
+            TabularColumn {
+                name: "no2".to_owned(),
+                column_type: TabularColumnType::Float64,
+            },
+            TabularColumn {
+                name: "ozone".to_owned(),
+                column_type: TabularColumnType::Float64,
+            },
+        ],
     }
-    csv
 }
 
 /// Where a station's exported artifacts live in the object store.
@@ -164,7 +178,7 @@ pub async fn export_station(
     request: ExportRequest<'_>,
     store: &ObjectStore,
     provenance: &dyn ProvenanceStore,
-) -> Result<(SealedBundle, ArtifactManifest), ExportError> {
+) -> Result<(ImportSealedBundle, ArtifactManifest), ExportError> {
     let ExportRequest {
         station,
         csv,
@@ -180,22 +194,25 @@ pub async fn export_station(
         kind: "table_export".to_owned(),
         storage_uri: csv_path.clone(),
         format: "csv".to_owned(),
-        schema_fingerprint: content_hash_hex(b"measured_at:timestamp,pm25:f64,no2:f64,ozone:f64"),
-        content_hash: content_hash_hex(&csv_bytes),
+        schema_fingerprint: tabular_schema_fingerprint(&readings_schema()),
+        content_hash: format!("blake3-256:{}", content_hash_hex(&csv_bytes)),
         row_count,
         byte_count: Some(csv_bytes.len() as u64),
         manifest_json: Value::Null,
     };
     store.put(&csv_path, csv_bytes).await?;
 
-    let sealed = build_bundle(
+    let sealed = build_import_bundle(
         BundleRequest {
             resource,
             exported_at_unix_ms: now_ms,
             metadata_jsonld: station_metadata_jsonld(station),
             citation: station_citation(station, base_url, None),
             policy: station_policy(),
-            artifacts: vec![manifest.clone()],
+            artifacts: vec![ArtifactManifest {
+                manifest_json: serde_json::to_value(readings_schema()).expect("schema serializes"),
+                ..manifest.clone()
+            }],
         },
         provenance,
     )
@@ -345,7 +362,8 @@ mod tests {
         seed_provenance(&provenance).await.expect("seed");
         let store = ObjectStore::memory();
         let station = &STATIONS[0];
-        let csv = "measured_at,pm25,no2,ozone\n2026-01-01T00:00:00,11.0,24.0,58.0\n".to_owned();
+        let csv =
+            "measured_at,pm25,no2,ozone\r\n2026-01-01T00:00:00Z,11.0,24.0,58.0\r\n".to_owned();
 
         let (sealed, manifest) = export_station(
             ExportRequest {
@@ -371,6 +389,32 @@ mod tests {
         assert!(!parsed.provenance.entries.is_empty());
         assert!(parsed.citations.bibtex.contains("air-quality"));
         assert_eq!(manifest.row_count, 1);
+
+        let validated = queryfabric_portability::validate_import_bundle(
+            &stored,
+            &sealed.content_hash,
+            queryfabric_portability::ImportLimits::default(),
+        )
+        .expect("2.0 bundle validates");
+        let staged = store
+            .get(&export_csv_path(station))
+            .await
+            .expect("get staged CSV");
+        let plan = queryfabric_portability::plan_tabular_import(
+            &validated,
+            &staged,
+            queryfabric_portability::PlanTarget {
+                target_resource: station.resource(),
+                relation: "readings".to_owned(),
+                target_revision: "snapshot-1".to_owned(),
+                expected_schema: readings_schema(),
+                local_owner: Uuid::from_u128(42),
+            },
+            queryfabric_portability::ImportLimits::default(),
+        )
+        .expect("tabular import plan");
+        assert_eq!(plan.row_count, 1);
+        assert!(plan.plan_digest.starts_with("blake3-256:"));
 
         // Same inputs, same content address: rebuild from an identically
         // seeded store and compare hashes.
@@ -409,13 +453,13 @@ mod tests {
     #[test]
     fn csv_rendering_handles_rows() {
         let rows = vec![serde_json::json!({
-            "measured_at": "2026-01-01T00:00:00",
+            "measured_at": "2026-01-01T00:00:00Z",
             "pm25": 11.0,
             "no2": 24.0,
             "ozone": 58.0,
         })];
         let csv = readings_csv(&rows);
         assert!(csv.starts_with("measured_at,"));
-        assert!(csv.contains("2026-01-01T00:00:00,11"));
+        assert!(csv.contains("2026-01-01T00:00:00Z,11"));
     }
 }

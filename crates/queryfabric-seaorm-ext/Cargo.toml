@@ -1,5 +1,6 @@
 [package]
 name = "queryfabric-seaorm-ext"
+publish = false
 description = "SeaORM utility types: SharedDatabaseConnection, JSONB array vec wrappers"
 version.workspace = true
 edition.workspace = true

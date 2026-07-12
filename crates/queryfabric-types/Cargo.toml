@@ -1,5 +1,6 @@
 [package]
 name = "queryfabric-types"
+publish = false
 description = "Validated string newtypes and portable enum types"
 version.workspace = true
 edition.workspace = true

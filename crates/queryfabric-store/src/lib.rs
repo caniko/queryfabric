@@ -104,14 +104,17 @@ impl ObjectStore {
     #[must_use]
     pub fn memory() -> Self {
         let op = Operator::new(opendal::services::Memory::default())
-            .expect("memory backend has no fallible configuration")
-            .finish();
+            .expect("memory backend has no fallible configuration");
         Self::new(op)
     }
 
     /// A store over any S3-compatible backend.
     #[cfg(feature = "s3")]
     pub fn s3(config: S3Config) -> Result<Self, StoreError> {
+        // `opendal` is built with default features disabled so the memory-only
+        // facade stays lightweight.  HTTP-backed services therefore need the
+        // facade's explicit one-time registry and transport initialization.
+        opendal::install_default();
         let mut builder = opendal::services::S3::default()
             .bucket(&config.bucket)
             .access_key_id(&config.access_key_id)
@@ -125,9 +128,7 @@ impl ObjectStore {
         if let Some(root) = &config.root {
             builder = builder.root(root);
         }
-        let op = Operator::new(builder)
-            .map_err(|source| StoreError::Configuration { source })?
-            .finish();
+        let op = Operator::new(builder).map_err(|source| StoreError::Configuration { source })?;
         Ok(Self::new(op))
     }
 
@@ -145,7 +146,7 @@ impl ObjectStore {
     }
 
     fn require_presign(&self, write: bool) -> Result<(), StoreError> {
-        let capability = self.op.info().full_capability();
+        let capability = self.op.info().capability();
         let supported = if write {
             capability.presign_write
         } else {

@@ -19,6 +19,7 @@ queryfabric-contract = { workspace = true }
 queryfabric-federation = { workspace = true }
 queryfabric-namespace-uuid = { workspace = true }
 queryfabric-portability = { workspace = true }
+queryfabric-paseto = { workspace = true }
 queryfabric-provenance = { workspace = true }
 queryfabric-store = { workspace = true, features = ["memory", "s3"] }
 queryfabric-tenancy = { workspace = true }

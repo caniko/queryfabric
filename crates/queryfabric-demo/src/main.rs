@@ -112,13 +112,23 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let config = DemoConfig::from_env()?;
     tracing::info!(?config, "starting queryfabric demonstrator");
 
-    let db = Database::new(config.database_url.clone());
+    let db = Database::new_with_roles(
+        config.database_migration_url.clone(),
+        config.database_query_url.clone(),
+        config.database_import_url.clone(),
+    );
     wait_for_database(&db, config.db_wait_secs).await?;
-    db.seed().await?;
+    if config.seed_demo_data {
+        db.seed().await?;
+    } else {
+        db.seed_schema().await?;
+    }
 
     let store = init_store(&config.store)?;
     let provenance = queryfabric_provenance::VecProvenanceStore::new();
-    sovereignty::seed_provenance(&provenance).await?;
+    if config.seed_demo_data {
+        sovereignty::seed_provenance(&provenance).await?;
+    }
     let (ownership, operator) = seed_ownership();
 
     let listen_addr = config.listen_addr;

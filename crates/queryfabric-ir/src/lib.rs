@@ -7,6 +7,7 @@
 //! strings.
 
 mod bound;
+mod budget;
 mod diagnostics;
 mod error;
 mod syntax;
@@ -18,6 +19,7 @@ pub use bound::{
     BoundRelation, BoundRelationBinding, BoundSelect, BoundSetExpr, BoundTableWithJoins,
     BoundWhenThen, BoundWindowSpec, Dialect, ParsedQuery,
 };
+pub use budget::{QueryBudget, QueryBudgetDimension, QueryBudgetUsage};
 pub use diagnostics::{
     DiagnosticSeverity, ProvenanceReceipt, QueryDiagnostic, QuerySourceSpan, query_hash,
 };
