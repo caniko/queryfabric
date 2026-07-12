@@ -1,0 +1,49 @@
+{
+  "exportBundle": {
+    "version": "2.0",
+    "resource": {
+      "namespace": "00000000-0000-0000-0000-00000000000c",
+      "id": "00000000-0000-0000-0000-000000000001"
+    },
+    "exportedAtUnixMs": 3000
+  },
+  "metadataJsonld": {
+    "@context": { "@vocab": "https://schema.org/" },
+    "@type": "Dataset",
+    "name": "Reference Measurements"
+  },
+  "citations": {
+    "bibtex": "",
+    "ris": "",
+    "cslJson": [],
+    "cff": "",
+    "apa": "",
+    "message": ""
+  },
+  "provenance": {
+    "resource": {
+      "namespace": "00000000-0000-0000-0000-00000000000c",
+      "id": "00000000-0000-0000-0000-000000000001"
+    },
+    "entries": []
+  },
+  "artifacts": [
+    {
+      "kind": "table_export",
+      "storageUri": "exports/reference/readings.csv",
+      "format": "csv",
+      "schemaFingerprint": "blake3-256:6b16d27b7e58e98576e14743088fe6f02a059e3c68cb6f0977e15031891aeb02",
+      "contentHash": "blake3-256:55afd3635e3d596f71bda3c159f713026c6682c45c1feead040145da55fcb14d",
+      "rowCount": 1,
+      "byteCount": 63,
+      "manifestJson": {
+        "profile": "queryfabric.tabular-csv/1",
+        "columns": [
+          { "name": "id", "type": "Uuid" },
+          { "name": "reading", "type": "Float64" },
+          { "name": "label", "type": "String" }
+        ]
+      }
+    }
+  ]
+}

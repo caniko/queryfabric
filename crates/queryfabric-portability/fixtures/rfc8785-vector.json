@@ -6,5 +6,6 @@
     "fraction": 1.0,
     "integer": 1
   },
-  "canonical": "{\"a\":{\"a\":1,\"b\":2},\"emoji\":\"é\",\"fraction\":1,\"integer\":1,\"z\":[true,null]}"
+  "canonical": "{\"a\":{\"a\":1,\"b\":2},\"emoji\":\"é\",\"fraction\":1,\"integer\":1,\"z\":[true,null]}",
+  "typedDigest": "blake3-256:4c63a08f5999c6f5b8ba4931b50de6b8ad47e1ed6b4d510008a4277649348649"
 }
