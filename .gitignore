@@ -11,6 +11,7 @@
 /website/public/
 /.plinth-project/
 /dist/plinth-project/
+/graphify-out/
 .DS_Store
 __pycache__/
 *.py[cod]
