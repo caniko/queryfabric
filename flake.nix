@@ -21,20 +21,28 @@
       url = "github:oxalica/rust-overlay";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    rs-harbor = {
+      url = "git+https://codeberg.org/caniko/rs-harbor.git?ref=trunk";
+      inputs.nixpkgs.follows = "nixpkgs";
+      inputs.crane.follows = "crane";
+      inputs.rust-overlay.follows = "rust-overlay";
+    };
   };
 
-  outputs = inputs @ {
-    self,
-    nixpkgs,
-    flake-parts,
-    crane,
-    plinth,
-    treefmt-nix,
-    git-hooks,
-    rust-overlay,
-    ...
-  }:
-    flake-parts.lib.mkFlake {inherit inputs;} {
+  outputs =
+    inputs@{
+      self,
+      nixpkgs,
+      flake-parts,
+      crane,
+      plinth,
+      treefmt-nix,
+      git-hooks,
+      rust-overlay,
+      rs-harbor,
+      ...
+    }:
+    flake-parts.lib.mkFlake { inherit inputs; } {
       systems = [
         "aarch64-darwin"
         "aarch64-linux"
@@ -42,168 +50,192 @@
         "x86_64-linux"
       ];
 
-      perSystem = {system, ...}: let
-        pkgs = import nixpkgs {
-          inherit system;
-          overlays = [(import rust-overlay)];
-        };
-        lib = pkgs.lib;
-        craneLib = crane.mkLib pkgs;
-        nixfmt = pkgs.nixfmt;
-        plinthProject = plinth.packages.${system}.plinth-project;
-        treefmtEval = treefmt-nix.lib.evalModule pkgs (import ./nix/treefmt.nix);
-        pre-commit-check = git-hooks.lib.${system}.run {
-          src = ./.;
-          hooks = import ./nix/pre-commit.nix {
-            inherit pkgs;
-            treefmtWrapper = treefmtEval.config.build.wrapper;
-            rustToolchain = pkgs.rustc;
+      perSystem =
+        { system, ... }:
+        let
+          pkgs = import nixpkgs {
+            inherit system;
+            overlays = [ (import rust-overlay) ];
           };
-        };
-        nixSources = lib.fileset.toSource {
-          root = ./.;
-          fileset = lib.fileset.unions [
-            ./flake.nix
-            ./nix
-          ];
-        };
-        nixFormatter = pkgs.writeShellApplication {
-          name = "queryfabric-format";
-          runtimeInputs = [
-            nixfmt
-            pkgs.findutils
-          ];
-          text = ''
-            find . \
-              \( -path './.git' -o -path './result' -o -path './target' -o -path './node_modules' \) -prune \
-              -o -name '*.nix' -print0 \
-              | xargs -0 nixfmt "$@"
-          '';
-        };
-
-        queryfabric-demo = craneLib.buildPackage {
-          pname = "queryfabric-demo";
-          version = "0.2.0";
-          src = lib.fileset.toSource {
+          lib = pkgs.lib;
+          craneLib = crane.mkLib pkgs;
+          cross = rs-harbor.lib.mkCross {
+            inherit pkgs system;
+            enableOsxcross = false;
+          };
+          nixfmt = pkgs.nixfmt;
+          plinthProject = plinth.packages.${system}.plinth-project;
+          treefmtEval = treefmt-nix.lib.evalModule pkgs (import ./nix/treefmt.nix);
+          pre-commit-check = git-hooks.lib.${system}.run {
+            src = ./.;
+            hooks = import ./nix/pre-commit.nix {
+              inherit pkgs;
+              treefmtWrapper = treefmtEval.config.build.wrapper;
+              rustToolchain = pkgs.rustc;
+            };
+          };
+          nixSources = lib.fileset.toSource {
             root = ./.;
             fileset = lib.fileset.unions [
-              (craneLib.fileset.commonCargoSources ./.)
-              ./crates/queryfabric-demo/src/index.html
+              ./flake.nix
+              ./nix
             ];
           };
-          strictDeps = true;
-          cargoExtraArgs = "-p queryfabric-demo --locked";
-          meta = {
-            description = "QueryFabric self-host demonstrator service";
-            license = lib.licenses.asl20;
-            mainProgram = "queryfabric-demo";
+          nixFormatter = pkgs.writeShellApplication {
+            name = "queryfabric-format";
+            runtimeInputs = [
+              nixfmt
+              pkgs.findutils
+            ];
+            text = ''
+              find . \
+                \( -path './.git' -o -path './result' -o -path './target' -o -path './node_modules' \) -prune \
+                -o -name '*.nix' -print0 \
+                | xargs -0 nixfmt "$@"
+            '';
           };
-        };
 
-        docs = pkgs.stdenv.mkDerivation {
-          pname = "queryfabric-docs";
-          version = "0.1.0";
-          src = lib.fileset.toSource {
-            root = ./.;
-            fileset = lib.fileset.maybeMissing ./docs;
+          queryfabricDemoArgs = {
+            pname = "queryfabric-demo";
+            version = "0.2.0";
+            src = lib.fileset.toSource {
+              root = ./.;
+              fileset = lib.fileset.unions [
+                (craneLib.fileset.commonCargoSources ./.)
+                ./crates/queryfabric-ir/src/budget.rs
+                ./crates/queryfabric-portability/src/import.rs
+                ./crates/queryfabric-demo/src/index.html
+              ];
+            };
+            strictDeps = true;
+            cargoExtraArgs = "-p queryfabric-demo --locked";
+            meta = {
+              description = "QueryFabric self-host demonstrator service";
+              license = lib.licenses.asl20;
+              mainProgram = "queryfabric-demo";
+            };
           };
-          nativeBuildInputs = [pkgs.mdbook];
-          phases = [
-            "buildPhase"
-            "installPhase"
-          ];
-          buildPhase = ''
-            set -euo pipefail
-            cp -r --no-preserve=mode "$src/docs" docs
-            mdbook build docs
-          '';
-          installPhase = ''
-            cp -r docs/book "$out"
-          '';
-        };
+          queryfabric-demo = craneLib.buildPackage queryfabricDemoArgs;
+          crossPackageSet = rs-harbor.lib.mkCrossPackages ({
+            inherit pkgs craneLib cross;
+            commonArgs = queryfabricDemoArgs;
+            pname = "queryfabric-demo";
+            targets = ["native" "aarch64-linux"];
+          } // lib.optionalAttrs (builtins.hasAttr "toolchainArgs" (builtins.functionArgs rs-harbor.lib.mkCrossPackages)) {
+            toolchainArgs = {
+              channel = "stable";
+              extensions = ["rust-src" "rustfmt" "clippy"];
+            };
+          });
 
-        site = pkgs.stdenvNoCC.mkDerivation {
-          pname = "queryfabric-site";
-          version = "0.1.0";
-          src = lib.fileset.toSource {
-            root = ./.;
-            fileset = lib.fileset.maybeMissing ./website;
+          docs = pkgs.stdenv.mkDerivation {
+            pname = "queryfabric-docs";
+            version = "0.1.0";
+            src = lib.fileset.toSource {
+              root = ./.;
+              fileset = lib.fileset.maybeMissing ./docs;
+            };
+            nativeBuildInputs = [ pkgs.mdbook ];
+            phases = [
+              "buildPhase"
+              "installPhase"
+            ];
+            buildPhase = ''
+              set -euo pipefail
+              cp -r --no-preserve=mode "$src/docs" docs
+              mdbook build docs
+            '';
+            installPhase = ''
+              cp -r docs/book "$out"
+            '';
           };
-          nativeBuildInputs = [plinthProject];
-          phases = [
-            "buildPhase"
-            "installPhase"
-          ];
-          buildPhase = ''
-            set -euo pipefail
-            cp -r --no-preserve=mode "$src/website" website
-            plinth-project build --config website/plinth-project.toml --out public
-          '';
-          installPhase = ''
-            mkdir -p "$out"
-            cp -r public/. "$out/"
-            mkdir -p "$out/docs"
-            cp -r ${docs}/. "$out/docs/"
-          '';
-        };
-      in {
-        formatter = nixFormatter;
 
-        packages = {
-          inherit
-            docs
-            site
-            queryfabric-demo
-            ;
-          default = site;
-          website = site;
-        };
+          site = pkgs.stdenvNoCC.mkDerivation {
+            pname = "queryfabric-site";
+            version = "0.1.0";
+            src = lib.fileset.toSource {
+              root = ./.;
+              fileset = lib.fileset.maybeMissing ./website;
+            };
+            nativeBuildInputs = [ plinthProject ];
+            phases = [
+              "buildPhase"
+              "installPhase"
+            ];
+            buildPhase = ''
+              set -euo pipefail
+              cp -r --no-preserve=mode "$src/website" website
+              plinth-project build --config website/plinth-project.toml --out public
+            '';
+            installPhase = ''
+              mkdir -p "$out"
+              cp -r public/. "$out/"
+              mkdir -p "$out/docs"
+              cp -r ${docs}/. "$out/docs/"
+            '';
+          };
+        in
+        {
+          formatter = nixFormatter;
 
-        checks =
-          {
+          packages = {
+            inherit
+              docs
+              site
+              queryfabric-demo
+              ;
+            "queryfabric-demo-aarch64-linux" = crossPackageSet."queryfabric-demo-aarch64-linux";
+            default = site;
+            website = site;
+          };
+
+          checks = {
             # Fast gate: the demonstrator builds (and its unit tests pass)
             # on every check run.
             inherit queryfabric-demo;
 
-            legacyAliasEval = let
-              _ = nixpkgs.lib.nixosSystem {
-                system = pkgs.stdenv.hostPlatform.system;
-                modules = [
-                  self.nixosModules.queryfabric
-                  (
-                    {...}: {
+            legacyAliasEval =
+              let
+                _ = nixpkgs.lib.nixosSystem {
+                  system = pkgs.stdenv.hostPlatform.system;
+                  modules = [
+                    self.nixosModules.queryfabric
+                    ({ ... }: {
                       services.queryfabric = {
                         enable = true;
                         database.url = "postgres://queryfabric@/queryfabric?host=/run/postgresql";
+                        auth.secret = "qf-demo-auth-secret-2026-operator-000000";
                         store.backend = "memory";
                       };
-                    }
-                  )
-                ];
-              };
-            in
-              pkgs.runCommand "queryfabric-legacy-alias-eval" {} ''
+                    })
+                  ];
+                };
+              in
+              pkgs.runCommand "queryfabric-legacy-alias-eval" { } ''
                 touch "$out"
               '';
 
-            nixfmt = pkgs.runCommand "queryfabric-nixfmt-check" {nativeBuildInputs = [nixfmt];} ''
+            nixfmt = pkgs.runCommand "queryfabric-nixfmt-check" { nativeBuildInputs = [ nixfmt ]; } ''
               set -euo pipefail
               find ${nixSources} -name '*.nix' -print0 | xargs -0 nixfmt --check
               touch "$out"
             '';
           }
           // lib.optionalAttrs pkgs.stdenv.hostPlatform.isLinux {
-            # Heavy gate: boot a VM with Postgres + MinIO + the NixOS
-            # module and drive query/export/GDPR end-to-end.
+            # Heavy gate: boot a VM with Postgres + Garage + the NixOS
+            # module and drive query/export/import/GDPR end-to-end.
             selfhost = import ./nix/tests/selfhost.nix {
+              inherit pkgs;
+              nixosModule = self.nixosModules.queryfabric;
+            };
+            portability-migration = import ./nix/tests/portability-migration.nix {
               inherit pkgs;
               nixosModule = self.nixosModules.queryfabric;
             };
           };
 
-        devShells.default = pkgs.mkShell {
-          packages =
-            [
+          devShells.default = pkgs.mkShell {
+            packages = [
               pkgs.cargo
               pkgs.cargo-fuzz
               pkgs.clippy
@@ -221,40 +253,41 @@
             ]
             ++ pre-commit-check.enabledPackages;
 
-          shellHook =
-            pre-commit-check.shellHook
-            + ''
+            shellHook = pre-commit-check.shellHook + ''
               echo "QueryFabric dev shell"
               echo "Website: plinth-project dev --config website/plinth-project.toml"
               echo "Documentation: cd docs && mdbook serve"
             '';
-        };
+          };
 
-        apps = {
-          deploy-pages = plinth.lib.${system}.mkDeployPagesApp {
-            domain = "queryfabric.tartanoglu.com";
+          apps = {
+            deploy-pages = plinth.lib.${system}.mkDeployPagesApp {
+              domain = "queryfabric.tartanoglu.com";
+            };
           };
         };
-      };
 
       flake = {
         nixosModules = {
           default = self.nixosModules.queryfabric;
-          queryfabric = {
-            pkgs,
-            lib,
-            ...
-          }: {
-            imports = [
-              (import ./nix/modules/queryfabric.nix {
-                defaultPackage = self.packages.${pkgs.stdenv.hostPlatform.system}.queryfabric-demo;
-              })
-            ];
-            services.queryfabric.package =
-              lib.mkDefault
-              self.packages.${pkgs.stdenv.hostPlatform.system}.queryfabric-demo;
-          };
+          queryfabric =
+            {
+              pkgs,
+              lib,
+              ...
+            }:
+            {
+              imports = [
+                (import ./nix/modules/queryfabric.nix {
+                  defaultPackage = self.packages.${pkgs.stdenv.hostPlatform.system}.queryfabric-demo;
+                })
+              ];
+              services.queryfabric.package =
+                lib.mkDefault
+                  self.packages.${pkgs.stdenv.hostPlatform.system}.queryfabric-demo;
+            };
         };
+        crossPackages."x86_64-linux"."aarch64-linux".queryfabric-demo = self.packages."x86_64-linux"."queryfabric-demo-aarch64-linux";
       };
     };
 }

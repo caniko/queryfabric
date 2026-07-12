@@ -55,6 +55,15 @@ let
         '';
       };
 
+      seedDemoData = lib.mkOption {
+        type = lib.types.bool;
+        default = true;
+        description = ''
+          Seed the demonstrator readings. Set to false for a predeclared,
+          schema-only migration target.
+        '';
+      };
+
       logLevel = lib.mkOption {
         type = lib.types.str;
         default = "info";
@@ -82,6 +91,63 @@ let
           description = ''
             File containing the Postgres connection URL, loaded via systemd
             `LoadCredential`. Takes precedence over {option}`database.url`.
+          '';
+        };
+
+        migrationUrl = lib.mkOption {
+          type = lib.types.nullOr lib.types.str;
+          default = null;
+          description = "Migration-admin Postgres URL; defaults to database.url.";
+        };
+
+        migrationUrlFile = lib.mkOption {
+          type = lib.types.nullOr lib.types.path;
+          default = null;
+          description = "Secret file containing the migration-admin Postgres URL.";
+        };
+
+        queryUrl = lib.mkOption {
+          type = lib.types.nullOr lib.types.str;
+          default = null;
+          description = "Read-only query Postgres URL; defaults to database.url.";
+        };
+
+        queryUrlFile = lib.mkOption {
+          type = lib.types.nullOr lib.types.path;
+          default = null;
+          description = "Secret file containing the read-only query Postgres URL.";
+        };
+
+        importUrl = lib.mkOption {
+          type = lib.types.nullOr lib.types.str;
+          default = null;
+          description = "Narrow import-writer Postgres URL; defaults to database.url.";
+        };
+
+        importUrlFile = lib.mkOption {
+          type = lib.types.nullOr lib.types.path;
+          default = null;
+          description = "Secret file containing the narrow import-writer Postgres URL.";
+        };
+      };
+
+      auth = {
+        secret = lib.mkOption {
+          type = lib.types.nullOr lib.types.str;
+          default = null;
+          description = ''
+            PASETO v4.local validation secret. Prefer secretFile so the
+            credential does not enter the Nix store.
+          '';
+        };
+
+        secretFile = lib.mkOption {
+          type = lib.types.nullOr lib.types.path;
+          default = null;
+          example = "/run/secrets/queryfabric-auth-secret";
+          description = ''
+            File containing the PASETO validation secret, loaded via systemd
+            LoadCredential. Takes precedence over auth.secret.
           '';
         };
       };
@@ -179,10 +245,12 @@ let
       listenAddress
       port
       publicBaseUrl
+      seedDemoData
       logLevel
       openFirewall
       ;
     database = cfg.database;
+    auth = cfg.auth;
     store = cfg.store;
     federation = cfg.federation;
   };
@@ -210,8 +278,20 @@ let
     instanceCfg:
     lib.optional (instanceCfg.database.urlFile != null) "db-url:${instanceCfg.database.urlFile}"
     ++ lib.optional (
+      instanceCfg.database.migrationUrlFile != null
+    ) "db-migration-url:${instanceCfg.database.migrationUrlFile}"
+    ++ lib.optional (
+      instanceCfg.database.queryUrlFile != null
+    ) "db-query-url:${instanceCfg.database.queryUrlFile}"
+    ++ lib.optional (
+      instanceCfg.database.importUrlFile != null
+    ) "db-import-url:${instanceCfg.database.importUrlFile}"
+    ++ lib.optional (
       instanceCfg.store.credentialsFile != null
-    ) "store-creds:${instanceCfg.store.credentialsFile}";
+    ) "store-creds:${instanceCfg.store.credentialsFile}"
+    ++ lib.optional (
+      instanceCfg.auth.secretFile != null
+    ) "auth-secret:${instanceCfg.auth.secretFile}";
 
   mkUnit = name: instanceCfg: {
     ${unitName name} = {
@@ -220,7 +300,7 @@ let
       after = [
         "network-online.target"
         "postgresql.service"
-        "minio.service"
+        "garage.service"
       ];
       wants = [ "network-online.target" ];
 
@@ -229,6 +309,7 @@ let
         QFDEMO_LISTEN_ADDR = "${instanceCfg.listenAddress}:${toString instanceCfg.port}";
         QFDEMO_STORE_BACKEND = instanceCfg.store.backend;
         QFDEMO_FEDERATION_ENABLE = if instanceCfg.federation.enable then "true" else "false";
+        QFDEMO_SEED_DATA = if instanceCfg.seedDemoData then "true" else "false";
         QFDEMO_FEDERATION_NODE_NAME = instanceCfg.federation.nodeName;
         QFDEMO_FEDERATION_FLIGHT_PORT = toString instanceCfg.federation.flightPort;
       }
@@ -240,6 +321,30 @@ let
       }
       // lib.optionalAttrs (instanceCfg.database.urlFile == null && instanceCfg.database.url != null) {
         QFDEMO_DATABASE_URL = instanceCfg.database.url;
+      }
+      // lib.optionalAttrs (instanceCfg.database.migrationUrlFile != null) {
+        QFDEMO_DATABASE_MIGRATION_URL_FILE = "%d/db-migration-url";
+      }
+      // lib.optionalAttrs (instanceCfg.database.migrationUrlFile == null && instanceCfg.database.migrationUrl != null) {
+        QFDEMO_DATABASE_MIGRATION_URL = instanceCfg.database.migrationUrl;
+      }
+      // lib.optionalAttrs (instanceCfg.database.queryUrlFile != null) {
+        QFDEMO_DATABASE_QUERY_URL_FILE = "%d/db-query-url";
+      }
+      // lib.optionalAttrs (instanceCfg.database.queryUrlFile == null && instanceCfg.database.queryUrl != null) {
+        QFDEMO_DATABASE_QUERY_URL = instanceCfg.database.queryUrl;
+      }
+      // lib.optionalAttrs (instanceCfg.database.importUrlFile != null) {
+        QFDEMO_DATABASE_IMPORT_URL_FILE = "%d/db-import-url";
+      }
+      // lib.optionalAttrs (instanceCfg.database.importUrlFile == null && instanceCfg.database.importUrl != null) {
+        QFDEMO_DATABASE_IMPORT_URL = instanceCfg.database.importUrl;
+      }
+      // lib.optionalAttrs (instanceCfg.auth.secretFile != null) {
+        QFDEMO_AUTH_SECRET_FILE = "%d/auth-secret";
+      }
+      // lib.optionalAttrs (instanceCfg.auth.secretFile == null && instanceCfg.auth.secret != null) {
+        QFDEMO_AUTH_SECRET = instanceCfg.auth.secret;
       }
       // lib.optionalAttrs (instanceCfg.store.backend == "s3") {
         QFDEMO_STORE_ENDPOINT = instanceCfg.store.endpoint;
@@ -316,6 +421,10 @@ let
     {
       assertion = instanceCfg.database.url != null || instanceCfg.database.urlFile != null;
       message = "${optionPath} needs database.url or database.urlFile.";
+    }
+    {
+      assertion = instanceCfg.auth.secret != null || instanceCfg.auth.secretFile != null;
+      message = "${optionPath} needs auth.secret or auth.secretFile.";
     }
     {
       assertion =
