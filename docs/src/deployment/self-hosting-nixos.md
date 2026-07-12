@@ -3,7 +3,8 @@
 QueryFabric ships a NixOS module and a demonstrator service so a single
 host can run a portable query API with the full data-sovereignty surface —
 export bundles, GDPR access/erase, DOI minting — backed by Postgres and any
-S3-compatible object store (MinIO, Garage, AWS S3).
+S3-compatible object store (Garage, MinIO, AWS S3). Mutation and import routes
+require a host-issued PASETO bearer credential.
 
 ## Quick start
 
@@ -38,6 +39,7 @@ single-instance shape:
     # Connection URL with credentials lives in a root-only file, loaded
     # via systemd LoadCredential — never the world-readable Nix store.
     database.urlFile = "/run/secrets/queryfabric-db-url";
+    auth.secretFile = "/run/secrets/queryfabric-auth-secret";
 
     store = {
       backend = "s3";
@@ -71,6 +73,7 @@ federation identity:
     listenAddress = "127.0.0.1";
     port = 8780;
     database.urlFile = "/run/secrets/queryfabric-alpha-db-url";
+    auth.secretFile = "/run/secrets/queryfabric-alpha-auth-secret";
     store = {
       backend = "s3";
       endpoint = "http://127.0.0.1:9000";
@@ -88,6 +91,7 @@ federation identity:
     listenAddress = "127.0.0.1";
     port = 8781;
     database.urlFile = "/run/secrets/queryfabric-beta-db-url";
+    auth.secretFile = "/run/secrets/queryfabric-beta-auth-secret";
     store = {
       backend = "s3";
       endpoint = "http://127.0.0.1:9000";
@@ -101,6 +105,11 @@ federation identity:
     };
   };
 }
+```
+
+```text
+# /run/secrets/queryfabric-auth-secret
+at-least-32-random-bytes-from-the-host-secret-manager
 ```
 
 You can mix the new API with the legacy shorthand only if you do not also
@@ -143,6 +152,8 @@ seeds a generic urban air-quality dataset and exposes:
 | `GET /resources/{id}/access-export` | GDPR Art. 15 structured access export |
 | `POST /resources/{id}/erase` | GDPR Art. 17 soft erasure (owner-only, audited) |
 | `POST /resources/{id}/doi` | mint a demonstration DOI (DataCite test prefix) |
+| `POST /imports/dry-run` | validate and stage a profile-1 artifact, returning plan/staging identities |
+| `POST /imports/apply` | revalidate the dry-run identities and persist the import receipt |
 | `GET /federation/status` | federation node identity |
 
 Try a query:
@@ -153,10 +164,12 @@ $ curl -s -X POST http://127.0.0.1:8780/query \
     -d '{"sql": "SELECT city, avg(pm25) FROM readings JOIN stations ON readings.station_id = stations.station_id GROUP BY city"}'
 ```
 
-…and a portable export:
+Replace `$QF_TOKEN` in mutation/import requests with a valid bearer token
+issued by the host identity service:
 
 ```console
-$ curl -s -X POST http://127.0.0.1:8780/resources/lis-baixa/export | jq .contentHash
+$ curl -s -X POST http://127.0.0.1:8780/resources/lis-baixa/export \
+    -H "authorization: Bearer $QF_TOKEN" | jq .contentHash
 ```
 
 ## Module options
@@ -173,6 +186,11 @@ set is available under `services.queryfabric.instances.<name>`:
 | `logLevel` | `info` | `RUST_LOG` filter |
 | `database.url` | – | inline connection URL (passwordless URLs only — it lands in the Nix store) |
 | `database.urlFile` | – | secret file with the connection URL (preferred) |
+| `database.migrationUrl` / `migrationUrlFile` | `database.url` | migration-admin URL or secret file |
+| `database.queryUrl` / `queryUrlFile` | `database.url` | read-only query URL or secret file |
+| `database.importUrl` / `importUrlFile` | `database.url` | narrow import-writer URL or secret file |
+| `auth.secret` | – | inline PASETO validation secret (development only) |
+| `auth.secretFile` | – | secret file with the PASETO validation secret (preferred) |
 | `store.backend` | `memory` | `memory` (evaluation only) or `s3` |
 | `store.endpoint` / `store.bucket` / `store.region` | – / – / `us-east-1` | S3 connection facts |
 | `store.credentialsFile` | – | secret file with `QFDEMO_STORE_ACCESS_KEY` / `QFDEMO_STORE_SECRET_KEY` |
@@ -200,13 +218,17 @@ Namespacing rules:
 
 ## Security posture
 
-- Secrets travel exclusively through systemd `LoadCredential`; the unit in
+- Database, object-store, and PASETO secrets travel exclusively through systemd `LoadCredential`; the unit in
   the Nix store contains no credential material. The end-to-end VM test
   asserts this by grepping the unit's store path for the test secrets.
 - The service runs as a `DynamicUser` with `NoNewPrivileges`,
   `ProtectSystem=strict`, `PrivateTmp`, `PrivateDevices`, syscall
   filtering (`@system-service`, minus `@privileged`), and an empty
   capability bounding set.
+- Use distinct `migrationUrlFile`, `queryUrlFile`, and `importUrlFile`
+  credentials in production. The migration role owns schema setup, the query
+  role is read-only, and the import role is limited to target rows and receipt
+  tables; the migration VM asserts the query and import denials.
 
 ## Testing the stack
 
@@ -216,6 +238,7 @@ The repository carries the full VM test:
 $ nix build .#checks.x86_64-linux.selfhost
 ```
 
-It boots a NixOS VM with Postgres, MinIO, and the module, then drives a
-portable query, an export bundle round-trip through MinIO, the GDPR
-access/erase flow, DOI minting, and the secret-hygiene assertion.
+It boots a NixOS VM with Postgres, Garage, and the module, then drives a
+portable query, an authenticated export/import round-trip through Garage, the
+GDPR access/erase flow, DOI minting, stale-plan rejection, and the
+secret-hygiene assertion.

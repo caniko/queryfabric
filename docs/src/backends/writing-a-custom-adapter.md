@@ -5,7 +5,7 @@ three methods you need to implement.
 
 ## The trait
 
-```rust
+```rust,ignore
 pub trait BackendAdapter: Send + Sync {
     fn name(&self) -> &'static str;
     fn capabilities(&self) -> CapabilitySet;
@@ -19,7 +19,7 @@ pub trait BackendAdapter: Send + Sync {
 Return a short string that identifies your backend. This appears in
 diagnostics and provenance receipts.
 
-```rust
+```rust,ignore
 fn name(&self) -> &'static str { "duckdb" }
 ```
 
@@ -28,7 +28,7 @@ fn name(&self) -> &'static str { "duckdb" }
 List the `BackendFeature` values your backend can handle. Unsupported features
 produce diagnostics during analysis.
 
-```rust
+```rust,ignore
 fn capabilities(&self) -> CapabilitySet {
     CapabilitySet::from_features([
         BackendFeature::Aggregates,
@@ -57,7 +57,7 @@ fn capabilities(&self) -> CapabilitySet {
 Use the `analyze_backend_support` helper to run the standard capability check,
 then add backend-specific diagnostics:
 
-```rust
+```rust,ignore
 fn analyze(&self, query: &BoundQuery, catalog: &dyn Catalog) -> BackendAnalysis {
     let mut analysis = queryfabric::analyze_backend_support(
         query, catalog, self.name(), self.capabilities(), true,
@@ -82,7 +82,7 @@ fn analyze(&self, query: &BoundQuery, catalog: &dyn Catalog) -> BackendAnalysis 
 
 The simplest path uses `emit_sql_artifact` with `SqlBackend::Other`:
 
-```rust
+```rust,ignore
 fn emit(&self, query: &BoundQuery, catalog: &dyn Catalog) -> Result<EmitArtifact> {
     emit_sql_artifact(query, catalog, SqlBackend::Other("duckdb"))
 }
@@ -95,7 +95,7 @@ functions, and typed parameters.
 If you need backend-specific SQL rendering (different function names,
 different type casts), walk the `BoundQuery` AST directly:
 
-```rust
+```rust,ignore
 fn emit(&self, query: &BoundQuery, catalog: &dyn Catalog) -> Result<EmitArtifact> {
     let sql_text = render_my_sql(query, catalog)?;
     Ok(EmitArtifact::sql(sql_text, query.result_schema()))
@@ -104,7 +104,7 @@ fn emit(&self, query: &BoundQuery, catalog: &dyn Catalog) -> Result<EmitArtifact
 
 ## Testing your adapter
 
-```rust
+```rust,ignore
 #[test]
 fn test_my_adapter_emits_valid_sql() {
     let adapter = MyAdapter;

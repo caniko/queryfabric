@@ -7,7 +7,7 @@ QueryFabric currently supports two practical ways to start:
 
 ## Requirements
 
-- Rust `1.85` or newer
+- Rust `1.94` or newer
 - Python `3.11` or newer if you want the Python bindings
 - Nix if you want the repo-local dev shell with `plinth-project`, `mdbook`, and
   `cargo-fuzz`
@@ -17,7 +17,8 @@ QueryFabric currently supports two practical ways to start:
 Clone the repository and run the standard checks:
 
 ```bash
-cargo test --workspace --all-targets
+cargo test --workspace --all-targets --exclude queryfabric-python
+cargo check -p queryfabric-python --locked
 cargo run --manifest-path crates/queryfabric/Cargo.toml --example quickstart
 cargo run --manifest-path crates/queryfabric/Cargo.toml --example multi_backend
 ```

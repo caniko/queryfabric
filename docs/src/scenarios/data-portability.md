@@ -1,137 +1,72 @@
 # Scenario: Data Portability and GDPR Export
 
-**Who this is for:** You run a QueryFabric instance that stores personal or
-sensitive data. Users have the right to access, rectify, and export their data
-under GDPR Articles 15, 16, and 20. You need a mechanism to produce portable
-export bundles with cryptographic provenance.
+QueryFabric keeps the export contract at the host boundary. The reference
+demonstrator exposes GDPR access/erasure endpoints and stores an import-ready
+tabular bundle in an S3-compatible object store.
 
-**What you'll end up with:** An API endpoint that accepts a user identity and
-returns a signed, content-addressed bundle containing all data the system holds
-about that user — plus a DOI and a citation.
+## Export bundle versions
 
-## How it works
+Bundle `1.0` is a legacy export-only JSON document. It uses the historical
+QueryFabric canonicalizer and a hexadecimal BLAKE3 address. It is not an
+authenticated signature.
 
-```
-Request ──► Host application ──► queryfabric-access (find resources)
-                │
-                ▼
-         queryfabric-portability (build bundle, mint DOI)
-                │
-                ▼
-         S3/MinIO (store bundle)
-                │
-                ▼
-         Return download URL + DOI
-```
+Bundle `2.0` is the MVP import format. It uses RFC 8785 JSON Canonicalization,
+typed `blake3-256:<64 lowercase hex>` digests, and one normative profile:
+`queryfabric.tabular-csv/1`. The profile requires UTF-8 CSV, comma delimiters,
+CRLF records, exact typed headers, non-nullable Boolean/Int64/Float64/String/
+UUID/RFC3339-UTC fields, and bounded validation. A digest is content
+addressing, not a signature; expected hashes must arrive through an
+authenticated operator channel.
 
-## Step 1: Implement `AccessPolicy` for your resources
+## Host export
 
-The `queryfabric-access` crate defines the contract:
+The demonstrator's `POST /resources/{id}/export` route queries the host
+database, writes the profile-1 CSV and canonical bundle to the configured
+object store, and returns the typed bundle digest. `GET
+/resources/{id}/bundle` reads the sealed bundle back. The bundle carries
+citations, licence/restriction declarations, and source provenance as evidence.
+It does not carry a target owner's authorization or a signature.
 
-```rust
-use queryfabric_access::{AccessDecision, AccessOutcome, Subject};
-use queryfabric_contract::AccessPolicy;
+## Operator-mediated import
 
-struct MyAccessPolicy;
-
-impl AccessDecision for MyAccessPolicy {
-    fn evaluate(&self, subject: &Subject, policy: &AccessPolicy) -> AccessOutcome {
-        match policy {
-            AccessPolicy::Open => AccessOutcome::Allow,
-            AccessPolicy::Registered if subject.registered => AccessOutcome::Allow,
-            _ => AccessOutcome::Deny {
-                reason: "access denied".into(),
-            },
-        }
-    }
-}
-```
-
-## Step 2: Collect resources for a subject
-
-```rust
-use queryfabric_access::{OwnershipSnapshot, ResourceRef};
-use queryfabric_contract::Subject;
-
-async fn collect_user_data(subject: &Subject) -> Vec<ResourceRef> {
-    // Query your database for all resources owned by this subject.
-    // Return their identifiers so the portability layer can bundle them.
-}
-```
-
-## Step 3: Build an export bundle
-
-```rust
-use queryfabric_portality::{Bundle, BundleEntry, BundleManifest};
-use std::time::SystemTime;
-
-let bundle = Bundle::builder()
-    .subject(subject.clone())
-    .entries(vec![
-        BundleEntry::json("measurements", &measurements)?,
-        BundleEntry::json("profile", &profile)?,
-    ])
-    .build()?;
-
-// The bundle is content-addressed: its ID is a BLAKE3 hash of its contents.
-let manifest: BundleManifest = bundle.manifest();
-println!("Bundle ID: {}", manifest.content_hash);
-```
-
-## Step 4: Mint a DOI
-
-```rust
-use queryfabric_portality::DoiMinter;
-
-let doi = DoiMinter::new("https://api.datacite.org", credentials)
-    .mint(
-        &manifest,
-        format!("Export for user {}", subject.id),
-    )
-    .await?;
-
-println!("DOI: {}", doi);
-```
-
-## Step 5: Return the bundle
-
-```rust
-let url = store.upload(&bundle).await?;
-
-Ok(ExportResponse {
-    download_url: url.to_string(),
-    doi: doi.to_string(),
-    expires_at: SystemTime::now() + Duration::from_days(30),
-})
-```
-
-## The export bundle structure
-
-The bundle is a JSON-LD document with:
+The MVP deliberately does not follow bundle `storageUri` values. An operator
+transfers the canonical bundle and artifact bytes, then submits them to the
+target host:
 
 ```json
 {
-    "@context": "https://w3id.org/queryfabric/export/v1",
-    "id": "blake3:a1b2c3...",
-    "subject": { "id": "uuid:...", "registered": true },
-    "created": "2026-06-23T12:00:00Z",
-    "entries": [
-        {
-            "path": "measurements.json",
-            "content_type": "application/json",
-            "content_hash": "blake3:...",
-            "size": 1234
-        }
-    ],
-    "provenance": {
-        "compiler_version": "0.2.0",
-        "catalog_snapshot": "snapshot-2026-06-23"
-    }
+  "bundle": "<canonical bundle JSON>",
+  "artifact": "<profile-1 CSV>",
+  "expectedBundleDigest": "blake3-256:…",
+  "target": "lis-baixa"
 }
 ```
 
-## Legal note
+`POST /imports/dry-run` stages the artifact under a content-addressed key,
+revalidates the bundle and artifact bytes, checks the exact predeclared
+relation schema, and returns a deterministic plan digest and staging object.
+Copy `planDigest` and `stagedObject` from that response into the subsequent
+`POST /imports/apply` request. Apply repeats the checks against the immutable
+staged bytes and atomically commits target rows plus a durable receipt, local
+policy/owner, carried source evidence, and source-to-target mapping in
+PostgreSQL. Replaying the same plan returns the original receipt. A changed
+artifact or stale plan fails before the database transaction.
 
-This scenario implements the technical mechanism for GDPR data portability.
-It does not provide legal advice. Consult your organisation's data protection
-officer to verify compliance with your specific regulatory requirements.
+The reference host currently maps this profile to its predeclared `readings`
+relation. Dynamic DDL, arbitrary schemas, URI fetching, and service migration
+are intentionally outside the MVP.
+
+## GDPR access export
+
+`GET /resources/{id}/access-export` returns the local policy and audit history.
+`POST /resources/{id}/erase` is owner-only and records a soft-deletion event;
+the audit trail remains available. These endpoints are host authorization
+surfaces, not portability-crate policy decisions.
+
+## DOI and legal boundaries
+
+The demonstrator's DOI provider is local and uses DataCite's reserved test
+prefix. Configure a registrar integration before minting production DOIs.
+Portability and import code preserve licence/restriction declarations as
+mandatory local policy input; consult the organisation's data-protection
+officer for legal interpretation.

@@ -20,7 +20,7 @@ prefer the facade unless they have a concrete reason to depend on internals.
 
 ## MSRV
 
-- Minimum supported Rust version: `1.85`
+- Minimum supported Rust version: `1.94`
 - CI should run on MSRV and stable before release.
 - CI also maintains a nightly fuzz-build lane that runs:
   `cd queryfabric/fuzz && cargo fuzz build parse_sql_no_panic`

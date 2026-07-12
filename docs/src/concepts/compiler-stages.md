@@ -17,6 +17,15 @@ This stage owns:
 At this point the query is still unresolved. Names, types, and function
 signatures have not been validated against a catalog yet.
 
+### Compilation budgets
+
+Hosts that accept untrusted query text can configure `QueryCompiler` with a
+`QueryBudget`. The default budget bounds input bytes, distinct parameters,
+syntax nodes, nesting depth, joins, and CTEs. The same limits are checked
+before binding and again after parameter finalization; an exceeded dimension
+returns `QueryFabricError::BudgetExceeded` with the limit and measured value.
+Execution row, byte, and time limits remain host/runtime responsibilities.
+
 ## Bound Query
 
 `bind_and_validate_query(parsed, catalog, params)` produces a `BoundQuery`.
@@ -53,6 +62,11 @@ effect of emission.
 For `0.1`, QueryFabric emits SQL artifacts for ClickHouse and PostgreSQL. The
 artifact seam remains open for future non-SQL targets, but the stable promise
 today is SQL emission for the verified portable subset.
+
+Catalog-derived relation, column, alias, CTE, and mapped-function segments are
+validated and rendered through the backend identifier helpers. ClickHouse
+table-target helpers apply the same segment-by-segment rule; values remain
+parameters rather than SQL text.
 
 ## Provenance
 

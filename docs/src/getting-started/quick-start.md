@@ -7,7 +7,7 @@ The shortest useful QueryFabric flow is:
 3. analyze a backend adapter
 4. emit a backend artifact
 
-```rust
+```rust,ignore
 use queryfabric::{
     ClickHouseAdapter, ColumnSchema, DataType, GenericSqlDialect, MemoryCatalog, QueryCompiler,
     QueryParameters, RelationKind, RelationSchema, bind_and_validate_query,

@@ -33,7 +33,7 @@ Build provenance:
 - workspace version: `0.2.0`
 - git identity at measurement time: local `HEAD` `57066d8`, with no local
   `v0.2.0` tag and a dirty worktree
-- workspace Rust floor: `rust-version = "1.88"` in `Cargo.toml`
+- workspace Rust floor: `rust-version = "1.94"` in `Cargo.toml`
 
 Measurement host:
 

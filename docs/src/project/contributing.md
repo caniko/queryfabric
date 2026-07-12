@@ -31,19 +31,21 @@ This provides the exact toolchain, `cargo-fuzz`, and all system dependencies.
 
 You need:
 
-- Rust 1.88+ (check `rust-version` in `Cargo.toml`)
+- Rust 1.94+ (check `rust-version` in `Cargo.toml`)
 - A running ClickHouse or PostgreSQL instance for integration tests (optional)
 
 ```bash
 cargo check --workspace
-cargo test --workspace
+cargo test --workspace --all-targets --exclude queryfabric-python
+cargo check -p queryfabric-python --locked
 ```
 
 ## Running Tests
 
 ```bash
 # All tests (fast — most are unit tests with no external deps)
-cargo test --workspace
+cargo test --workspace --all-targets --exclude queryfabric-python
+cargo check -p queryfabric-python --locked
 
 # Specific crate
 cargo test -p queryfabric-catalog
@@ -62,7 +64,7 @@ cargo fuzz build bind_portable_no_panic
 
 ## Workspace Layout
 
-```
+```text
 crates/
 ├── queryfabric/              # Public facade crate (depends on everything)
 ├── queryfabric-ir/           # Internal IR types
@@ -104,7 +106,8 @@ See the [Crate Catalog](../integration/crate-catalog.md) for the full list.
    Prefer `git commit --amend` over fixup commits during review.
 3. **Run the full test suite** before pushing:
    ```bash
-   cargo test --workspace
+   cargo test --workspace --all-targets --exclude queryfabric-python
+   cargo check -p queryfabric-python --locked
    cargo clippy --all-targets -- -D warnings
    ```
 4. **Update docs.** User-facing API changes must update the relevant

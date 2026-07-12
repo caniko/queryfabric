@@ -39,7 +39,7 @@ forcing those concepts into the neutral core IR.
 
 Set a snapshot identifier on the catalog when reproducibility matters:
 
-```rust
+```rust,ignore
 catalog.set_snapshot_id("catalog-2026-04-20");
 ```
 

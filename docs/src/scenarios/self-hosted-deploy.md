@@ -10,7 +10,7 @@ REST API.
 
 ## Architecture
 
-```
+```text
 Browser ──► queryfabric-demo ──► PostgreSQL (metadata, catalog)
                   │
                   └──► S3/MinIO (export bundles, provenance)

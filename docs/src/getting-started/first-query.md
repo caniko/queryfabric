@@ -14,7 +14,7 @@ cargo add queryfabric
 
 ## Step 1: Parse
 
-```rust
+```rust,ignore
 use queryfabric::{
     GenericSqlDialect, QueryCompiler, QueryParameters, MemoryCatalog, RelationSchema,
     ColumnSchema, RelationKind, DataType, bind_and_validate_query, ClickHouseAdapter,
@@ -33,7 +33,7 @@ are still unresolved — we haven't checked if `records` or `score` exist.
 
 Build a catalog that describes your schema:
 
-```rust
+```rust,ignore
 let mut catalog = MemoryCatalog::default();
 catalog.register_relation(RelationSchema {
     namespace: None,
@@ -60,7 +60,7 @@ catalog.register_relation(RelationSchema {
 
 Now bind:
 
-```rust
+```rust,ignore
 let mut params = QueryParameters::default();
 params.insert_positional(1, queryfabric::ParameterValue::Float64("100.0".into()));
 let bound = bind_and_validate_query(&parsed, &catalog, &params)?;
@@ -71,7 +71,7 @@ binding fails with a structured diagnostic explaining what's wrong.
 
 ## Step 3: Analyze
 
-```rust
+```rust,ignore
 let analysis = compiler.analyze(&bound, &ClickHouseAdapter, &catalog);
 println!("Supported: {}", analysis.supported);
 for diagnostic in &analysis.diagnostics {
@@ -87,7 +87,7 @@ The analysis checks:
 
 ## Step 4: Emit
 
-```rust
+```rust,ignore
 let artifact = compiler.emit(&bound, &ClickHouseAdapter, &catalog)?;
 let sql = artifact.as_sql().expect("SQL artifact");
 
@@ -103,7 +103,7 @@ PostgreSQL by passing `&PostgresAdapter`.
 
 ## Full example
 
-```rust
+```rust,ignore
 fn main() -> Result<(), queryfabric::QueryFabricError> {
     let compiler = QueryCompiler::default();
     let parsed = compiler.parse(&GenericSqlDialect,

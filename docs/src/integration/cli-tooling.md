@@ -17,7 +17,7 @@ Reusable CLI utilities that don't depend on any specific QueryFabric backend:
 - **`http`**: Shared HTTP client builder.
 - **`logging`**: Tracing/logging initialisation for CLI binaries.
 
-```rust
+```rust,ignore
 use queryfabric_cli_toolbelt::auth::{AuthStore, load_auth, save_auth};
 
 let store = AuthStore {
@@ -34,7 +34,7 @@ let loaded = load_auth("my-app")?;
 Async subprocess runner with combined stdout/stderr capture, tail truncation,
 and MCP integration:
 
-```rust
+```rust,ignore
 use queryfabric_cmd_runner::run_cmd;
 
 let result = run_cmd("cargo", &["check"]).await?;
@@ -43,7 +43,7 @@ println!("{}", result.output);  // last 200 lines
 
 With the `mcp` feature, results can be formatted as MCP `CallToolResult`:
 
-```rust
+```rust,ignore
 use queryfabric_cmd_runner::mcp::format_result;
 
 let mcp_result = format_result("cargo check", result);
@@ -53,7 +53,7 @@ let mcp_result = format_result("cargo check", result);
 
 Docker/Podman integration test harness:
 
-```rust
+```rust,ignore
 use queryfabric_test_rig::{
     connect_docker, ensure_image, ensure_network, start_container_with_ports,
     wait_for_port, probe::wait_for_tcp_port,
@@ -65,7 +65,7 @@ Pre-built service definitions (`PostgresService`, `ClickHouseService`,
 
 ### Port probing
 
-```rust
+```rust,ignore
 use queryfabric_test_rig::probe::{wait_for_tcp_port, WaitConfig};
 
 let config = WaitConfig {
@@ -77,7 +77,7 @@ wait_for_tcp_port("localhost:5432", &config)?;
 
 ### Docker registry auth
 
-```rust
+```rust,ignore
 use queryfabric_test_rig::docker_auth::resolve_registry_auth;
 
 if let Some(auth) = resolve_registry_auth("docker.io", "MYAPP")? {

@@ -10,7 +10,7 @@ the partial results.
 
 ## How federation works
 
-```
+```text
 User query ──► Hub node
                    │
           ┌────────┼────────┐

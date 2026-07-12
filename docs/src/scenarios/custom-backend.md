@@ -11,7 +11,7 @@ the standard QueryFabric pipeline: parse → bind → analyze → **your emit**.
 
 Every backend adapter implements `BackendAdapter`:
 
-```rust
+```rust,ignore
 use queryfabric::{
     BackendAdapter, BackendAnalysis, CapabilitySet, Catalog, EmitArtifact, Result,
 };
@@ -41,7 +41,7 @@ impl BackendAdapter for MyAdapter {
 
 ## Minimal example: DuckDB
 
-```rust
+```rust,ignore
 use queryfabric::{BackendAdapter, BackendAnalysis, CapabilitySet, Catalog, EmitArtifact,
     Result, BoundQuery, SqlBackend, emit_sql_artifact};
 
@@ -78,7 +78,7 @@ impl BackendAdapter for DuckDbAdapter {
 
 ## Using your adapter
 
-```rust
+```rust,ignore
 let compiler = QueryCompiler::default();
 let parsed = compiler.parse(&GenericSqlDialect, "SELECT * FROM records")?;
 let bound = bind_and_validate_query(&parsed, &catalog, &QueryParameters::default())?;
@@ -92,7 +92,7 @@ let artifact = compiler.emit(&bound, &DuckDbAdapter, &catalog)?;
 If your backend uses different function names (e.g. `LEN` instead of
 `LENGTH`), register them in the catalog:
 
-```rust
+```rust,ignore
 catalog.register_function(FunctionSignature {
     namespace: None,
     name: "length".into(),

@@ -111,10 +111,31 @@ concrete values into the query text. Provenance is attached via
 `.with_backend(...)` and `.with_artifact_identity(...)` in
 `crates/queryfabric-catalog/src/render/emit.rs`.
 
-There is still a real identifier-risk surface. Relation names, aliases, and
-column names are emitted as raw identifiers, and `render_literal(...)` only
-escapes string literals. Unsafe backend emission through identifier quoting is
-therefore not a solved problem today.
+Relation names, aliases, columns, CTEs, mapped function paths, ClickHouse
+table targets, and timestamp type arguments now pass through validation and
+segment-aware rendering. String values remain parameterized or literal-escaped
+by type. The remaining work is a wider adversarial/property matrix and review
+of any future adapter token additions; this is no longer an accepted raw
+identifier interpolation path.
+
+### Import bundles and host apply
+
+The reference host treats bundle JSON and tabular artifact bytes as untrusted.
+Threats include duplicate JSON keys, oversized or malformed CSV, digest or
+schema confusion, staged-object replacement, stale target revisions, replay
+with changed mappings, and partial visibility during a failed transaction.
+
+The host validates bounded bundle/profile facts before mutation, stages bytes
+under their artifact digest, requires the dry-run `planDigest` and
+`stagedObject` on apply, rechecks the staged bytes, and persists rows and the
+receipt in one PostgreSQL transaction. Identical replay returns the original
+receipt; a changed plan conflicts. Import, export, erase, DOI, and access
+export routes require a verified PASETO bearer subject with the appropriate
+role. Content hashes provide integrity against a trusted expected digest; they
+are not signatures.
+
+The remaining host gap is external identity-provider/session integration and a
+complete injected-failure/staging-cleanup matrix in the VM proof.
 
 ### Federation control plane
 
@@ -204,12 +225,14 @@ Today the repo already provides:
 The main gaps are straightforward:
 
 - no explicit parser or federation message size/rate limits
-- no dedicated identifier-quoting hardening pass in SQL emission
+- broader adversarial/property coverage for the identifier/token helpers
 - incomplete visible authn story for post-registration federation traffic
 - no documented dependency-audit process beyond lockfiles and CI
 - no external security review yet
 
-These are WP4 items rather than current guarantees. The planned work already
-named in `docs/grants/ngi-fediversity-application-plan.md` is the right next
-step: external audit follow-up, federation hardening, and threat-model-driven
-hardening.
+These are WP4 items rather than current guarantees. The engineering work is
+tracked in the active MVP plan under
+`docs/src/planning/syndb-generic-extractions-mvp/`; application templates and
+grant context live in the separate applications checkout. The right next
+steps are external audit follow-up, federation hardening, and
+threat-model-driven hardening.
