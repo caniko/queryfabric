@@ -1,6 +1,6 @@
-use queryfabric_portability::{
-    ImportLimits, TabularSchema, canonical_json_string_v2, content_hash_hex, decode_tabular_csv,
-    tabular_schema_fingerprint, validate_import_bundle,
+use super::{
+    ImportError, ImportLimits, TabularSchema, canonical_json_string_v2, content_hash_hex,
+    decode_tabular_csv, tabular_schema_fingerprint, validate_import_bundle,
 };
 use serde_json::Value;
 
@@ -37,15 +37,14 @@ fn published_schemas_are_machine_readable_and_pin_profile_constants() {
     let schema: TabularSchema = serde_json::from_str(VALID_TABULAR_SCHEMA).expect("typed schema");
     assert_eq!(schema.profile, "queryfabric.tabular-csv/1");
     assert_eq!(schema.columns.len(), 3);
-    println!("schema digest: {}", tabular_schema_fingerprint(&schema));
     let csv = b"id,reading,label\r\n00000000-0000-0000-0000-000000000001,1.5,ok\r\n";
-    println!("csv digest: blake3-256:{}", content_hash_hex(csv));
     assert_eq!(
         decode_tabular_csv(csv, &schema, ImportLimits::default())
             .unwrap()
             .len(),
         1
     );
+    assert!(tabular_schema_fingerprint(&schema).starts_with("blake3-256:"));
 }
 
 #[test]
@@ -60,10 +59,7 @@ fn public_vector_matches_rfc8785_and_typed_blake3() {
 #[test]
 fn duplicate_key_fixture_is_rejected_before_bundle_validation() {
     let result = validate_import_bundle(DUPLICATE_KEY, "blake3-256:", ImportLimits::default());
-    assert!(matches!(
-        result,
-        Err(queryfabric_portability::ImportError::InvalidJson(_))
-    ));
+    assert!(matches!(result, Err(ImportError::InvalidJson(_))));
 }
 
 #[test]
@@ -71,7 +67,6 @@ fn valid_bundle_fixture_verifies_against_its_staged_artifact() {
     let value: Value = serde_json::from_slice(VALID_BUNDLE).expect("valid bundle JSON");
     let canonical = canonical_json_string_v2(&value);
     let digest = format!("blake3-256:{}", content_hash_hex(canonical.as_bytes()));
-    println!("bundle digest: {digest}");
     assert_eq!(
         digest,
         "blake3-256:4d5083d6acdd6e3fe053c21b380cfa579b751a60565a1dfc37c056b64f32363c"

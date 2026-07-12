@@ -125,11 +125,10 @@
                 (craneLib.fileset.commonCargoSources ./.)
                 ./crates/queryfabric-portability/schema
                 ./crates/queryfabric-portability/fixtures
-                ./crates/queryfabric-portability/tests/schema_fixtures.rs
               ];
             };
             strictDeps = true;
-            cargoExtraArgs = "-p queryfabric-portability --test schema_fixtures --locked";
+            cargoExtraArgs = "-p queryfabric-portability --locked";
           };
           bundleSchemaArtifacts = craneLib.buildDepsOnly bundleSchemaArgs;
           bundle-schema = craneLib.cargoTest (

@@ -43,4 +43,6 @@ pub use import::{
 pub use manifest::{ArtifactManifest, content_hash_hex};
 
 #[cfg(test)]
+mod schema_fixtures;
+#[cfg(test)]
 mod tests;

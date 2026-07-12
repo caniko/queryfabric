@@ -721,6 +721,7 @@ mod tests {
                 artifact: String::new(),
                 expected_bundle_digest: String::new(),
                 target: "lis-baixa".to_owned(),
+                target_revision: None,
                 plan_digest: None,
                 staged_object: None,
             }),
