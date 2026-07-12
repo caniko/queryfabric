@@ -17,16 +17,33 @@ jobs:
       - name: cargo clippy
         run: cargo clippy --workspace --all-targets -- -D warnings
       - name: cargo test
-        run: cargo test --workspace --all-targets
+        run: cargo test --workspace --all-targets --exclude queryfabric-python
+      - name: queryfabric-python compile check
+        run: cargo check -p queryfabric-python --locked
       - name: reuse lint
         run: nix develop -c reuse lint
+      - name: publish workflow metadata consistency
+        shell: bash
+        run: |
+          set -euo pipefail
+          tmp="$(mktemp -d)"
+          trap 'rm -rf "$tmp"' EXIT
+          cargo metadata --format-version 1 --locked \
+            | jq -r '.packages[] | select(.publish == null or (.publish | length) > 0) | .name' \
+            | sort > "$tmp/metadata"
+          find .forgejo/workflows -maxdepth 1 -name 'publish-crate-*.yaml' -printf '%f\n' \
+            | sed -e 's/^publish-crate-//' -e 's/\.yaml$//' \
+            | sort > "$tmp/workflows"
+          diff -u "$tmp/metadata" "$tmp/workflows"
   msrv:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: dtolnay/rust-toolchain@1.85.0
+      - uses: dtolnay/rust-toolchain@1.94.0
       - name: cargo test
-        run: cargo test --workspace --all-targets
+        run: cargo test --workspace --all-targets --exclude queryfabric-python
+      - name: queryfabric-python compile check
+        run: cargo check -p queryfabric-python --locked
   fuzz:
     runs-on: ubuntu-latest
     steps:
