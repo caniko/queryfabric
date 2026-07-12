@@ -1,0 +1,8 @@
+{
+  "profile": "queryfabric.tabular-csv/1",
+  "columns": [
+    { "name": "id", "type": "Uuid" },
+    { "name": "reading", "type": "Float64" },
+    { "name": "label", "type": "String" }
+  ]
+}
