@@ -69,8 +69,9 @@ claim.
   starts two named instances with a fake package and verifies the generated
   units retain the service hardening defaults and independent instance
   topology.
-- The release smoke gate passes formatting, Clippy, workspace tests, both fuzz
-  targets, examples, maturin wheel/develop, the Python smoke test, and pytest;
+- The release smoke gate passes formatting, Clippy, workspace tests, the four
+  `queryfabric-python` Rust unit tests, both fuzz targets, examples, maturin
+  wheel/develop, the Python smoke test, and pytest;
   the mdBook build and doctest suite also pass.
 - SynDB's production Flight server now selects its behavior-complete
   `SyndbFlightService` instead of the unfinished skeleton. Its focused Flight

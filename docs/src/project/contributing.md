@@ -116,7 +116,7 @@ See the [Crate Catalog](../integration/crate-catalog.md) for the full list.
 3. **Run the full test suite** before pushing:
    ```bash
    cargo test --workspace --all-targets --exclude queryfabric-python
-   cargo check -p queryfabric-python --locked
+   cargo test -p queryfabric-python --locked
    cargo clippy --all-targets -- -D warnings
    ```
 4. **Update docs.** User-facing API changes must update the relevant

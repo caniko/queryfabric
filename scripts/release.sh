@@ -115,6 +115,9 @@ run_check() {
   log "cargo test --workspace --all-targets --exclude queryfabric-python"
   cargo test --workspace --all-targets --exclude queryfabric-python
 
+  log "cargo test -p queryfabric-python"
+  cargo test -p queryfabric-python --locked
+
   log "cargo fuzz build --sanitizer none parse_sql_no_panic"
   (
     cd fuzz

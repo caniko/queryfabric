@@ -18,7 +18,7 @@ Clone the repository and run the standard checks:
 
 ```bash
 cargo test --workspace --all-targets --exclude queryfabric-python
-cargo check -p queryfabric-python --locked
+cargo test -p queryfabric-python --locked
 cargo run --manifest-path crates/queryfabric/Cargo.toml --example quickstart
 cargo run --manifest-path crates/queryfabric/Cargo.toml --example multi_backend
 ```
