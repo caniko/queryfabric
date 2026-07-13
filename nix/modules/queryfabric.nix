@@ -289,9 +289,7 @@ let
     ++ lib.optional (
       instanceCfg.store.credentialsFile != null
     ) "store-creds:${instanceCfg.store.credentialsFile}"
-    ++ lib.optional (
-      instanceCfg.auth.secretFile != null
-    ) "auth-secret:${instanceCfg.auth.secretFile}";
+    ++ lib.optional (instanceCfg.auth.secretFile != null) "auth-secret:${instanceCfg.auth.secretFile}";
 
   mkUnit = name: instanceCfg: {
     ${unitName name} = {
@@ -325,21 +323,30 @@ let
       // lib.optionalAttrs (instanceCfg.database.migrationUrlFile != null) {
         QFDEMO_DATABASE_MIGRATION_URL_FILE = "%d/db-migration-url";
       }
-      // lib.optionalAttrs (instanceCfg.database.migrationUrlFile == null && instanceCfg.database.migrationUrl != null) {
-        QFDEMO_DATABASE_MIGRATION_URL = instanceCfg.database.migrationUrl;
-      }
+      //
+        lib.optionalAttrs
+          (instanceCfg.database.migrationUrlFile == null && instanceCfg.database.migrationUrl != null)
+          {
+            QFDEMO_DATABASE_MIGRATION_URL = instanceCfg.database.migrationUrl;
+          }
       // lib.optionalAttrs (instanceCfg.database.queryUrlFile != null) {
         QFDEMO_DATABASE_QUERY_URL_FILE = "%d/db-query-url";
       }
-      // lib.optionalAttrs (instanceCfg.database.queryUrlFile == null && instanceCfg.database.queryUrl != null) {
-        QFDEMO_DATABASE_QUERY_URL = instanceCfg.database.queryUrl;
-      }
+      //
+        lib.optionalAttrs
+          (instanceCfg.database.queryUrlFile == null && instanceCfg.database.queryUrl != null)
+          {
+            QFDEMO_DATABASE_QUERY_URL = instanceCfg.database.queryUrl;
+          }
       // lib.optionalAttrs (instanceCfg.database.importUrlFile != null) {
         QFDEMO_DATABASE_IMPORT_URL_FILE = "%d/db-import-url";
       }
-      // lib.optionalAttrs (instanceCfg.database.importUrlFile == null && instanceCfg.database.importUrl != null) {
-        QFDEMO_DATABASE_IMPORT_URL = instanceCfg.database.importUrl;
-      }
+      //
+        lib.optionalAttrs
+          (instanceCfg.database.importUrlFile == null && instanceCfg.database.importUrl != null)
+          {
+            QFDEMO_DATABASE_IMPORT_URL = instanceCfg.database.importUrl;
+          }
       // lib.optionalAttrs (instanceCfg.auth.secretFile != null) {
         QFDEMO_AUTH_SECRET_FILE = "%d/auth-secret";
       }

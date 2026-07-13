@@ -144,7 +144,7 @@ run_check() {
   log "maturin build (queryfabric Python binding)"
   (
     cd packages/queryfabric
-    maturin build --release -o "$wheel_dir"
+    maturin build --release --features extension-module -o "$wheel_dir"
   )
 
   log "maturin develop --uv (queryfabric Python binding)"
@@ -152,7 +152,7 @@ run_check() {
     cd packages/queryfabric
     export VIRTUAL_ENV="$venv_dir"
     export PATH="${VIRTUAL_ENV}/bin:${PATH}"
-    maturin develop --uv
+    maturin develop --uv --features extension-module
   )
 
   log "uv run python smoke test (queryfabric Python package)"

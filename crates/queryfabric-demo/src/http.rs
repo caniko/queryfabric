@@ -410,9 +410,14 @@ async fn prepare_import(
         &sovereignty::readings_schema(),
         queryfabric_portability::ImportLimits::default(),
     )?;
+    // A plan-specific immutable path keeps concurrent dry-runs for the same
+    // artifact isolated by target mapping/revision.  A failed apply can then
+    // remove only its own uncommitted object without deleting another plan's
+    // staging bytes.
     let staged_path = format!(
-        "imports/staging/{}/artifact.csv",
-        plan.artifact_digest.replace(':', "-")
+        "imports/staging/{}/{}/artifact.csv",
+        plan.artifact_digest.replace(':', "-"),
+        plan.plan_digest.replace(':', "-"),
     );
     Ok((validated, rows, plan, station, staged_path))
 }
@@ -493,7 +498,7 @@ async fn import_apply(
         .map_err(|error| ApiError::Dependency(error.to_string()))?;
     let local_policy = serde_json::to_value(station_policy())
         .map_err(|error| ApiError::Dependency(error.to_string()))?;
-    let (receipt, replayed) = state
+    let (receipt, replayed) = match state
         .db
         .apply_import(ImportCommit {
             station_id: station.id(),
@@ -510,7 +515,23 @@ async fn import_apply(
             byte_count: request.artifact.len() as u64,
             failure_stage: state.config.import_failure,
         })
-        .await?;
+        .await
+    {
+        Ok(result) => result,
+        Err(error) => {
+            // No durable receipt exists when apply fails.  The plan-specific
+            // staging object is therefore unreferenced and can be removed;
+            // a caller that wants to retry must perform a fresh dry-run.
+            if let Err(cleanup_error) = state.store.delete(&staged_path).await {
+                tracing::warn!(
+                    path = %staged_path,
+                    %cleanup_error,
+                    "failed to remove unreferenced import staging object"
+                );
+            }
+            return Err(ApiError::from(error));
+        }
+    };
     Ok(Json(json!({
         "contractVersion": "queryfabric.import/1",
         "mode": "apply",

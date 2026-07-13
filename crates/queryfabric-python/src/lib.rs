@@ -826,6 +826,7 @@ mod tests {
 
     #[test]
     fn python_parameter_conversion_supports_json_objects() {
+        Python::initialize();
         Python::attach(|py| {
             let value =
                 serde_json::from_str::<serde_json::Value>(r#"{"species":"mouse"}"#).expect("json");

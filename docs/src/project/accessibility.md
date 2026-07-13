@@ -15,11 +15,12 @@ today:
 - sufficient contrast for text, controls, and status indicators
 - clear labels, headings, and error messages for form-based interactions
 
-The accessibility review itself is planned as part of the grant-funded work in
-WP4, alongside contributor onboarding and security follow-up. That review will
-turn these commitments into a concrete audit and remediation list for the web
-UI and the documentation site.
+The repository now has a deterministic structural gate for the generated
+documentation in `checks.accessibility`. It verifies language metadata, page
+titles, the main landmark, and `alt` attributes on generated images. This is a
+smoke gate, not a WCAG conformance audit; keyboard, contrast, screen-reader,
+and interactive-state review still require a human audit of the web UI.
 
 For now, this statement is intentionally modest: the project is committing to
 accessible implementation practices and an explicit review path, not claiming
-WCAG conformance before the audit exists.
+WCAG conformance before the manual audit exists.

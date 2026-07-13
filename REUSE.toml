@@ -4,6 +4,7 @@ version = 1
 path = [
   "*.md",
   "*.toml",
+  ".cargo/*.toml",
   "*.lock",
   ".envrc",
   ".gitignore",

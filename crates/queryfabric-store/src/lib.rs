@@ -221,6 +221,23 @@ impl ObjectStore {
             })?;
         Ok(buffer.to_vec())
     }
+
+    /// Delete an object at `path`.
+    ///
+    /// Cleanup is deliberately explicit: callers decide whether an object is
+    /// still referenced by durable state before removing it.  OpenDAL treats
+    /// deleting an already absent object as success for the supported stores,
+    /// which makes this safe for retryable cleanup paths.
+    pub async fn delete(&self, path: &str) -> Result<(), StoreError> {
+        self.validated(path)?;
+        self.op
+            .delete(path)
+            .await
+            .map_err(|source| StoreError::Backend {
+                path: path.to_owned(),
+                source,
+            })
+    }
 }
 
 #[cfg(all(test, feature = "memory"))]
@@ -236,6 +253,23 @@ mod tests {
             .expect("put");
         let bytes = store.get("results/bundle.json").await.expect("get");
         assert_eq!(bytes, b"{\"ok\":true}");
+    }
+
+    #[tokio::test]
+    async fn delete_removes_staged_object() {
+        let store = ObjectStore::memory();
+        store
+            .put("imports/staging/object.csv", b"payload".to_vec())
+            .await
+            .expect("put");
+        store
+            .delete("imports/staging/object.csv")
+            .await
+            .expect("delete");
+        assert!(matches!(
+            store.get("imports/staging/object.csv").await,
+            Err(StoreError::Backend { .. })
+        ));
     }
 
     #[tokio::test]

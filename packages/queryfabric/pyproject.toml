@@ -20,3 +20,4 @@ dev = [
 module-name = "queryfabric._queryfabric"
 python-source = "python"
 manifest-path = "../../crates/queryfabric-python/Cargo.toml"
+features = ["extension-module"]

@@ -240,11 +240,15 @@ pkgs.testers.runNixOSTest {
         assert int(beta.succeed(
             "su -s /bin/sh postgres -c \"psql -d qfbeta -tAc 'SELECT count(*) FROM queryfabric_import_receipts'\""
         ).strip()) == receipts_before
+        beta.fail("mc stat local/queryfabric-beta/" + rollback["stagedObject"])
         beta.succeed(
             "rm /run/systemd/system/queryfabric-beta.service.d/failure.conf && "
             "systemctl daemon-reload && systemctl restart queryfabric-beta.service"
         )
         beta.wait_until_succeeds("curl -sf http://127.0.0.1:8781/healthz")
+        rollback_dry_run = json_post(beta, 8781, "/imports/dry-run", rollback)
+        rollback["planDigest"] = rollback_dry_run["planDigest"]
+        rollback["stagedObject"] = rollback_dry_run["stagedObject"]
         recovered = json_post(beta, 8781, "/imports/apply", rollback)
         assert recovered["replayed"] is False
         assert int(beta.succeed(
@@ -253,6 +257,13 @@ pkgs.testers.runNixOSTest {
         assert int(beta.succeed(
             "su -s /bin/sh postgres -c \"psql -d qfbeta -tAc 'SELECT count(*) FROM queryfabric_import_receipts'\""
         ).strip()) == receipts_before + 1
+        beta.succeed("systemctl restart queryfabric-beta.service")
+        beta.wait_until_succeeds("curl -sf http://127.0.0.1:8781/healthz")
+        replay_after_recovery_restart = json_post(beta, 8781, "/imports/apply", rollback)
+        assert replay_after_recovery_restart["replayed"] is True
+        assert int(beta.succeed(
+            "su -s /bin/sh postgres -c \"psql -d qfbeta -tAc 'SELECT count(*) FROM readings'\""
+        ).strip()) == rows_before + 72
 
     with subtest("tampered artifact is rejected before apply"):
         tampered = dict(payload)

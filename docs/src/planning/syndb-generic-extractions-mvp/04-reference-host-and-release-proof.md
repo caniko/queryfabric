@@ -474,7 +474,7 @@ gates under the repaired Phase 00 environment.
   nix develop -c cargo fmt --manifest-path fuzz/Cargo.toml --all -- --check
   nix develop -c cargo clippy --workspace --all-targets --locked -- -D warnings
   nix develop -c cargo test --workspace --all-targets --exclude queryfabric-python --locked
-  nix develop -c cargo check -p queryfabric-python --locked
+  nix develop -c cargo test -p queryfabric-python --locked
   nix develop -c cargo clippy --workspace --all-targets --all-features \
     --locked -- -D warnings
   nix develop -c cargo test --workspace --all-targets --all-features \

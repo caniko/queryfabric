@@ -27,6 +27,10 @@
       inputs.crane.follows = "crane";
       inputs.rust-overlay.follows = "rust-overlay";
     };
+    advisory-db = {
+      url = "github:RustSec/advisory-db";
+      flake = false;
+    };
   };
 
   outputs =
@@ -40,6 +44,7 @@
       git-hooks,
       rust-overlay,
       rs-harbor,
+      advisory-db,
       ...
     }:
     flake-parts.lib.mkFlake { inherit inputs; } {
@@ -104,7 +109,13 @@
                 (craneLib.fileset.commonCargoSources ./.)
                 ./crates/queryfabric-ir/src/budget.rs
                 ./crates/queryfabric-portability/src/import.rs
+                ./crates/queryfabric-portability/schema
+                ./crates/queryfabric-portability/fixtures
+                ./crates/queryfabric-web/assets/queryfabric_syql_editor.js
+                ./crates/queryfabric-runtime-k8s/tests/golden/replicated_read_only_job.json
                 ./crates/queryfabric-demo/src/index.html
+                ./capabilities/builtin-capability-manifest.json
+                ./conformance/portable-subset.json
               ];
             };
             strictDeps = true;
@@ -132,20 +143,123 @@
           };
           bundleSchemaArtifacts = craneLib.buildDepsOnly bundleSchemaArgs;
           bundle-schema = craneLib.cargoTest (
-            bundleSchemaArgs
-            // { cargoArtifacts = bundleSchemaArtifacts; }
+            bundleSchemaArgs // { cargoArtifacts = bundleSchemaArtifacts; }
           );
-          crossPackageSet = rs-harbor.lib.mkCrossPackages ({
-            inherit pkgs craneLib cross;
-            commonArgs = queryfabricDemoArgs;
-            pname = "queryfabric-demo";
-            targets = ["native" "aarch64-linux"];
-          } // lib.optionalAttrs (builtins.hasAttr "toolchainArgs" (builtins.functionArgs rs-harbor.lib.mkCrossPackages)) {
-            toolchainArgs = {
-              channel = "stable";
-              extensions = ["rust-src" "rustfmt" "clippy"];
-            };
-          });
+          crossLanguage =
+            pkgs.runCommand "queryfabric-cross-language-vectors"
+              {
+                nativeBuildInputs = [
+                  (pkgs.python3.withPackages (ps: [
+                    ps.rfc8785
+                    ps.blake3
+                  ]))
+                ];
+              }
+              ''
+                set -euo pipefail
+                python3 - ${./crates/queryfabric-portability/fixtures/rfc8785-vector.json} "$out" <<'PY'
+                import json
+                import pathlib
+                import sys
+
+                import blake3
+                import rfc8785
+
+                fixture = json.loads(pathlib.Path(sys.argv[1]).read_text(encoding="utf-8"))
+                canonical = rfc8785.dumps(fixture["input"]).decode("utf-8")
+                if canonical != fixture["canonical"]:
+                    raise SystemExit("Python RFC 8785 output differs from the published vector")
+                digest = "blake3-256:" + blake3.blake3(canonical.encode("utf-8")).hexdigest()
+                if digest != fixture["typedDigest"]:
+                    raise SystemExit("Python BLAKE3 output differs from the published vector")
+                pathlib.Path(sys.argv[2]).write_text("independent Python RFC 8785/BLAKE3 vector passed\n")
+                PY
+              '';
+          msrvToolchain = pkgs.rust-bin.stable."1.94.0".default;
+          msrvCraneLib = (crane.mkLib pkgs).overrideToolchain (_: msrvToolchain);
+          msrvArgs = queryfabricDemoArgs // {
+            cargoExtraArgs = "--workspace --exclude queryfabric-python --locked";
+          };
+          msrvArtifacts = msrvCraneLib.buildDepsOnly msrvArgs;
+          # The MSRV gate is a full-workspace compile gate. Runtime tests run
+          # under the stable workspace gate; keeping this check compile-only
+          # avoids TLS-provider global state in unrelated test binaries.
+          msrv = msrvCraneLib.buildPackage (
+            msrvArgs
+            // {
+              cargoArtifacts = msrvArtifacts;
+              doCheck = false;
+            }
+          );
+          audit = craneLib.cargoAudit {
+            pname = "queryfabric-audit";
+            version = "0.2.0";
+            src = ./.;
+            inherit advisory-db;
+            cargoAuditExtraArgs = "";
+          };
+          deny = craneLib.cargoDeny {
+            pname = "queryfabric-deny";
+            version = "0.2.0";
+            src = ./.;
+            cargoDenyChecks = "bans licenses sources";
+          };
+          accessibility =
+            pkgs.runCommand "queryfabric-accessibility-check"
+              {
+                nativeBuildInputs = [ pkgs.python3 ];
+              }
+              ''
+                set -euo pipefail
+                python3 - "${docs}" "$out" <<'PY'
+                import pathlib
+                import re
+                import sys
+
+                root = pathlib.Path(sys.argv[1])
+                pages = sorted(page for page in root.rglob("*.html") if page.name not in {"404.html", "toc.html"})
+                if not pages:
+                    raise SystemExit("no generated HTML pages found")
+                for page in pages:
+                    html = page.read_text(encoding="utf-8")
+                    if not re.search(r"<html[^>]*lang=[\"'][^\"']+[\"']", html, re.I):
+                        raise SystemExit(f"{page}: missing html lang")
+                    title_start = html.lower().find("<title>")
+                    title_end = html.lower().find("</title>", title_start + 7)
+                    if title_start < 0 or title_end < 0 or not html[title_start + 7:title_end].strip():
+                        raise SystemExit(f"{page}: missing non-empty title")
+                    if not re.search(r"<main", html, re.I):
+                        raise SystemExit(f"{page}: missing main landmark")
+                    for image in re.findall(r"<img[^>]*>", html, re.I):
+                        if not re.search(r"alt=[\"'][^\"']*[\"']", image, re.I):
+                            raise SystemExit(f"{page}: image without alt attribute")
+                pathlib.Path(sys.argv[2]).write_text("structural accessibility gate passed\\n")
+                PY
+              '';
+          crossPackageSet = rs-harbor.lib.mkCrossPackages (
+            {
+              inherit pkgs craneLib cross;
+              commonArgs = queryfabricDemoArgs;
+              pname = "queryfabric-demo";
+              targets = [
+                "native"
+                "aarch64-linux"
+              ];
+            }
+            //
+              lib.optionalAttrs
+                (builtins.hasAttr "toolchainArgs" (builtins.functionArgs rs-harbor.lib.mkCrossPackages))
+                {
+                  toolchainArgs = {
+                    channel = "stable";
+                    extensions = [
+                      "rust-src"
+                      "rustfmt"
+                      "clippy"
+                    ];
+                  };
+                }
+          );
 
           docs = pkgs.stdenv.mkDerivation {
             pname = "queryfabric-docs";
@@ -214,7 +328,16 @@
             inherit queryfabric-demo;
             # Public schemas and cross-language JCS/digest fixtures are an
             # independent offline gate.
-            inherit bundle-schema;
+            inherit
+              bundle-schema
+              crossLanguage
+              ;
+            inherit
+              msrv
+              audit
+              deny
+              accessibility
+              ;
 
             legacyAliasEval =
               let
@@ -251,6 +374,10 @@
               nixosModule = self.nixosModules.queryfabric;
             };
             portability-migration = import ./nix/tests/portability-migration.nix {
+              inherit pkgs;
+              nixosModule = self.nixosModules.queryfabric;
+            };
+            module = import ./nix/tests/module.nix {
               inherit pkgs;
               nixosModule = self.nixosModules.queryfabric;
             };
@@ -309,7 +436,8 @@
                   self.packages.${pkgs.stdenv.hostPlatform.system}.queryfabric-demo;
             };
         };
-        crossPackages."x86_64-linux"."aarch64-linux".queryfabric-demo = self.packages."x86_64-linux"."queryfabric-demo-aarch64-linux";
+        crossPackages."x86_64-linux"."aarch64-linux".queryfabric-demo =
+          self.packages."x86_64-linux"."queryfabric-demo-aarch64-linux";
       };
     };
 }

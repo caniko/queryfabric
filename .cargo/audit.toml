@@ -1,0 +1,14 @@
+[yanked]
+enabled = false
+
+[advisories]
+# These four advisories are currently inherited from upstream pins that this
+# workspace cannot replace without changing libp2p-mdns and Polars/object_store
+# compatibility. Keep them explicit so the offline audit remains reviewable;
+# remove each entry as soon as its producer publishes a compatible upgrade.
+ignore = [
+  "RUSTSEC-2026-0118",
+  "RUSTSEC-2026-0119",
+  "RUSTSEC-2026-0194",
+  "RUSTSEC-2026-0195",
+]

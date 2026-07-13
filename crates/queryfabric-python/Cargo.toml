@@ -10,10 +10,13 @@ homepage.workspace = true
 documentation.workspace = true
 rust-version.workspace = true
 
+[features]
+default = []
+extension-module = ["pyo3/extension-module"]
+
 [lib]
 name = "_queryfabric"
 crate-type = ["cdylib"]
-test = false
 doctest = false
 
 [dependencies]

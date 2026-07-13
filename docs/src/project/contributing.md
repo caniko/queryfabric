@@ -37,15 +37,24 @@ You need:
 ```bash
 cargo check --workspace
 cargo test --workspace --all-targets --exclude queryfabric-python
-cargo check -p queryfabric-python --locked
+cargo test -p queryfabric-python --locked
 ```
+
+`nix flake check` is the canonical repository gate. In addition to the stable
+workspace and NixOS VM checks, it exposes focused `bundle-schema`,
+`crossLanguage`, `msrv`, `audit`, `deny`, and `accessibility` checks. The
+`crossLanguage` gate verifies the published RFC 8785/BLAKE3 vector with an
+independent Python implementation. The MSRV gate compiles the full workspace
+with Rust 1.94; runtime test execution remains in the stable gate.
+Run `nix develop -c reuse lint` as the release metadata gate; it must pass
+before adding a new source or documentation artifact.
 
 ## Running Tests
 
 ```bash
 # All tests (fast — most are unit tests with no external deps)
 cargo test --workspace --all-targets --exclude queryfabric-python
-cargo check -p queryfabric-python --locked
+cargo test -p queryfabric-python --locked
 
 # Specific crate
 cargo test -p queryfabric-catalog
