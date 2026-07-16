@@ -24,7 +24,7 @@
 
 - [Embed in a Python App](./scenarios/python-embed.md)
 - [Deploy a Self-Hosted Instance](./scenarios/self-hosted-deploy.md)
-- [Federate Queries Across Nodes](./scenarios/federated-queries.md)
+- [Federation Status and Substrate](./scenarios/federated-queries.md)
 - [Build a Custom Backend](./scenarios/custom-backend.md)
 - [Data Portability & GDPR Export](./scenarios/data-portability.md)
 
@@ -44,15 +44,16 @@
 # Deployment
 
 - [Self-hosting on NixOS](./deployment/self-hosting-nixos.md)
-- [Docker / Podman](./deployment/docker.md)
+- [Container Deployment Status](./deployment/docker.md)
 - [Resource Footprint](./deployment/resource-footprint.md)
 - [High Availability](./deployment/high-availability.md)
 
 # Project
 
+- [Reviewer Evidence](./project/evidence.md)
 - [Contributing](./project/contributing.md)
 - [Conformance and Release](./project/conformance-and-release.md)
 - [Threat Model](./project/threat-model.md)
 - [Accessibility](./project/accessibility.md)
-- [Roadmap](../ROADMAP.md)
-- [Compatibility](../COMPATIBILITY.md)
+- [Roadmap](./project/roadmap.md)
+- [Compatibility](./project/compatibility.md)

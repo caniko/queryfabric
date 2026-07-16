@@ -266,7 +266,11 @@
             version = "0.1.0";
             src = lib.fileset.toSource {
               root = ./.;
-              fileset = lib.fileset.maybeMissing ./docs;
+              fileset = lib.fileset.unions [
+                (lib.fileset.maybeMissing ./docs)
+                ./ROADMAP.md
+                ./COMPATIBILITY.md
+              ];
             };
             nativeBuildInputs = [ pkgs.mdbook ];
             phases = [

@@ -3,26 +3,18 @@ set -euo pipefail
 
 ROOT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
 
-CRATES=(
-  "queryfabric-ir"
-  "queryfabric-catalog"
-  "queryfabric-runtime"
-  "queryfabric-opt"
-  "queryfabric-dialect-sql"
-  "queryfabric-dialect-syql"
-  "queryfabric-adapter-clickhouse"
-  "queryfabric-adapter-postgres"
-  "queryfabric"
-)
+CRATES=()
 
 usage() {
   cat <<'EOF'
 Usage:
   scripts/release.sh check
+  scripts/release.sh plan [--from <crate>]
   scripts/release.sh publish --version <x.y.z> [--from <crate>] [--execute]
-  scripts/release.sh tag --version <x.y.z>
 
 Notes:
+  - The publish tier and dependency order come from
+    `simit release plan --workspace --json`; this script keeps no crate list.
   - Publishing is staged because dependent crates cannot dry-run or publish
     cleanly until earlier crates are visible on crates.io for the target version.
   - Without --execute, the publish command validates only the current publishable
@@ -36,6 +28,17 @@ EOF
 die() {
   printf 'error: %s\n' "$*" >&2
   exit 1
+}
+
+load_publish_plan() {
+  command -v simit >/dev/null || die "simit is required; run this script in nix develop"
+  command -v jq >/dev/null || die "jq is required; run this script in nix develop"
+
+  mapfile -t CRATES < <(
+    cd "$ROOT_DIR"
+    simit release plan --workspace --json | jq -er '.[] | select(.publish == true) | .name'
+  )
+  [[ "${#CRATES[@]}" -gt 0 ]] || die "simit returned an empty publish plan"
 }
 
 log() {
@@ -99,6 +102,34 @@ print_publish_plan() {
   for ((i = start; i < ${#CRATES[@]}; i++)); do
     printf '  - %s\n' "${CRATES[$i]}"
   done
+}
+
+run_plan() {
+  local from=""
+
+  while [[ $# -gt 0 ]]; do
+    case "$1" in
+      --from)
+        [[ $# -ge 2 ]] || die "--from requires a crate name"
+        from="$2"
+        shift 2
+        ;;
+      -h|--help)
+        usage
+        exit 0
+        ;;
+      *)
+        die "unknown plan argument '$1'"
+        ;;
+    esac
+  done
+
+  load_publish_plan
+  if [[ -z "$from" ]]; then
+    from="${CRATES[0]}"
+  fi
+  assert_known_crate "$from"
+  print_publish_plan "$from"
 }
 
 run_check() {
@@ -238,6 +269,7 @@ EOF
 }
 
 run_publish() {
+  load_publish_plan
   local version=""
   local from="${CRATES[0]}"
   local execute="no"
@@ -287,32 +319,6 @@ run_publish() {
   done
 }
 
-run_tag() {
-  local version=""
-
-  while [[ $# -gt 0 ]]; do
-    case "$1" in
-      --version)
-        [[ $# -ge 2 ]] || die "--version requires a value"
-        version="$2"
-        shift 2
-        ;;
-      -h|--help)
-        usage
-        exit 0
-        ;;
-      *)
-        die "unknown tag argument '$1'"
-        ;;
-    esac
-  done
-
-  require_version_arg "$version"
-  cd "$ROOT_DIR"
-  log "creating annotated tag v${version}"
-  git tag -a "v${version}" -m "queryfabric ${version}"
-}
-
 main() {
   local command="${1:-}"
   [[ -n "$command" ]] || {
@@ -325,11 +331,11 @@ main() {
     check)
       run_check "$@"
       ;;
+    plan)
+      run_plan "$@"
+      ;;
     publish)
       run_publish "$@"
-      ;;
-    tag)
-      run_tag "$@"
       ;;
     -h|--help|help)
       usage

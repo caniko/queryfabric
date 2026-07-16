@@ -4,9 +4,11 @@
 
 The supported public API is the `queryfabric` facade crate.
 
-The workspace leaf crates are published, but they are treated as implementation
-modules rather than the primary compatibility boundary. New consumers should
-prefer the facade unless they have a concrete reason to depend on internals.
+Ten workspace crates are currently designated publishable in Cargo metadata,
+but no registry publication is claimed yet. Once published, leaf crates remain
+implementation modules rather than the primary compatibility boundary. New
+consumers should prefer the facade unless they have a concrete reason to depend
+on internals.
 
 ## Semver and `0.x`
 
@@ -29,7 +31,7 @@ prefer the facade unless they have a concrete reason to depend on internals.
 
 ## Backend Support Matrix
 
-Built-in adapters at `0.1.0`:
+Built-in adapters in the current `0.2.0` workspace:
 
 - ClickHouse SQL emission
 - PostgreSQL SQL emission

@@ -1,8 +1,8 @@
 [site]
 title = "QueryFabric"
-description = "Portable analytical query compilation for scientific platforms."
-base_url = "/queryfabric/"
-footer_note = "QueryFabric is maintained as Apache-2.0 free software for scientific and self-hosted platforms."
+description = "Verified tabular-resource portability and portable query compilation for self-hosted services."
+base_url = "/"
+footer_note = "QueryFabric is pre-release Apache-2.0 free software. Repository checks are the current acceptance authority."
 
 [theme]
 paper = "#FAFAF7"
@@ -21,12 +21,12 @@ label = "Overview"
 href = "#overview"
 
 [[nav]]
-label = "Quick start"
-href = "#quick-start"
+label = "Proof"
+href = "#proof"
 
 [[nav]]
-label = "Coverage"
-href = "#coverage"
+label = "Boundaries"
+href = "#boundaries"
 
 [[nav]]
 label = "Demo"
@@ -34,7 +34,7 @@ href = "#demo"
 
 [[nav]]
 label = "Docs"
-href = "/queryfabric/docs/"
+href = "/docs/"
 
 [[nav]]
 label = "Source"
@@ -43,26 +43,26 @@ href = "https://codeberg.org/caniko/queryfabric"
 [[pages]]
 slug = "index"
 title = "QueryFabric"
-description = "Portable analytical query compilation for scientific platforms."
+description = "Verified tabular-resource portability for self-hosted services."
 
 [[pages.sections]]
 type = "hero"
 title = "QueryFabric"
-tagline = "Stable query compilation for scientific platforms."
-subtitle = "QueryFabric gives hosts one facade for parsing, binding, analyzing, and emitting portable analytical queries while keeping routing, authorization, execution, tenancy, and deployment policy in the host."
+tagline = "Move bounded analytical data between self-hosted services with verifiable integrity."
+subtitle = "QueryFabric combines a portable SQL/SyQL compiler with a reproducible NixOS proof for export, operator-mediated transfer, dry-run, import, replay, restart, and tamper rejection between independently configured hosts."
 
 [[pages.sections.ctas]]
-label = "Read the docs"
-href = "/queryfabric/docs/"
+label = "Inspect the evidence"
+href = "/docs/project/evidence.html"
 primary = true
 
 [[pages.sections.ctas]]
-label = "Open live demo"
-href = "https://queryfabricdemo.tartanoglu.com/"
+label = "Read the docs"
+href = "/docs/"
 
 [[pages.sections.ctas]]
-label = "Start locally"
-href = "#quick-start"
+label = "Open convenience demo"
+href = "https://queryfabricdemo.tartanoglu.com/"
 
 [[pages.sections.ctas]]
 label = "View source"
@@ -73,118 +73,114 @@ type = "feature_grid"
 id = "overview"
 
 [[pages.sections.features]]
-title = "Stable facade"
-description = "Use the queryfabric crate as the public contract for parse, bind, analyze, and emit stages without depending on parser internals."
+title = "Verified migration path"
+description = "Bundle 2.0 and queryfabric.tabular-csv/1 define the exact bytes, schema, digests, limits, and diagnostics accepted by the reference importer."
 highlight = true
 
 [[pages.sections.features]]
-title = "Scientific platform fit"
-description = "Embed query compilation in scientific data platforms without tying the product query surface to one storage engine."
+title = "Failure-aware proof"
+description = "The two-host VM check covers tampering, stale plans, rollback, cleanup, idempotent replay, restart, and query-after-import."
 
 [[pages.sections.features]]
-title = "Python bindings"
-description = "Use the PyO3 package to parse SQL or SyQL, inspect parameters, bind catalogs, analyze backends, and emit structured results from Python."
+title = "Portable query boundary"
+description = "Parse, bind, analyze, and emit a verified SQL/SyQL subset for PostgreSQL and ClickHouse without putting host policy in the compiler."
 
 [[pages.sections.features]]
-title = "Verified portable subset"
-description = "Portability is defined by conformance/portable-subset.json and capabilities/builtin-capability-manifest.json, not by whatever one parser happens to accept."
+title = "Operator-controlled trust"
+description = "The target host owns identity, authorization, local policy, target mapping, and the authenticated channel carrying the expected digest."
 
 [[pages.sections.features]]
-title = "Capability diagnostics"
-description = "Ask each backend adapter which requirements a query has, whether they are supported, and which advisories apply before execution."
+title = "Scientific origin"
+description = "The compiler and portability contracts were extracted from scientific data-platform work into a neutral, reusable project."
 
 [[pages.sections.features]]
-title = "Self-hosting fit"
-description = "Deploy the demonstrator with the NixOS module, Postgres, S3-compatible storage, federation status, export bundles, and GDPR access or erase paths."
+title = "Pre-release honesty"
+description = "The repository is reproducible, but no crates.io package, Codeberg release, production federation deployment, or external adoption is claimed yet."
 
 [[pages.sections]]
 type = "workflow_steps"
-id = "quick-start"
-heading = "Start from the facade"
-intro = "The shortest useful path is to run the facade examples, then choose the Rust, Python, Nix, or documentation route that matches your host."
+id = "proof"
+heading = "Reproduce the proof"
+intro = "Run these commands from the repository root in a Nix-enabled environment."
 
 [[pages.sections.steps]]
-title = "Run the Rust quickstart"
-description = "cargo run --manifest-path crates/queryfabric/Cargo.toml --example quickstart"
+title = "Run the migration VM"
+description = "nix build .#checks.x86_64-linux.portability-migration --no-link -L"
 
 [[pages.sections.steps]]
-title = "Compare two backends"
-description = "cargo run --manifest-path crates/queryfabric/Cargo.toml --example multi_backend"
+title = "Run the self-host VM"
+description = "nix build .#checks.x86_64-linux.selfhost --no-link -L"
 
 [[pages.sections.steps]]
-title = "Develop Python bindings"
-description = "cd packages/queryfabric && maturin develop && pytest"
+title = "Review the release tier"
+description = "nix develop -c scripts/release.sh plan"
 
 [[pages.sections.steps]]
-title = "Enter the Nix shell"
-description = "nix develop"
-
-[[pages.sections.steps]]
-title = "Serve site and docs"
-description = "plinth-project dev --config website/plinth-project.toml; cd docs && mdbook serve"
+title = "Build the reviewer surface"
+description = "nix build .#docs .#site --no-link"
 
 [[pages.sections]]
 type = "trust_panel"
-id = "coverage"
-heading = "Backend and release coverage"
-intro = "The public conformance corpus and built-in capability manifest describe the supported portable subset and the places where a backend intentionally rejects a query shape."
+id = "boundaries"
+heading = "A bounded claim, by design"
+intro = "The current proof is narrow enough to test completely. Future work is named separately instead of being folded into the present claim."
 
 [[pages.sections.items]]
-title = "34 conformance cases"
-description = "conformance/portable-subset.json is version 0.2.0 and covers 12 required capability categories."
+title = "One resource profile"
+description = "The importer accepts one tabular CSV artifact and an exact predeclared target schema; it does not create arbitrary tables or migrate whole services."
 
 [[pages.sections.items]]
-title = "ClickHouse adapter"
-description = "capabilities/builtin-capability-manifest.json advertises 15 ClickHouse features; the corpus marks 29 cases supported and 5 rejected."
+title = "Integrity, not signatures"
+description = "BLAKE3 content addressing detects changes relative to an expected digest supplied over an authenticated operator channel; there is no key-trust claim."
 
 [[pages.sections.items]]
-title = "PostgreSQL adapter"
-description = "capabilities/builtin-capability-manifest.json advertises 11 Postgres features; the corpus marks 25 cases supported and 9 rejected."
+title = "Federation substrate, not product HA"
+description = "Health, routing, registry, and schema-sync actors exist as libraries, but the demo does not yet wire them into a production federated service."
 
 [[pages.sections.items]]
-title = "Release gates"
-description = "The repo carries Forgejo CI, crate publish workflows, parser and binder fuzz targets, Python checks, and a NixOS self-host VM test."
+title = "Host-owned operations"
+description = "PostgreSQL, object storage, identity, reverse proxy, TLS, authorization, and production policy remain operator responsibilities."
 
 [[pages.sections]]
 type = "trust_panel"
 id = "demo"
-heading = "Runnable proof"
-intro = "The presentation site stays at queryfabric.tartanoglu.com, while the live service proof runs separately at queryfabricdemo.tartanoglu.com with HTTPS, federation status, and resource discovery exposed as smoke-checkable endpoints."
+heading = "Demo versus evidence"
+intro = "The public demonstrator is a convenience surface. A reviewer should use the versioned repository and VM checks for acceptance evidence."
 
 [[pages.sections.items]]
-title = "Module-deployed service"
-description = "The demonstrator is configured through services.queryfabric, and the NixOS module supports single-instance and named multi-instance deployments."
+title = "Inspectable endpoints"
+description = "The current source defines /healthz, /catalog, /resources, /query, export/bundle/data-rights routes, import dry-run/apply, and /federation/status."
 
 [[pages.sections.items]]
-title = "Federation is visible"
-description = "The /federation/status endpoint reports federation mode and the instance identity used by the reference host."
+title = "No deployment inference"
+description = "A reachable demo does not prove that its binary matches the current repository; public evidence requires a visible matching revision and current import routes."
 
 [[pages.sections.items]]
-title = "Resources are inspectable"
-description = "The /resources endpoint returns the deterministic demo catalog, while /healthz gives the compact availability check."
+title = "No container claim"
+description = "The supported deployment artifact is the NixOS module. No Docker/Podman image or oci-image flake output is currently published."
 
 [[pages.sections.items]]
-title = "Portable data paths"
-description = "The self-host stack documents query, export bundle, access export, erase, DOI, catalog, and bundle-read endpoints."
+title = "Release evidence still pending"
+description = "A signed tag, ten crates.io versions, a Codeberg release, manual accessibility review, and clean repeated footprint measurements remain release gates."
 
 [[pages.sections]]
 type = "trust_panel"
 id = "operations"
-heading = "Host-owned boundaries"
-intro = "QueryFabric owns query portability and diagnostics. Hosts keep the policy and runtime decisions that are specific to their deployment."
+heading = "Stable ownership boundaries"
+intro = "QueryFabric owns portable compiler and migration mechanics. The embedding host owns decisions specific to users, infrastructure, and policy."
 
 [[pages.sections.items]]
-title = "Execution stays out of core"
-description = "Routing, fan-out, authentication, job orchestration, metadata policy, and backend execution remain host responsibilities."
+title = "Execution stays in the host"
+description = "Routing, fan-out, authentication, jobs, backend execution, metadata policy, and tenancy decisions remain outside the compiler facade."
 
 [[pages.sections.items]]
 title = "Conformance is data-backed"
-description = "The portable subset is backed by conformance/portable-subset.json and capabilities/builtin-capability-manifest.json."
+description = "The portable query subset and backend capabilities live in public machine-readable manifests rather than broad compatibility promises."
 
 [[pages.sections.items]]
-title = "Docs stay authoritative"
-description = "The project page stays concise while the mdBook documentation is published under /queryfabric/docs/."
+title = "Migration evidence is durable"
+description = "The target records carried source evidence, local policy and owner, mapping, target import event, and an idempotent receipt in PostgreSQL."
 
 [[pages.sections.items]]
-title = "Publication is wired"
-description = "Forgejo Pages builds nix build .#site, deploys with the Plinth Pages app, and the README exposes REUSE and release-readiness status."
+title = "Future R&D is explicit"
+description = "The roadmap separately scopes migration sets, typed schema rebinding, federation hardening, one measured embedded backend, and conditional ecosystem integration."

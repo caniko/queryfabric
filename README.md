@@ -6,15 +6,21 @@
 
 [![REUSE status](https://api.reuse.software/badge/codeberg.org/caniko/queryfabric)](https://api.reuse.software/info/codeberg.org/caniko/queryfabric)
 
-QueryFabric is a portable analytical query compiler for scientific platforms.
-It also provides a data-sovereignty and query-portability layer for self-hosted
-and federated services.
+QueryFabric provides a verified data-portability boundary for self-hosted
+analytical services, backed by a portable SQL/SyQL compiler. Its reference
+proof exports, transfers, validates, dry-runs, and imports one published
+tabular profile between independently configured NixOS hosts while rejecting
+tampering and preserving durable receipts.
 
-**Who is this for?** Platform engineers building scientific data platforms who
-need to parse, validate, analyze, and emit queries against multiple backends
-without coupling their query surface to any one storage engine. Python data
-scientists who want to validate SyQL queries server-side. Sysadmins deploying
-self-hosted data services with GDPR portability requirements.
+**Who is this for?** Operators and platform engineers who need a bounded,
+testable migration path between self-hosted data services; scientific-platform
+developers who need to parse, validate, analyze, and emit queries across
+backends; and Python users who want to validate SQL or SyQL server-side.
+
+**Release status:** QueryFabric is pre-release. The repository carries the
+implementation and reproducible checks, but no crates.io package or Codeberg
+release is claimed yet. See the [reviewer evidence matrix](docs/src/project/evidence.md)
+for the exact proof and its limits.
 
 It gives hosts a stable semantic boundary for:
 
@@ -182,10 +188,16 @@ plinth-project dev --config website/plinth-project.toml
 cd docs && mdbook serve
 ```
 
+The combined site is designed for `https://queryfabric.tartanoglu.com/`, with
+the mdBook under `/docs/`. Until that deployment is visibly current, the
+repository checks—not the convenience demo—are the acceptance authority.
+
 ## Status
 
-This repository is ready for standalone iteration and publication. DataFusion
-and other non-SQL emitters are intentionally deferred; the artifact seam is
-kept open so those backends can be added without changing the stable facade.
-Parser and binder fuzz harnesses live under [`fuzz/`](fuzz/README.md) and are
-part of the release-quality gate.
+The bounded single-resource migration proof is implemented; public publication
+is still outstanding. Multi-resource migration sets, typed schema rebinding,
+production federation, and an embedded backend remain future work. DataFusion
+and other non-SQL emitters are intentionally deferred; the artifact seam stays
+open so they can be added without changing the facade. Parser and binder fuzz
+harnesses live under [`fuzz/`](fuzz/README.md) and are part of the local
+release-quality gate.

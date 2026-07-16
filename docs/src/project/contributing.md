@@ -135,7 +135,7 @@ tagging, and publish order planning:
    versions, promotes CHANGELOG, commits, and creates a signed tag.
 4. Push the tag with `git push --follow-tags` — CI publishes crates.
 
-The release is driven by the `main` maintainer. External contributors do not
+The release is driven by the current maintainer. External contributors do not
 need to worry about this step.
 
 ## Code Review
@@ -150,5 +150,7 @@ Reviewers check for:
 
 ## Questions?
 
-Open a discussion issue on Codeberg, or reach out through the project's
-community channels listed in the README.
+Use the [Codeberg issue tracker](https://codeberg.org/caniko/queryfabric/issues)
+for public design questions, bug reports, and contribution proposals. The
+project does not currently advertise a separate community chat or discussion
+channel.

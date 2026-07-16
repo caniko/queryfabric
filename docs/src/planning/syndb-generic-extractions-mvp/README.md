@@ -2,7 +2,7 @@
 
 - **Status:** proposed
 - **Research basis:** [research dossier](../syndb-generic-extractions-mvp-research.md)
-- **Grant lens:** [NGI Fediversity alignment](grant-alignment.md)
+- **Grant lens:** NGI Fediversity alignment (moved to the [applications checkout](https://codeberg.org/caniko/applications))
 - **MVP gate:** end of Phase 04C
 - **Historical plan:** SynDB `docs/src/planning/queryfabric-upstream/`
 

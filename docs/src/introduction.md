@@ -1,8 +1,13 @@
 # QueryFabric
 
-QueryFabric is a portable analytical query compiler for scientific platforms.
-It gives hosts a stable semantic boundary between query text and backend
-execution:
+QueryFabric provides a verified data-portability boundary for self-hosted
+analytical services and a portable query compiler extracted from scientific
+platform work. The reference NixOS proof moves one published tabular profile
+between independently configured hosts, verifies its expected digest, rejects
+tampering, and persists an idempotent receipt.
+
+The compiler gives hosts a stable semantic boundary between query text and
+backend execution:
 
 - parse SQL or downstream dialects such as SyQL into `ParsedQuery`
 - bind names, parameters, functions, and types into `BoundQuery`
@@ -36,7 +41,10 @@ without dragging runtime policy into the compiler surface.
 
 ## Documentation Map
 
-- Start with [Installation](./getting-started/installation.md) if you want a
+- Start with [Data Portability](./scenarios/data-portability.md) and the
+  [Reviewer Evidence](./project/evidence.md) page for the implemented MVP and
+  its exact limits.
+- Use [Installation](./getting-started/installation.md) if you want a
   local development setup.
 - Follow [Quick Start](./getting-started/quick-start.md) for the shortest
   parse-bind-analyze-emit flow.

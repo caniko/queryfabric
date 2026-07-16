@@ -8,7 +8,7 @@ src = "src"
 build-dir = "book"
 
 [output.html]
-site-url = "/queryfabric/docs/"
+site-url = "/docs/"
 default-theme = "coal"
 preferred-dark-theme = "coal"
 git-repository-url = "https://codeberg.org/caniko/queryfabric"

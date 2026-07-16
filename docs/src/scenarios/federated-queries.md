@@ -1,98 +1,67 @@
-# Scenario: Federate Queries Across Nodes
+# Scenario: Federated Queries
 
-**Who this is for:** You run multiple QueryFabric instances (e.g. one per
-research group) and want to run queries that span them — scatter a query to
-every node and gather the partial results.
+Federated query execution is not an end-to-end demonstrator capability yet.
+This page records the current boundary so that deployment configuration is not
+mistaken for a working scatter/gather service.
 
-**What you'll end up with:** A hub node that accepts a SyQL query with
-`SCOPE federation`, scatters it to member nodes via Arrow Flight, and merges
-the partial results.
+## What the repository has today
 
-## How federation works
+The `queryfabric-cluster` and `queryfabric-federation` crates contain reusable
+federation substrate: hub and node actors, registration messages, resource
+announcements, health probing, endpoint discovery, and schema-sync messages.
+Their behavior is exercised by crate-level tests.
 
-```text
-User query ──► Hub node
-                   │
-          ┌────────┼────────┐
-          ▼        ▼        ▼
-       Node A   Node B   Node C
-          │        │        │
-          └────────┼────────┘
-                   ▼
-             Merged result
-```
-
-The hub decomposes aggregate queries:
-
-| Aggregate | Scatter (per node) | Gather (hub) |
-|-----------|-------------------|---------------|
-| `SUM(x)` | `SUM(x)` | `SUM(partial)` |
-| `COUNT(*)` | `COUNT(*)` | `SUM(partial)` |
-| `AVG(x)` | `SUM(x), COUNT(x)` | `SUM(sums) / SUM(counts)` |
-| `MIN(x)` | `MIN(x)` | `MIN(partial)` |
-| `MAX(x)` | `MAX(x)` | `MAX(partial)` |
-
-## Step 1: Configure nodes
-
-Each node runs the standard QueryFabric service with federation enabled:
+The runnable `queryfabric-demo` service does **not** instantiate those hub or
+node actors. Enabling its federation configuration only makes the configured
+identity facts visible at `GET /federation/status`:
 
 ```nix
 services.queryfabric = {
   enable = true;
+  database.urlFile = "/run/secrets/queryfabric-db-url";
+  auth.secretFile = "/run/secrets/queryfabric-auth-secret";
+
   federation = {
     enable = true;
     nodeName = "node-a";
-    listenAddr = "/ip4/0.0.0.0/tcp/4001";
-    hubEndpoint = "https://hub.queryfabric.internal:50053";
+    hubMultiaddrs = [ "/dns4/hub.example.org/tcp/4001" ];
+    flightPort = 50051;
   };
 };
 ```
 
-## Step 2: Register nodes with the hub
-
-On the hub, register each node:
-
-```bash
-curl -X POST https://hub.queryfabric.internal/api/v1/federation/nodes \
-  -H "Content-Type: application/json" \
-  -d '{
-    "name": "node-a",
-    "flight_endpoint": "node-a.queryfabric.internal:50053",
-    "public_key": "..."
-  }'
+```console
+$ curl --fail http://127.0.0.1:8780/federation/status
 ```
 
-## Step 3: Run a federated query
+The response reports whether federation identity is enabled, the configured
+identity, and the configured hub multiaddresses. The demo does not connect to
+those addresses, register itself with a hub, or open an Arrow Flight server as
+a result of this option alone.
 
-```syql
-SCOPE federation
-FROM measurements
-WHERE value > 10
-GROUP BY sample_type
-SELECT sample_type, avg(value) AS mean
-```
+## What is not available today
 
-The hub:
+The current demo has no:
 
-1. Detects `SCOPE federation`
-2. Validates the query is decomposable (no CTEs, no JOINs, no subqueries)
-3. Builds a scatter-gather plan: each node runs
-   `SELECT sample_type, sum(value), count(value) FROM measurements GROUP BY sample_type`
-4. Sends the scatter SQL to each registered node via Arrow Flight DoGet
-5. Collects partial results
-6. Runs the gather: `SELECT sample_type, sum(sums) / sum(counts) AS mean FROM ({partials}) GROUP BY sample_type`
-7. Streams the merged result to the user
+- HTTP route for registering federation nodes;
+- `SCOPE federation` query syntax;
+- scatter/gather planner or aggregate decomposition exposed through the demo;
+- Arrow Flight dispatch from the demo to configured peers; or
+- merged multi-node result stream.
 
-## Limitations
+Consequently there is no supported curl or SyQL walkthrough for a federated
+query. A single demo instance only executes `POST /query` against its configured
+PostgreSQL backend and fixed catalog.
 
-Federation supports a subset of SQL:
+## Planned boundary
 
-- ✅ `SELECT`, `WHERE`, `GROUP BY`, `HAVING`
-- ✅ `SUM`, `COUNT`, `AVG`, `MIN`, `MAX`
-- ✅ `ORDER BY`, `LIMIT`, `OFFSET`
-- ❌ `JOIN`, CTEs (`WITH`), subqueries in `FROM`
-- ❌ `DISTINCT`, window functions
-- ❌ `SETTINGS`, `FORMAT`
+End-to-end multi-node execution and failure evidence remain planned work. A
+future operational scenario must be backed by a runnable hub/node deployment,
+public configuration contracts, and tests that exercise registration,
+dispatch, partial failure, and result gathering. Until those artifacts land,
+the federation crates are integration substrate rather than a deployed
+federated-query product.
 
-A federated query that uses an unsupported feature produces a clear diagnostic
-before execution.
+See [High Availability](../deployment/high-availability.md) for the detailed
+inventory of current health, routing, persistence, and single-point-of-failure
+behavior.

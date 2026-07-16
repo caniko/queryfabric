@@ -1,7 +1,10 @@
 # Release Process
 
-Releases use `simit` for version bumps, changelog management, tagging, and
-publish order planning. CI (`simit init ci`) runs per-crate gates on every push.
+Releases use `simit` as the authority for the publishable crate set, dependency
+order, version bumps, changelog management, and tagging. CI (`simit init ci`)
+runs per-crate gates on every push. QueryFabric is currently pre-release: this
+document describes the intended procedure but does not claim that crates, a
+signed tag, or a Codeberg release already exist.
 
 ## Release Flow
 
@@ -19,6 +22,7 @@ publish order planning. CI (`simit init ci`) runs per-crate gates on every push.
 
    ```bash
    simit release plan --workspace
+   scripts/release.sh plan
    ```
 
 4. Bump versions, commit, and tag with a single command:
@@ -38,12 +42,13 @@ publish order planning. CI (`simit init ci`) runs per-crate gates on every push.
    git push --follow-tags
    ```
 
-6. CI publishes crates to crates.io automatically when it detects the tag. If
-   automatic publish fails, publish manually:
+6. CI is configured to publish crates to crates.io when it detects the tag. If
+   that path is unavailable or fails, use the metadata-derived staged helper:
 
    ```bash
-   simit release patch --workspace --no-tag --no-changelog
-   cargo publish -p <crate>
+   scripts/release.sh publish --version <x.y.z> --execute
+   # Resume after index propagation if needed:
+   scripts/release.sh publish --version <x.y.z> --from <crate> --execute
    ```
 
 7. Create the Codeberg release from the finalized changelog entry.
@@ -54,8 +59,9 @@ The workspace cannot promise a single "dry-run all crates" path before
 publication. Dependent crates such as `queryfabric` cannot dry-run or publish
 cleanly until earlier crates are visible on crates.io for the same version.
 
-`simit release plan --workspace` shows the correct dependency order. To resume
-a partial publish, publish the remaining crates individually with `cargo publish`.
+`simit release plan --workspace` is the sole source of the dependency order.
+`scripts/release.sh` reads its JSON output at runtime and refuses unknown crate
+names; it deliberately keeps no second hard-coded list.
 
 ## What `check` Runs
 
@@ -79,23 +85,17 @@ Manual release review should also verify:
 
 ## Publishing Order
 
-Resolved by `simit release plan --workspace` at release time. As of 0.2.0:
+Do not copy a numbered crate list into release documentation. Resolve and
+review it from Cargo metadata through either command:
 
-1. `queryfabric-changelog`
-2. `queryfabric-cli-toolbelt`
-3. `queryfabric-cmd-runner`
-4. `queryfabric-contract`
-5. `queryfabric-ir`
-6. `queryfabric-dialect-sql`
-7. `queryfabric-catalog`
-8. `queryfabric-adapter-postgres`
-9. `queryfabric-dialect-syql`
-10. `queryfabric-runtime`
-11. `queryfabric-adapter-clickhouse`
-12. `queryfabric-opt`
-13. `queryfabric`
-14. `queryfabric-runtime-k8s`
-15. `queryfabric-seaorm-ext`
-16. `queryfabric-test-rig`
-17. `queryfabric-types`
-18. `queryfabric-worker`
+```bash
+simit release plan --workspace
+scripts/release.sh plan
+```
+
+For the current `0.2.0` workspace both commands must report exactly ten
+publishable crates. Validate that fact before creating a release candidate:
+
+```bash
+test "$(simit release plan --workspace --json | jq 'length')" -eq 10
+```

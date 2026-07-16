@@ -1,0 +1,26 @@
+[package]
+name = "queryfabric-dioxus"
+description = "Dioxus components for QueryFabric SyQL editors"
+version.workspace = true
+publish = false
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+homepage.workspace = true
+documentation.workspace = true
+rust-version.workspace = true
+readme = "README.md"
+keywords = ["sql", "dioxus", "web", "frontend", "science"]
+categories = ["web-programming", "gui", "science"]
+
+[features]
+default = []
+web = ["dioxus/web"]
+server = ["dioxus/fullstack", "dioxus/server"]
+
+[dependencies]
+dioxus = { workspace = true }
+web-sys = { workspace = true }
+
+[dev-dependencies]
+dioxus-ssr = "=0.7.9"

@@ -76,7 +76,7 @@ Phase 01 regression repair and Phase 03 extraction convergence remain product
 prerequisites, not default grant work packages. They are maintenance/correctness
 work unless a genuinely new R&D question is isolated. The detailed grant lens
 is recorded in
-[`grant-alignment.md`](syndb-generic-extractions-mvp/grant-alignment.md).
+`grant-alignment.md` (moved to the [applications checkout](https://codeberg.org/caniko/applications)).
 
 ### Repository and release state
 

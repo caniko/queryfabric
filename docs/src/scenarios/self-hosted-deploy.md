@@ -1,123 +1,111 @@
 # Scenario: Deploy a Self-Hosted Instance
 
-**Who this is for:** You want to run the QueryFabric self-hosted demonstrator on
-your own infrastructure — a single-node service that accepts portable queries,
-stores data in PostgreSQL, and exports bundles to S3.
+**Who this is for:** You want to run the QueryFabric demonstrator on a NixOS
+host with your own PostgreSQL database and, for durable export bundles, your
+own S3-compatible object store.
 
-**What you'll end up with:** A running QueryFabric instance accessible at
-`https://queryfabric.example.com` with a web UI, a SyQL query editor, and a
-REST API.
+**What you will end up with:** One `queryfabric-demo` systemd service listening
+on a host-managed address and port. It serves a small static landing page and
+the JSON HTTP routes implemented by the demonstrator. It does not provide a
+SyQL editor, arbitrary table registration, or a generic ingestion API.
 
-## Architecture
+## Current deployment boundary
+
+The QueryFabric NixOS module creates and hardens the systemd service, loads
+credentials with systemd `LoadCredential`, and can open the configured HTTP
+port. The host operator must separately provide:
+
+- a PostgreSQL database and database role;
+- an S3-compatible service and pre-created bucket when `store.backend = "s3"`;
+- DNS, a reverse proxy, and TLS termination for a public HTTPS endpoint; and
+- root-owned credential files, preferably managed by agenix or sops-nix.
+
+The module does not provision PostgreSQL users or databases, an object store,
+ACME certificates, or a reverse proxy.
 
 ```text
-Browser ──► queryfabric-demo ──► PostgreSQL (metadata, catalog)
-                  │
-                  └──► S3/MinIO (export bundles, provenance)
+HTTP client ──► host reverse proxy (optional) ──► queryfabric-demo
+                                                     │
+                              ┌──────────────────────┴─────────────────────┐
+                              ▼                                            ▼
+                         PostgreSQL                                S3-compatible store
+                    (provided by operator)                         (provided by operator)
 ```
 
-## Option A: NixOS (recommended)
+## Configure the NixOS service
 
-The project ships a NixOS module that wires everything together:
+Add the QueryFabric flake input, import `queryfabric.nixosModules.default`, and
+configure the service:
 
 ```nix
 {
-  imports = [ inputs.queryfabric.nixosModules.default ];
-
   services.queryfabric = {
     enable = true;
-    domain = "queryfabric.example.com";
-    database.url = "postgres://user:pass@localhost:5432/queryfabric";
-    store.endpoint = "https://s3.example.com";
-    store.bucket = "queryfabric-exports";
-    federation.enable = false;  # single-node mode
+    listenAddress = "127.0.0.1";
+    port = 8780;
+    publicBaseUrl = "https://queryfabric.example.com";
+
+    database.urlFile = "/run/secrets/queryfabric-db-url";
+    auth.secretFile = "/run/secrets/queryfabric-auth-secret";
+
+    store = {
+      backend = "s3";
+      endpoint = "http://127.0.0.1:9000";
+      bucket = "queryfabric-exports";
+      credentialsFile = "/run/secrets/queryfabric-store-creds";
+    };
   };
 }
 ```
 
-Apply and deploy:
+`publicBaseUrl` is used in citations and DOI landing URLs; it does not set up
+that domain. Keep the service bound to loopback when a reverse proxy on the
+same host provides the public endpoint.
 
-```bash
-nixos-rebuild switch --flake .#hostname
+The referenced files must already exist on the host. Their formats are
+documented in [Self-hosting on NixOS](../deployment/self-hosting-nixos.md),
+along with the complete module option reference and the multi-instance form.
+
+Apply the host configuration:
+
+```console
+$ sudo nixos-rebuild switch --flake .#hostname
+$ systemctl status queryfabric
 ```
 
-The module sets up:
+## Verify the current API
 
-- systemd service with hardening
-- PostgreSQL database and user
-- TLS via ACME (Let's Encrypt)
-- Firewall rules
-- Health check endpoint
+The demonstrator seeds its example air-quality resources by default. Verify
+the service locally before adding a public reverse proxy:
 
-See [Self-hosting on NixOS](../deployment/self-hosting-nixos.md) for the full
-reference.
+```console
+$ curl --fail http://127.0.0.1:8780/healthz
+{"status":"ok"}
 
-## Option B: Docker / Podman
-
-```yaml
-# docker-compose.yml
-services:
-  postgres:
-    image: postgres:17-alpine
-    environment:
-      POSTGRES_DB: queryfabric
-      POSTGRES_PASSWORD: changeme
-    volumes:
-      - pgdata:/var/lib/postgresql/data
-
-  queryfabric:
-    image: codeberg.org/caniko/queryfabric-demo:latest
-    ports:
-      - "8780:8780"
-    environment:
-      QF_DATABASE_URL: postgres://postgres:changeme@postgres:5432/queryfabric
-      QF_S3_ENDPOINT: http://minio:9000
-      QF_DOMAIN: localhost:8780
-    depends_on:
-      - postgres
-
-volumes:
-  pgdata:
+$ curl --fail http://127.0.0.1:8780/resources
 ```
 
-```bash
-docker compose up -d
+Run a portable SQL query against the fixed demonstration catalog:
+
+```console
+$ curl --fail -X POST http://127.0.0.1:8780/query \
+    -H 'content-type: application/json' \
+    -d '{"sql":"SELECT city, avg(pm25) FROM readings JOIN stations ON readings.station_id = stations.station_id GROUP BY city"}'
 ```
 
-## Step 1: Register a table
-
-```bash
-curl -X POST https://queryfabric.example.com/api/v1/catalog \
-  -H "Content-Type: application/json" \
-  -d '{
-    "name": "measurements",
-    "columns": [
-      {"name": "sample_id", "type": "uuid", "nullable": false},
-      {"name": "value", "type": "float64", "nullable": true}
-    ]
-  }'
-```
-
-## Step 2: Insert data
-
-```bash
-curl -X POST https://queryfabric.example.com/api/v1/ingest/measurements \
-  -H "Content-Type: application/json" \
-  -d '[{"sample_id": "a1b2c3...", "value": 42.5}]'
-```
-
-## Step 3: Run a query
-
-```bash
-curl -X POST https://queryfabric.example.com/api/v1/query \
-  -H "Content-Type: application/json" \
-  -d '{"syql": "FROM measurements WHERE value > 10"}'
-```
+The current route prefix is `/`, not `/api/v1`. `GET /catalog` describes the
+fixed query catalog and `GET /resources` lists the seeded resources. There is
+no route for registering arbitrary tables or inserting arbitrary records.
+Export, import, erasure, and DOI mutation routes require a host-issued PASETO
+bearer credential with the required role. See the
+[NixOS deployment reference](../deployment/self-hosting-nixos.md#what-you-get)
+for the complete route table.
 
 ## Troubleshooting
 
-| Symptom | Likely cause |
-|---------|--------------|
-| "Connection refused" | PostgreSQL not started or wrong URL. Check `services.queryfabric.database.url`. |
-| "Bucket not found" | S3 bucket does not exist. Create it: `mc mb minio/queryfabric-exports`. |
-| "TLS handshake error" | ACME certificate not provisioned yet. Wait 30s and retry. |
+| Symptom | Check |
+|---------|-------|
+| Unit does not start | Run `journalctl -u queryfabric`; verify the database and authentication credential files exist and contain valid values. |
+| Database connection fails | Confirm that the operator-provided database, role, and network path match `database.urlFile`. |
+| S3 configuration is rejected | For the `s3` backend, set `endpoint`, `bucket`, and `credentialsFile`, and create the bucket before starting the service. |
+| Public HTTPS endpoint fails | Check the host-managed reverse proxy, DNS, and certificate. The QueryFabric module does not configure them. |

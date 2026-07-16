@@ -10,6 +10,7 @@ members = [
     "crates/queryfabric-dialect-syql",
     "crates/queryfabric-web",
     "crates/queryfabric-leptos",
+    "crates/queryfabric-dioxus",
     "crates/queryfabric-adapter-clickhouse",
     "crates/queryfabric-adapter-postgres",
     "crates/queryfabric-python",
@@ -101,6 +102,7 @@ queryfabric-dialect-sql = { version = "0.2.0", path = "crates/queryfabric-dialec
 queryfabric-dialect-syql = { version = "0.2.0", path = "crates/queryfabric-dialect-syql" }
 queryfabric-web = { version = "0.2.0", path = "crates/queryfabric-web" }
 queryfabric-leptos = { version = "0.2.0", path = "crates/queryfabric-leptos" }
+queryfabric-dioxus = { version = "0.2.0", path = "crates/queryfabric-dioxus" }
 queryfabric-adapter-clickhouse = { version = "0.2.0", path = "crates/queryfabric-adapter-clickhouse" }
 queryfabric-adapter-postgres = { version = "0.2.0", path = "crates/queryfabric-adapter-postgres" }
 queryfabric-contract = { version = "0.2.0", path = "crates/queryfabric-contract" }
@@ -130,3 +132,7 @@ queryfabric-changelog = { version = "0.1.0", path = "crates/queryfabric-changelo
 queryfabric-types = { version = "0.1.0", path = "crates/queryfabric-types" }
 queryfabric-worker = { version = "0.1.0", path = "crates/queryfabric-worker" }
 leptos = { version = "=0.8.19", default-features = false }
+dioxus = { version = "=0.7.9", default-features = false, features = ["lib"] }
+# Dioxus 0.7.9's web history path calls Window::location without enabling the
+# corresponding web-sys feature through its renderer dependency.
+web-sys = { version = "0.3.102", features = ["Window", "Location"] }
