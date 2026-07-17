@@ -8,8 +8,8 @@ jobs:
   stable:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: dtolnay/rust-toolchain@stable
+      - uses: https://code.forgejo.org/actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+      - uses: https://github.com/dtolnay/rust-toolchain@4be7066ada62dd38de10e7b70166bc74ed198c30 # stable
       - name: cargo fmt
         run: cargo fmt --all --check
       - name: cargo fmt (fuzz)
@@ -38,8 +38,8 @@ jobs:
   msrv:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: dtolnay/rust-toolchain@1.94.0
+      - uses: https://code.forgejo.org/actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+      - uses: https://github.com/dtolnay/rust-toolchain@89428adc381502888d30f3ce6abbb7ea52739d01 # 1.94.0
       - name: cargo test
         run: cargo test --workspace --all-targets --exclude queryfabric-python
       - name: queryfabric-python compile check
@@ -47,8 +47,8 @@ jobs:
   fuzz:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: dtolnay/rust-toolchain@nightly
+      - uses: https://code.forgejo.org/actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+      - uses: https://github.com/dtolnay/rust-toolchain@efcb852328a9f50117170cc43094fb6f09eaf1ae # nightly
       - name: install cargo-fuzz
         run: cargo install cargo-fuzz --locked
       - name: cargo fmt (fuzz)
