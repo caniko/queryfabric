@@ -263,6 +263,7 @@ async function initEditor(textarea) {
   const catalogUrl = textarea.dataset.queryfabricCatalogUrl || DEFAULT_CATALOG_URL;
   const validateUrl = textarea.dataset.queryfabricValidateUrl || DEFAULT_VALIDATE_URL;
   const catalogData = await loadCatalogData(catalogUrl);
+  const initialValue = textarea.value || textarea.getAttribute("value") || "";
 
   const wrapper = document.createElement("div");
   wrapper.className = "queryfabric-syql-cm-wrapper";
@@ -312,7 +313,7 @@ async function initEditor(textarea) {
 
   const view = new EditorView({
     state: EditorState.create({
-      doc: textarea.value || "",
+      doc: initialValue,
       extensions,
     }),
     parent: wrapper,
