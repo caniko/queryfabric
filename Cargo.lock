@@ -7413,7 +7413,13 @@ version = "0.2.0"
 dependencies = [
  "dioxus",
  "dioxus-ssr",
- "web-sys",
+ "http",
+ "queryfabric",
+ "queryfabric-catalog",
+ "reqwest 0.13.4",
+ "serde",
+ "serde_json",
+ "urlencoding",
 ]
 
 [[package]]
@@ -7726,19 +7732,6 @@ version = "0.2.0"
 dependencies = [
  "serde",
  "thiserror 2.0.18",
-]
-
-[[package]]
-name = "queryfabric-web"
-version = "0.2.0"
-dependencies = [
- "http",
- "queryfabric",
- "queryfabric-catalog",
- "reqwest 0.13.4",
- "serde",
- "serde_json",
- "urlencoding",
 ]
 
 [[package]]

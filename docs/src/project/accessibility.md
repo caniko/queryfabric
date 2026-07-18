@@ -1,8 +1,8 @@
 # Accessibility
 
-QueryFabric's current web surfaces are the demo UI in
-[`crates/queryfabric-web`](../../../crates/queryfabric-web), the Leptos-based
-editor components used by the demo UI, plus the documentation and website.
+QueryFabric's current web surfaces are the demo UI, the Dioxus and Leptos
+editor components, plus the documentation and website. The reusable Dioxus
+surface lives in [`crates/queryfabric-dioxus`](../../../crates/queryfabric-dioxus).
 
 These surfaces have not yet been audited against WCAG. That is the honest
 current state.

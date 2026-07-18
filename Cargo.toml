@@ -8,9 +8,8 @@ members = [
     "crates/queryfabric-opt",
     "crates/queryfabric-dialect-sql",
     "crates/queryfabric-dialect-syql",
-    "crates/queryfabric-web",
-    "crates/queryfabric-leptos",
     "crates/queryfabric-dioxus",
+    "crates/queryfabric-leptos",
     "crates/queryfabric-adapter-clickhouse",
     "crates/queryfabric-adapter-postgres",
     "crates/queryfabric-python",
@@ -100,7 +99,6 @@ queryfabric-runtime-k8s = { version = "0.1.0", path = "crates/queryfabric-runtim
 queryfabric-opt = { version = "0.2.0", path = "crates/queryfabric-opt" }
 queryfabric-dialect-sql = { version = "0.2.0", path = "crates/queryfabric-dialect-sql" }
 queryfabric-dialect-syql = { version = "0.2.0", path = "crates/queryfabric-dialect-syql" }
-queryfabric-web = { version = "0.2.0", path = "crates/queryfabric-web" }
 queryfabric-leptos = { version = "0.2.0", path = "crates/queryfabric-leptos" }
 queryfabric-dioxus = { version = "0.2.0", path = "crates/queryfabric-dioxus" }
 queryfabric-adapter-clickhouse = { version = "0.2.0", path = "crates/queryfabric-adapter-clickhouse" }

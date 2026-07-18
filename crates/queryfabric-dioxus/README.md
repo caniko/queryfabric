@@ -1,11 +1,8 @@
 # queryfabric-dioxus
 
-Dioxus components for embedding the QueryFabric SyQL editor.
+Dioxus components and server-side web support for QueryFabric SyQL.
 
-This crate is the Dioxus counterpart to `queryfabric-leptos`. It deliberately
-keeps the existing textarea attributes, default values, and packaged script
-URL unchanged so applications can switch renderers without changing the
-QueryFabric web contract or JavaScript asset.
-
-Applications opt into `web` or `server` explicitly. No renderer is enabled by
-default.
+The crate preserves the stable QueryFabric browser contract while providing
+the `SyqlEditor` and `SyqlEditorScript` Dioxus components. Enable `server` for
+validation, packaged static assets, and SSR helpers; enable `web` for the
+Dioxus web renderer.

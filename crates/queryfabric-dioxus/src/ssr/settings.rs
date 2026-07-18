@@ -47,7 +47,7 @@ impl SsrSettings {
     ///
     /// Env vars read: `{PREFIX}_UI_ADDR`, `{PREFIX}_API_URL`,
     /// `{PREFIX}_API_PREFIX`, `{PREFIX}_API_TIMEOUT_SECS`,
-    /// `{PREFIX}_SITE_ROOT` (or `LEPTOS_SITE_ROOT`).
+    /// `{PREFIX}_SITE_ROOT`.
     /// `CARGO_MANIFEST_DIR` is used for public_root if present.
     pub fn from_env(
         prefix: &str,
@@ -73,7 +73,7 @@ impl SsrSettings {
             .unwrap_or(defaults.api_timeout_secs),
         );
         let site_root: PathBuf = env_var_or::<String>(
-            &[&format!("{prefix}_SITE_ROOT"), "LEPTOS_SITE_ROOT"],
+            &[&format!("{prefix}_SITE_ROOT")],
             defaults.site_root.to_string_lossy().as_ref().to_owned(),
         )
         .map(PathBuf::from)

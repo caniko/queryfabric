@@ -40,8 +40,7 @@ facade re-exports what you need.
 |-------|---------|
 | `queryfabric-python` | Python bindings via PyO3. Same parse → bind → analyze → emit flow from Python. |
 | `queryfabric-leptos` | Leptos (Rust WASM) components for SyQL editor widgets. |
-| `queryfabric-dioxus` | Dioxus components for SyQL editor widgets, preserving the existing browser data contract. |
-| `queryfabric-web` | SyQL validation helpers and static JS assets for web UIs. |
+| `queryfabric-dioxus` | Dioxus SyQL components, validation, SSR helpers, and static assets. |
 | `queryfabric-demo` | Runnable self-host demonstrator — portable queries + data sovereignty over Postgres and S3. |
 
 ## Execution and runtime

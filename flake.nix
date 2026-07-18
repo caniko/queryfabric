@@ -120,7 +120,7 @@
                 ./crates/queryfabric-portability/src/import.rs
                 ./crates/queryfabric-portability/schema
                 ./crates/queryfabric-portability/fixtures
-                ./crates/queryfabric-web/assets/queryfabric_syql_editor.js
+                ./crates/queryfabric-dioxus/assets/queryfabric_syql_editor.js
                 ./crates/queryfabric-runtime-k8s/tests/golden/replicated_read_only_job.json
                 ./crates/queryfabric-demo/src/index.html
                 ./capabilities/builtin-capability-manifest.json

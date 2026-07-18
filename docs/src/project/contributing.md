@@ -94,8 +94,8 @@ crates/
 ├── queryfabric-cli-toolbelt/ # CLI helpers
 ├── queryfabric-cmd-runner/   # Subprocess runner
 ├── queryfabric-test-rig/     # Test infrastructure
-├── queryfabric-web/          # Web UI assets
 ├── queryfabric-leptos/       # Leptos SyQL editor
+├── queryfabric-dioxus/       # Dioxus SyQL components and web support
 ├── queryfabric-python/       # Python bindings
 ├── queryfabric-demo/         # Self-host demonstrator
 ├── queryfabric-paseto/       # Auth tokens
