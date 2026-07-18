@@ -23,7 +23,7 @@
 - `queryfabric-test-rig::docker_auth` — `resolve_registry_auth` for Docker credentials
 - `queryfabric-test-rig::clickhouse` — multi-node ClickHouse test helpers (`cluster_xml`, `execute_ch`, `split_ddl_statements`)
 - `queryfabric-cmd-runner::mcp` — `format_result` for MCP `CallToolResult` conversion
-- `queryfabric-web::ssr` — `SsrSettings` with env-prefix parameterization and `ApiClient` SSR proxy (feature-gated)
+- `queryfabric-dioxus::ssr` — `SsrSettings` with env-prefix parameterization and `ApiClient` SSR proxy (feature-gated)
 - `queryfabric-runtime-k8s` crate — Kubernetes isolated execution driver with configurable label keys
 - `queryfabric-seaorm-ext` crate — `SharedDatabaseConnection`, `I16Vec`, `UuidVec`
 - `queryfabric-types` crate — validated string newtypes (`Email`, `Doi`, `CountryCode`, etc.) and portable enums (`UserType`, `OAuthProviderName`)

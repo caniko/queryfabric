@@ -8,7 +8,7 @@ members = [
     "crates/queryfabric-opt",
     "crates/queryfabric-dialect-sql",
     "crates/queryfabric-dialect-syql",
-    "crates/queryfabric-web",
+    "crates/queryfabric-dioxus",
     "crates/queryfabric-leptos",
     "crates/queryfabric-adapter-clickhouse",
     "crates/queryfabric-adapter-postgres",
@@ -99,7 +99,7 @@ queryfabric-runtime-k8s = { version = "0.1.0", path = "crates/queryfabric-runtim
 queryfabric-opt = { version = "0.2.0", path = "crates/queryfabric-opt" }
 queryfabric-dialect-sql = { version = "0.2.0", path = "crates/queryfabric-dialect-sql" }
 queryfabric-dialect-syql = { version = "0.2.0", path = "crates/queryfabric-dialect-syql" }
-queryfabric-web = { version = "0.2.0", path = "crates/queryfabric-web" }
+queryfabric-dioxus = { version = "0.2.0", path = "crates/queryfabric-dioxus" }
 queryfabric-leptos = { version = "0.2.0", path = "crates/queryfabric-leptos" }
 queryfabric-adapter-clickhouse = { version = "0.2.0", path = "crates/queryfabric-adapter-clickhouse" }
 queryfabric-adapter-postgres = { version = "0.2.0", path = "crates/queryfabric-adapter-postgres" }
@@ -130,3 +130,4 @@ queryfabric-changelog = { version = "0.1.0", path = "crates/queryfabric-changelo
 queryfabric-types = { version = "0.1.0", path = "crates/queryfabric-types" }
 queryfabric-worker = { version = "0.1.0", path = "crates/queryfabric-worker" }
 leptos = { version = "=0.8.19", default-features = false }
+dioxus = { version = "=0.7.9", default-features = false, features = ["lib"] }
