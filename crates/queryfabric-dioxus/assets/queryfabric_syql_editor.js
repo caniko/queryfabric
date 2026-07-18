@@ -5,7 +5,7 @@
  * `data-queryfabric-syql-editor` and upgrades them into a CodeMirror editor.
  */
 
-import { EditorView, basicSetup } from "https://esm.sh/codemirror@6.65.7";
+import { basicSetup } from "https://esm.sh/codemirror@6.0.1";
 import { sql, SQLDialect } from "https://esm.sh/@codemirror/lang-sql";
 import { autocompletion } from "https://esm.sh/@codemirror/autocomplete";
 import { oneDark } from "https://esm.sh/@codemirror/theme-one-dark";
@@ -316,6 +316,14 @@ async function initEditor(textarea) {
       extensions,
     }),
     parent: wrapper,
+  });
+
+  // The native textarea remains the form's successful control, including its
+  // required constraint. Keep browser validation usable after the textarea is
+  // replaced visually by CodeMirror.
+  textarea.addEventListener("invalid", (event) => {
+    event.preventDefault();
+    view.focus();
   });
 
   const themeObserver = new MutationObserver(() => {
