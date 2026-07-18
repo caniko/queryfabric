@@ -11,7 +11,7 @@ import { autocompletion } from "https://esm.sh/@codemirror/autocomplete";
 import { oneDark } from "https://esm.sh/@codemirror/theme-one-dark";
 import { linter, lintGutter } from "https://esm.sh/@codemirror/lint";
 import { EditorState, Compartment } from "https://esm.sh/@codemirror/state";
-import { keymap } from "https://esm.sh/@codemirror/view";
+import { EditorView, keymap } from "https://esm.sh/@codemirror/view";
 
 const DEFAULT_CATALOG_URL = "/static/queryfabric_catalog.json";
 const DEFAULT_VALIDATE_URL = "/_ui/query/syql/validate";
