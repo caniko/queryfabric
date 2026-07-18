@@ -22,7 +22,7 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
     rs-harbor = {
-      url = "git+https://codeberg.org/caniko/rs-harbor.git?ref=trunk&rev=9bfa8bdb0ecb22d7bc11448665f7fbaebae7a759";
+      url = "git+https://codeberg.org/caniko/rs-harbor.git?ref=trunk&rev=b40cd4c4fdf6133962f67bd68a48bfd5d554d47f";
       inputs.nixpkgs.follows = "nixpkgs";
       inputs.crane.follows = "crane";
       inputs.rust-overlay.follows = "rust-overlay";
@@ -64,6 +64,15 @@
           };
           lib = pkgs.lib;
           craneLib = crane.mkLib pkgs;
+          sccachePackage = rs-harbor.packages.${system}.sccache;
+          buildCache = rs-harbor.lib.mkBuildCachePolicy {
+            inherit pkgs sccachePackage;
+            buildPackageSet = pkgs.buildPackages;
+            cacheRoot = null;
+            namespaceScope = "canix-rust";
+            namespaceGeneration = 5;
+          };
+          cacheRust = package: buildCache.withRustCache {inherit package;};
           cross = rs-harbor.lib.mkCross {
             inherit pkgs system;
             enableOsxcross = false;
@@ -126,7 +135,7 @@
               mainProgram = "queryfabric-demo";
             };
           };
-          queryfabric-demo = craneLib.buildPackage queryfabricDemoArgs;
+          queryfabric-demo = cacheRust (craneLib.buildPackage queryfabricDemoArgs);
           bundleSchemaArgs = {
             pname = "queryfabric-portability-schema-fixtures";
             version = "0.2.0";
@@ -141,10 +150,10 @@
             strictDeps = true;
             cargoExtraArgs = "-p queryfabric-portability --locked";
           };
-          bundleSchemaArtifacts = craneLib.buildDepsOnly bundleSchemaArgs;
-          bundle-schema = craneLib.cargoTest (
+          bundleSchemaArtifacts = cacheRust (craneLib.buildDepsOnly bundleSchemaArgs);
+          bundle-schema = cacheRust (craneLib.cargoTest (
             bundleSchemaArgs // { cargoArtifacts = bundleSchemaArtifacts; }
-          );
+          ));
           crossLanguage =
             pkgs.runCommand "queryfabric-cross-language-vectors"
               {
@@ -180,17 +189,17 @@
           msrvArgs = queryfabricDemoArgs // {
             cargoExtraArgs = "--workspace --exclude queryfabric-python --locked";
           };
-          msrvArtifacts = msrvCraneLib.buildDepsOnly msrvArgs;
+          msrvArtifacts = cacheRust (msrvCraneLib.buildDepsOnly msrvArgs);
           # The MSRV gate is a full-workspace compile gate. Runtime tests run
           # under the stable workspace gate; keeping this check compile-only
           # avoids TLS-provider global state in unrelated test binaries.
-          msrv = msrvCraneLib.buildPackage (
+          msrv = cacheRust (msrvCraneLib.buildPackage (
             msrvArgs
             // {
               cargoArtifacts = msrvArtifacts;
               doCheck = false;
             }
-          );
+          ));
           audit = craneLib.cargoAudit {
             pname = "queryfabric-audit";
             version = "0.2.0";
