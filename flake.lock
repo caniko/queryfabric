@@ -485,6 +485,7 @@
         "plinth": "plinth",
         "rs-harbor": "rs-harbor_2",
         "rust-overlay": "rust-overlay_3",
+        "tex-harbor": "tex-harbor",
         "treefmt-nix": "treefmt-nix"
       }
     },
@@ -697,6 +698,27 @@
         "owner": "nix-systems",
         "repo": "default",
         "type": "github"
+      }
+    },
+    "tex-harbor": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1784482677,
+        "narHash": "sha256-xbhrLSm/WkJBivTpc6hUzgVEpBrseRmhFvo9KBkOSTw=",
+        "ref": "trunk",
+        "rev": "af6d76fd4379dae20114888ec8d4538d32b873a0",
+        "revCount": 2,
+        "type": "git",
+        "url": "https://codeberg.org/caniko/tex-harbor.git"
+      },
+      "original": {
+        "ref": "trunk",
+        "type": "git",
+        "url": "https://codeberg.org/caniko/tex-harbor.git"
       }
     },
     "treefmt-nix": {

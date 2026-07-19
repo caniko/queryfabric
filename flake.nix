@@ -27,6 +27,10 @@
       inputs.crane.follows = "crane";
       inputs.rust-overlay.follows = "rust-overlay";
     };
+    tex-harbor = {
+      url = "git+https://codeberg.org/caniko/tex-harbor.git?ref=trunk";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
     advisory-db = {
       url = "github:RustSec/advisory-db";
       flake = false;
@@ -44,6 +48,7 @@
       git-hooks,
       rust-overlay,
       rs-harbor,
+      tex-harbor,
       advisory-db,
       ...
     }:
@@ -412,6 +417,11 @@
               pkgs.rustc
               pkgs.rustfmt
               pkgs.uv
+              (tex-harbor.lib.mkTexlive {
+                inherit pkgs;
+                profile = "article";
+              })
+              pkgs.inkscape
             ]
             ++ pre-commit-check.enabledPackages;
 
