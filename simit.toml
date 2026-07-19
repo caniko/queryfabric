@@ -7,6 +7,7 @@ with_docs = true
 with_pypi_publish = true
 runtime = "nix"
 with_nextest = true
+publish_crates = true
 
 [ci.pages]
 repo = "caniko/queryfabric"

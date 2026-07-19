@@ -11,7 +11,7 @@ concurrency:
 
 jobs:
   publish:
-    runs-on: atlas
+    runs-on: atlas-nix-trusted
     env:
       NIX_CONFIG: "experimental-features = nix-command flakes"
       XDG_CACHE_HOME: "/tmp/.cache"

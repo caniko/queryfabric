@@ -98,7 +98,7 @@ not carry a one-off local correction as reproducibility evidence.
 Create a new implementation branch from canonical `trunk`. Review the
 `36a327f` and `1ba7f34` diffs file by file:
 
-- port generic `queryfabric-web` Flash, query-string, append-query, and
+- port generic `queryfabric-dioxus` Flash, query-string, append-query, and
   safe-local-redirect behavior;
 - adapt compiler dependencies/features to canonical Cargo structure;
 - re-evaluate the ClickHouse rewrite/scope hunks against canonical code rather
@@ -218,7 +218,7 @@ the vendored topic lineage.
     "$(jq -r '.nodes.queryfabric.locked.rev' flake.lock)" origin/trunk
   ```
 
-- [ ] `nix develop -c cargo test -p queryfabric-web --all-features --locked`
+  - [ ] `nix develop -c cargo test -p queryfabric-dioxus --features server --locked`
       passes upstream, followed by the focused SynDB UI/server tests that
       consume the helpers.
 - [ ] `nix develop -c reuse lint` passes without fabricated ownership/licence
