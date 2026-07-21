@@ -798,7 +798,7 @@ async fn wait_for_clickhouse_http(host_port: u16) -> eyre::Result<()> {
             _ => tokio::time::sleep(Duration::from_millis(500)).await,
         }
     }
-    eyre::bail!("ClickHouse on 127.0.0.1:{host_port} did not become query-ready")
+    eyre::bail!("ClickHouse on 127.0.0.1:{host_port} did not become query-ready");
 }
 
 async fn wait_for_meilisearch_http(host_port: u16) -> eyre::Result<()> {
@@ -811,5 +811,5 @@ async fn wait_for_meilisearch_http(host_port: u16) -> eyre::Result<()> {
             _ => tokio::time::sleep(Duration::from_millis(500)).await,
         }
     }
-    eyre::bail!("Meilisearch on 127.0.0.1:{host_port} did not become healthy")
+    eyre::bail!("Meilisearch on 127.0.0.1:{host_port} did not become healthy");
 }

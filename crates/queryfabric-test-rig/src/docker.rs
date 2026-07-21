@@ -97,7 +97,7 @@ pub async fn wait_for_port(host: &str, port: u16, timeout: Duration) -> eyre::Re
     }
     eyre::bail!(
         "tcp endpoint {addr} did not become reachable within {timeout:?}; confirm the container started and bound the expected port"
-    )
+    );
 }
 
 /// Start a named container on a given network with the specified config.
