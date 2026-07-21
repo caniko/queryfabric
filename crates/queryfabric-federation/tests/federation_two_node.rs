@@ -17,9 +17,9 @@ use queryfabric_cluster::{
 use queryfabric_contract::{Health, NodeId, ResourceRef};
 use queryfabric_federation::{
     ClusterIdentity, ClusterNodeActor, ClusterNodeArgs, ClusterRefs, ClusterRegistration,
-    FederationHost, HubActor, HubActorArgs, InMemoryTransport, RegisterCluster, ResourceAction,
-    ResourceAnnouncement, ResourceLocalityIndex, SchemaMigration, SyncAllSchemas, TransportProbe,
-    get_healthy_flight_endpoint, resolve_locality,
+    FederationHost, FederationHostError, HubActor, HubActorArgs, InMemoryTransport,
+    RegisterCluster, ResourceAction, ResourceAnnouncement, ResourceLocalityIndex, SchemaMigration,
+    SyncAllSchemas, TransportProbe, get_healthy_flight_endpoint, resolve_locality,
 };
 use uuid::Uuid;
 
@@ -42,9 +42,12 @@ impl FederationHost for TestHost {
         &self,
         identity: &ClusterIdentity,
         federation_password: &str,
-    ) -> Result<ClusterRegistration, String> {
+    ) -> Result<ClusterRegistration, FederationHostError> {
         if federation_password != "open-sesame" {
-            return Err("bad federation password".to_owned());
+            return Err(FederationHostError::Rejected {
+                operation: "cluster registration",
+                reason: "bad federation password".to_owned(),
+            });
         }
         Ok(ClusterRegistration {
             cluster_id: NodeId::from(Uuid::now_v7()),
@@ -76,7 +79,7 @@ impl FederationHost for TestHost {
         self.resources.load(Ordering::Relaxed)
     }
 
-    async fn apply_ddl(&self, migration: &SchemaMigration) -> Result<(), String> {
+    async fn apply_ddl(&self, migration: &SchemaMigration) -> Result<(), FederationHostError> {
         self.applied_ddl
             .lock()
             .expect("ddl lock")

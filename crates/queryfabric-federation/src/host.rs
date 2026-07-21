@@ -3,6 +3,7 @@ use chrono::{DateTime, Utc};
 use queryfabric_contract::NodeId;
 use serde::Serialize;
 use serde::de::DeserializeOwned;
+use thiserror::Error;
 
 use crate::messages::{ClusterIdentity, ResourceAnnouncement};
 use crate::schema::SchemaMigration;
@@ -16,6 +17,34 @@ pub struct ClusterRegistration {
     pub api_key: String,
     /// Human-readable status message.
     pub message: String,
+}
+
+/// Structured failure returned by host-provided federation hooks.
+#[derive(Debug, Clone, Error, PartialEq, Eq)]
+pub enum FederationHostError {
+    /// The host does not implement the requested hook.
+    #[error("{operation} is not supported by this host")]
+    Unsupported {
+        /// Hook operation that was requested.
+        operation: &'static str,
+    },
+    /// The request was rejected by host policy or validation.
+    #[error("{operation} rejected: {reason}")]
+    Rejected {
+        /// Hook operation that rejected the request.
+        operation: &'static str,
+        /// Stable human-readable reason suitable for transport translation.
+        reason: String,
+    },
+    /// The host attempted the operation but its backing service failed.
+    #[error("{operation} failed: {reason}")]
+    Failed {
+        /// Hook operation that failed.
+        operation: &'static str,
+        /// Human-readable failure detail; transport layers should map this to
+        /// their own safe error representation.
+        reason: String,
+    },
 }
 
 /// The single seam through which a host injects domain behaviour into the
@@ -41,13 +70,16 @@ pub trait FederationHost: Send + Sync + 'static {
     /// Validate and persist a cluster registration.
     ///
     /// # Errors
-    /// Returns a human-readable reason when the registration is rejected.
+    /// Returns a structured reason when registration is rejected or cannot be
+    /// provided.
     async fn register_cluster(
         &self,
         _identity: &ClusterIdentity,
         _federation_password: &str,
-    ) -> Result<ClusterRegistration, String> {
-        Err("registration not supported by this host".to_owned())
+    ) -> Result<ClusterRegistration, FederationHostError> {
+        Err(FederationHostError::Unsupported {
+            operation: "cluster registration",
+        })
     }
 
     /// Hook invoked after the locality index has been updated for an
@@ -86,8 +118,8 @@ pub trait FederationHost: Send + Sync + 'static {
     /// Apply one schema migration's opaque DDL body to local storage.
     ///
     /// # Errors
-    /// Returns a human-readable reason when the migration fails.
-    async fn apply_ddl(&self, _migration: &SchemaMigration) -> Result<(), String> {
+    /// Returns a structured reason when the migration fails.
+    async fn apply_ddl(&self, _migration: &SchemaMigration) -> Result<(), FederationHostError> {
         Ok(())
     }
 

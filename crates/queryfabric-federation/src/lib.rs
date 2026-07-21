@@ -45,7 +45,7 @@ pub mod schema;
 /// implementation and a transport-backed health probe.
 pub mod transport;
 
-pub use host::{ClusterRegistration, FederationHost};
+pub use host::{ClusterRegistration, FederationHost, FederationHostError};
 pub use hub_actor::{CircuitResetHook, HubActor, HubActorArgs};
 pub use locality::{
     ClusterRefs, ClusterRemoteHandle, HealthCache, RemoteGroup, ResourceLocalityIndex,
