@@ -59,8 +59,12 @@ pub fn load_multi_fernet(env_var: &str) -> Result<MultiFernet> {
     let keys_json =
         std::env::var(env_var).map_err(|_| FernetError::EnvMissing(env_var.to_owned()))?;
 
+    parse_multi_fernet(env_var, &keys_json)
+}
+
+fn parse_multi_fernet(env_var: &str, keys_json: &str) -> Result<MultiFernet> {
     let keys: Vec<String> =
-        serde_json::from_str(&keys_json).map_err(|source| FernetError::InvalidJson {
+        serde_json::from_str(keys_json).map_err(|source| FernetError::InvalidJson {
             var: env_var.to_owned(),
             source,
         })?;
@@ -112,77 +116,65 @@ pub fn decrypt(env_var: &str, token: &str) -> Result<SecretString> {
 mod tests {
     use super::*;
     use secrecy::ExposeSecret;
-    use std::sync::Mutex;
 
-    static ENV_LOCK: Mutex<()> = Mutex::new(());
-    const TEST_VAR: &str = "TEST_FERNET_ROTATION_KEYS";
-
-    fn set_valid_key() {
+    fn test_multi_fernet() -> MultiFernet {
         let key = Fernet::generate_key();
-        // SAFETY: `set_var` is only unsafe because it is not thread-safe. Every
-        // test that touches `TEST_VAR` holds `ENV_LOCK` for its whole body, and
-        // cargo-nextest runs each test in its own process, so no other thread
-        // observes the environment mid-mutation. Callers hold the lock before
-        // invoking this helper.
-        unsafe {
-            std::env::set_var(TEST_VAR, format!(r#"["{key}"]"#));
-        }
+        parse_multi_fernet("test", &format!(r#"["{key}"]"#)).unwrap()
     }
 
     #[test]
     fn roundtrip() {
-        let _lock = ENV_LOCK.lock().unwrap();
-        set_valid_key();
-        let encrypted = encrypt(TEST_VAR, "secret").unwrap();
-        let decrypted = decrypt(TEST_VAR, &encrypted).unwrap();
-        assert_eq!(decrypted.expose_secret(), "secret");
+        let multi = test_multi_fernet();
+        let encrypted = multi.encrypt(b"secret");
+        let decrypted = String::from_utf8(multi.decrypt(&encrypted).unwrap()).unwrap();
+        assert_eq!(decrypted, "secret");
     }
 
     #[test]
     fn fresh_iv_per_encrypt() {
-        let _lock = ENV_LOCK.lock().unwrap();
-        set_valid_key();
-        let a = encrypt(TEST_VAR, "x").unwrap();
-        let b = encrypt(TEST_VAR, "x").unwrap();
+        let multi = test_multi_fernet();
+        let a = multi.encrypt(b"x");
+        let b = multi.encrypt(b"x");
         assert_ne!(a, b);
     }
 
     #[test]
     fn missing_env() {
-        let _lock = ENV_LOCK.lock().unwrap();
-        // SAFETY: `remove_var` is only unsafe because it is not thread-safe.
-        // `ENV_LOCK` is held for the whole test body and nextest isolates each
-        // test in its own process, so no concurrent env access can occur.
-        unsafe {
-            std::env::remove_var(TEST_VAR);
-        }
-        let err = encrypt(TEST_VAR, "x").unwrap_err();
+        let err = encrypt("", "x").unwrap_err();
         assert!(matches!(err, FernetError::EnvMissing(_)));
     }
 
     #[test]
     fn empty_array() {
-        let _lock = ENV_LOCK.lock().unwrap();
-        // SAFETY: `set_var` is only unsafe because it is not thread-safe.
-        // `ENV_LOCK` is held for the whole test body and nextest isolates each
-        // test in its own process, so no concurrent env access can occur.
-        unsafe {
-            std::env::set_var(TEST_VAR, "[]");
-        }
-        let err = encrypt(TEST_VAR, "x").unwrap_err();
+        let err = parse_multi_fernet("TEST", "[]")
+            .err()
+            .expect("empty keys should fail");
         assert!(matches!(err, FernetError::NoKeys(_)));
     }
 
     #[test]
     fn invalid_json() {
-        let _lock = ENV_LOCK.lock().unwrap();
-        // SAFETY: `set_var` is only unsafe because it is not thread-safe.
-        // `ENV_LOCK` is held for the whole test body and nextest isolates each
-        // test in its own process, so no concurrent env access can occur.
-        unsafe {
-            std::env::set_var(TEST_VAR, "not-json");
-        }
-        let err = encrypt(TEST_VAR, "x").unwrap_err();
+        let err = parse_multi_fernet("TEST", "not-json")
+            .err()
+            .expect("invalid JSON should fail");
         assert!(matches!(err, FernetError::InvalidJson { .. }));
+    }
+
+    #[test]
+    fn invalid_key_reports_index() {
+        let err = parse_multi_fernet("TEST", r#"["not-a-fernet-key"]"#)
+            .err()
+            .expect("invalid key should fail");
+        assert!(matches!(err, FernetError::InvalidKey { index: 0, .. }));
+    }
+
+    #[test]
+    fn secret_plaintext_is_not_exposed_by_debug() {
+        let multi = test_multi_fernet();
+        let encrypted = multi.encrypt(b"secret");
+        let plaintext = String::from_utf8(multi.decrypt(&encrypted).unwrap()).unwrap();
+        let secret = SecretString::from(plaintext);
+        assert_eq!(secret.expose_secret(), "secret");
+        assert!(!format!("{secret:?}").contains("secret"));
     }
 }

@@ -1,5 +1,8 @@
 name: ci
 
+env:
+  RUSTFLAGS: -Dunsafe_code
+
 on:
   push:
   pull_request:

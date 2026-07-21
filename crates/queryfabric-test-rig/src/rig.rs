@@ -1,12 +1,8 @@
 use std::collections::HashMap;
-use std::future::Future;
 use std::net::TcpListener;
-use std::panic::AssertUnwindSafe;
-use std::sync::{Mutex, Once, OnceLock};
 use std::time::Duration;
 
 use bollard::Docker;
-use futures_util::FutureExt;
 use serde::Deserialize;
 
 use crate::{
@@ -32,63 +28,6 @@ const CH_JSON_USERS_XML: &str = r#"<clickhouse>
     </profiles>
 </clickhouse>
 "#;
-
-fn spawn_traced(name: &'static str, future: impl Future<Output = ()> + Send + 'static) {
-    tokio::spawn(async move {
-        if AssertUnwindSafe(future).catch_unwind().await.is_err() {
-            tracing::error!(task = name, "background task panicked");
-        }
-    });
-}
-
-#[derive(Clone)]
-struct CleanupEntry {
-    docker: Docker,
-    network: String,
-}
-
-fn cleanup_entries() -> &'static Mutex<Vec<CleanupEntry>> {
-    static ENTRIES: OnceLock<Mutex<Vec<CleanupEntry>>> = OnceLock::new();
-    ENTRIES.get_or_init(|| Mutex::new(Vec::new()))
-}
-
-fn register_cleanup(docker: &Docker, network: &str) {
-    static REGISTER: Once = Once::new();
-    // SAFETY: `atexit` only requires a valid `extern "C" fn()` pointer, which
-    // `cleanup_registered_networks` is. `Once` guarantees we register exactly
-    // one handler. The callback is `extern "C"`, so any panic inside it aborts
-    // the process rather than unwinding across the FFI boundary (which would be
-    // UB); all of its state (the cleanup-entries mutex) is `'static`, so it
-    // remains valid for the entire program lifetime including at exit.
-    REGISTER.call_once(|| unsafe {
-        libc::atexit(cleanup_registered_networks);
-    });
-    cleanup_entries()
-        .lock()
-        .expect("cleanup mutex")
-        .push(CleanupEntry {
-            docker: docker.clone(),
-            network: network.to_owned(),
-        });
-}
-
-extern "C" fn cleanup_registered_networks() {
-    let entries = {
-        let mut guard = cleanup_entries().lock().expect("cleanup mutex");
-        std::mem::take(&mut *guard)
-    };
-    if entries.is_empty() {
-        return;
-    }
-
-    let runtime = tokio::runtime::Builder::new_current_thread()
-        .enable_all()
-        .build()
-        .expect("cleanup runtime");
-    for entry in entries {
-        let _ = runtime.block_on(cleanup_network(&entry.docker, &entry.network));
-    }
-}
 
 fn reserve_local_port() -> eyre::Result<u16> {
     let listener = TcpListener::bind("127.0.0.1:0")?;
@@ -157,13 +96,9 @@ impl PostgresService {
     pub async fn truncate_all(&self) -> eyre::Result<()> {
         let (client, connection) =
             tokio_postgres::connect(&self.url(), tokio_postgres::NoTls).await?;
-        spawn_traced("postgres-reset-connection", async move {
-            if let Err(error) = connection.await {
-                tracing::warn!(error = %error, "postgres reset connection closed with error");
-            }
-        });
+        let connection_task = tokio::spawn(connection);
 
-        let rows = client
+        let result = match client
             .query(
                 "SELECT tablename \
                  FROM pg_tables \
@@ -171,25 +106,34 @@ impl PostgresService {
                  ORDER BY tablename",
                 &[],
             )
-            .await?;
-        if rows.is_empty() {
-            return Ok(());
+            .await
+        {
+            Ok(rows) if rows.is_empty() => Ok(()),
+            Ok(rows) => {
+                let tables = rows
+                    .into_iter()
+                    .map(|row| {
+                        format!(
+                            "public.\"{}\"",
+                            row.get::<_, String>(0).replace('"', "\"\"")
+                        )
+                    })
+                    .collect::<Vec<_>>()
+                    .join(", ");
+                client
+                    .batch_execute(&format!("TRUNCATE TABLE {tables} RESTART IDENTITY CASCADE"))
+                    .await
+                    .map_err(Into::into)
+            }
+            Err(error) => Err(error.into()),
+        };
+        drop(client);
+        match (result, connection_task.await) {
+            (Err(error), _) => Err(error),
+            (Ok(()), Ok(Ok(()))) => Ok(()),
+            (Ok(()), Ok(Err(error))) => Err(error.into()),
+            (Ok(()), Err(error)) => Err(error.into()),
         }
-
-        let tables = rows
-            .into_iter()
-            .map(|row| {
-                format!(
-                    "public.\"{}\"",
-                    row.get::<_, String>(0).replace('"', "\"\"")
-                )
-            })
-            .collect::<Vec<_>>()
-            .join(", ");
-        client
-            .batch_execute(&format!("TRUNCATE TABLE {tables} RESTART IDENTITY CASCADE"))
-            .await?;
-        Ok(())
     }
 }
 
@@ -471,7 +415,7 @@ impl TestRigBuilder {
                 runtime.block_on(self.build())
             })
             .join()
-            .expect("TestRig builder thread panicked")
+            .map_err(|_| eyre::eyre!("TestRig builder thread panicked"))?
         } else {
             let runtime = tokio::runtime::Builder::new_current_thread()
                 .enable_all()
@@ -502,41 +446,52 @@ impl TestRig {
         let docker = connect_docker()?;
         let network = format!("syndb-test-rig-{}", uuid::Uuid::now_v7().simple());
         ensure_network(&docker, &network).await?;
-        register_cleanup(&docker, &network);
-
         let prefix = network.replace('_', "-");
-        let postgres = if let Some(port) = builder.postgres_port {
-            Some(start_postgres(&docker, &network, &prefix, port).await?)
-        } else {
-            None
-        };
+        let services = async {
+            let postgres = if let Some(port) = builder.postgres_port {
+                Some(start_postgres(&docker, &network, &prefix, port).await?)
+            } else {
+                None
+            };
 
-        let mut clickhouse = HashMap::new();
-        for spec in builder.clickhouse_specs {
-            let service = start_clickhouse(&docker, &network, &prefix, spec).await?;
-            clickhouse.insert(service.name.clone(), service);
+            let mut clickhouse = HashMap::new();
+            for spec in builder.clickhouse_specs {
+                let service = start_clickhouse(&docker, &network, &prefix, spec).await?;
+                clickhouse.insert(service.name.clone(), service);
+            }
+
+            let minio = if let Some(port) = builder.minio_port {
+                Some(start_minio(&docker, &network, &prefix, port).await?)
+            } else {
+                None
+            };
+
+            let meilisearch = if let Some(port) = builder.meilisearch_port {
+                Some(start_meilisearch(&docker, &network, &prefix, port).await?)
+            } else {
+                None
+            };
+
+            Ok::<_, eyre::Report>((postgres, clickhouse, minio, meilisearch))
         }
+        .await;
 
-        let minio = if let Some(port) = builder.minio_port {
-            Some(start_minio(&docker, &network, &prefix, port).await?)
-        } else {
-            None
-        };
-
-        let meilisearch = if let Some(port) = builder.meilisearch_port {
-            Some(start_meilisearch(&docker, &network, &prefix, port).await?)
-        } else {
-            None
-        };
-
-        Ok(Self {
-            docker,
-            network,
-            postgres,
-            clickhouse,
-            minio,
-            meilisearch,
-        })
+        match services {
+            Ok((postgres, clickhouse, minio, meilisearch)) => Ok(Self {
+                docker,
+                network,
+                postgres,
+                clickhouse,
+                minio,
+                meilisearch,
+            }),
+            Err(error) => {
+                if let Err(cleanup_error) = cleanup_network(&docker, &network).await {
+                    tracing::warn!(%cleanup_error, "failed to roll back test-rig network");
+                }
+                Err(error)
+            }
+        }
     }
 
     /// Return the underlying Docker client used by the rig.
@@ -550,51 +505,63 @@ impl TestRig {
         &self.network
     }
 
+    /// Shut down all containers and remove this rig's dedicated network.
+    ///
+    /// Cleanup is explicit so it does not depend on an unsafe process-exit
+    /// hook or a hidden global registry.
+    pub async fn shutdown(self) -> eyre::Result<()> {
+        cleanup_network(&self.docker, &self.network).await
+    }
+
     /// Return the configured Postgres service.
     ///
-    /// # Panics
-    /// Panics if the rig was built without Postgres.
-    pub fn postgres(&self) -> &PostgresService {
-        self.postgres.as_ref().expect("TestRig missing postgres")
+    /// # Errors
+    /// Returns an error if the rig was built without Postgres.
+    pub fn postgres(&self) -> eyre::Result<&PostgresService> {
+        self.postgres
+            .as_ref()
+            .ok_or_else(|| eyre::eyre!("TestRig missing postgres"))
     }
 
     /// Return the default ClickHouse service, or the first configured one.
     ///
-    /// # Panics
-    /// Panics if the rig was built without any ClickHouse service.
-    pub fn clickhouse(&self) -> &ClickHouseService {
+    /// # Errors
+    /// Returns an error if the rig was built without any ClickHouse service.
+    pub fn clickhouse(&self) -> eyre::Result<&ClickHouseService> {
         self.clickhouse
             .get("clickhouse")
             .or_else(|| self.clickhouse.values().next())
-            .expect("TestRig missing clickhouse")
+            .ok_or_else(|| eyre::eyre!("TestRig missing clickhouse"))
     }
 
     /// Return a named ClickHouse service.
     ///
-    /// # Panics
-    /// Panics if no ClickHouse service with `name` exists.
-    pub fn clickhouse_named(&self, name: &str) -> &ClickHouseService {
+    /// # Errors
+    /// Returns an error if no ClickHouse service with `name` exists.
+    pub fn clickhouse_named(&self, name: &str) -> eyre::Result<&ClickHouseService> {
         self.clickhouse
             .get(name)
-            .unwrap_or_else(|| panic!("TestRig missing clickhouse node {name}"))
+            .ok_or_else(|| eyre::eyre!("TestRig missing clickhouse node {name}"))
     }
 
     /// Return the configured MinIO service.
     ///
-    /// # Panics
-    /// Panics if the rig was built without MinIO.
-    pub fn minio(&self) -> &MinioService {
-        self.minio.as_ref().expect("TestRig missing minio")
+    /// # Errors
+    /// Returns an error if the rig was built without MinIO.
+    pub fn minio(&self) -> eyre::Result<&MinioService> {
+        self.minio
+            .as_ref()
+            .ok_or_else(|| eyre::eyre!("TestRig missing minio"))
     }
 
     /// Return the configured Meilisearch service.
     ///
-    /// # Panics
-    /// Panics if the rig was built without Meilisearch.
-    pub fn meilisearch(&self) -> &MeilisearchService {
+    /// # Errors
+    /// Returns an error if the rig was built without Meilisearch.
+    pub fn meilisearch(&self) -> eyre::Result<&MeilisearchService> {
         self.meilisearch
             .as_ref()
-            .expect("TestRig missing meilisearch")
+            .ok_or_else(|| eyre::eyre!("TestRig missing meilisearch"))
     }
 }
 

@@ -17,12 +17,12 @@ memory = ["opendal/services-memory"]
 # Any S3-compatible backend: AWS, MinIO, Garage, ...
 s3 = [
     "opendal/services-s3",
-    "opendal/http-transport-reqwest",
+    "opendal/reqwest-rustls-tls",
     "opendal/executors-tokio",
 ]
 
 [dependencies]
-opendal = { version = "0.58", default-features = false }
+opendal = { version = "0.57", default-features = false }
 thiserror = { workspace = true }
 
 [dev-dependencies]

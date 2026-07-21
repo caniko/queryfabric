@@ -21,11 +21,8 @@ pub fn connect_docker() -> eyre::Result<Docker> {
         return Ok(Docker::connect_with_local_defaults()?);
     }
 
-    // Probe rootless Podman socket
-    // SAFETY: `getuid()` is an always-successful, thread-safe POSIX syscall that
-    // takes no arguments, returns the caller's real UID, and cannot fail or
-    // produce an invalid value, so the call has no preconditions to uphold.
-    let uid = unsafe { libc::getuid() };
+    // Probe rootless Podman socket using rustix's safe POSIX binding.
+    let uid = rustix::process::getuid().as_raw();
     let podman_sock = format!("/run/user/{uid}/podman/podman.sock");
     if std::path::Path::new(&podman_sock).exists() {
         return Ok(Docker::connect_with_unix(
