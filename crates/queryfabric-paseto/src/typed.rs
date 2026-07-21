@@ -272,12 +272,12 @@ pub fn validate_paseto_token(token: &str, secret: &str) -> Result<AuthUser, Auth
         AuthError::MissingSub
     })?;
     let id = Uuid::parse_str(id_str).map_err(|e| {
-        tracing::warn!(sub = %id_str, "PASETO token has invalid UUID in 'sub' claim");
+        tracing::warn!("PASETO token has invalid UUID in 'sub' claim");
         AuthError::InvalidUuid(e)
     })?;
 
     let email_str = claims["email"].as_str().ok_or_else(|| {
-        tracing::warn!(user_id = %id, "PASETO token missing 'email' claim");
+        tracing::warn!("PASETO token missing 'email' claim");
         AuthError::MissingEmail
     })?;
     let email = Email::new_unchecked(email_str);
@@ -303,7 +303,7 @@ pub fn validate_paseto_token(token: &str, secret: &str) -> Result<AuthUser, Auth
         .unwrap_or_default();
     let roles = roles_from_claim(&claims["roles"]);
 
-    tracing::debug!(user_id = %id, email = %email, %user_type, role_count = roles.len(), "PASETO token validated");
+    tracing::debug!(%user_type, role_count = roles.len(), "PASETO token validated");
 
     Ok(AuthUser {
         id,
@@ -426,7 +426,6 @@ pub fn mint_delegation_token(
         })?;
 
     tracing::debug!(
-        user_id = %user.id,
         dataset_count = dataset_ids.len(),
         table_id,
         "Delegation token minted"
@@ -487,7 +486,6 @@ pub fn validate_delegation_token(token: &str, secret: &str) -> Result<Delegation
     })?;
 
     tracing::debug!(
-        user_id = %sub,
         dataset_count = dataset_ids.len(),
         table_id,
         "Delegation token validated"

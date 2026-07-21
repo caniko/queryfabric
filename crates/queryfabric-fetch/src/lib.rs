@@ -120,7 +120,8 @@ impl DownloadManager {
             return Ok(size);
         }
 
-        tracing::info!(url, path = %output_path.display(), "Downloading");
+        let safe_url = redact_url(url);
+        tracing::info!(url = %safe_url, path = %output_path.display(), "Downloading");
 
         let resp = self.send_with_retry(url).await?;
 
@@ -129,7 +130,7 @@ impl DownloadManager {
             && ct_str.contains("text/html")
         {
             return Err(FetchError::Download(format!(
-                "Server returned HTML instead of data for {url} (content-type: {ct_str}). \
+                "Server returned HTML instead of data for {safe_url} (content-type: {ct_str}). \
                  The URL may require authentication or has changed."
             )));
         }
@@ -173,7 +174,7 @@ impl DownloadManager {
         pb.finish_with_message("done");
 
         tracing::info!(
-            url,
+            url = %safe_url,
             bytes = downloaded,
             path = %output_path.display(),
             "Download complete"
@@ -217,6 +218,7 @@ impl DownloadManager {
     }
 
     async fn send_with_retry(&self, url: &str) -> Result<reqwest::Response> {
+        let safe_url = redact_url(url);
         for attempt in 0..=MAX_RETRIES {
             let resp = self.client.get(url).send().await?;
             let status = resp.status();
@@ -229,7 +231,7 @@ impl DownloadManager {
 
             if !is_transient || attempt == MAX_RETRIES {
                 return Err(FetchError::Download(format!(
-                    "HTTP {status} downloading {url} (after {attempt} retries)"
+                    "HTTP {status} downloading {safe_url} (after {attempt} retries)"
                 )));
             }
 
@@ -238,7 +240,7 @@ impl DownloadManager {
             let delay = base_delay + jitter;
 
             tracing::warn!(
-                url,
+                url = %safe_url,
                 status = %status,
                 attempt = attempt + 1,
                 max_retries = MAX_RETRIES,
@@ -250,7 +252,37 @@ impl DownloadManager {
         }
 
         Err(FetchError::Download(format!(
-            "retry loop exhausted unexpectedly for {url}"
+            "retry loop exhausted unexpectedly for {safe_url}"
         )))
+    }
+}
+
+fn redact_url(raw: &str) -> String {
+    let Ok(mut url) = reqwest::Url::parse(raw) else {
+        return "<invalid-url>".to_owned();
+    };
+    let _ = url.set_username("");
+    let _ = url.set_password(None);
+    url.set_query(None);
+    url.set_fragment(None);
+    url.to_string()
+}
+
+#[cfg(test)]
+mod tests {
+    use super::redact_url;
+
+    #[test]
+    fn url_logs_drop_credentials_and_query_data() {
+        let redacted = redact_url("https://alice:secret@example.test/file?token=private#fragment");
+        assert_eq!(redacted, "https://example.test/file");
+        assert!(!redacted.contains("alice"));
+        assert!(!redacted.contains("secret"));
+        assert!(!redacted.contains("private"));
+    }
+
+    #[test]
+    fn malformed_urls_have_a_safe_log_value() {
+        assert_eq!(redact_url("not a URL"), "<invalid-url>");
     }
 }

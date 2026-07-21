@@ -245,7 +245,7 @@ impl DynamicClient {
 
     pub async fn query_arrow(&self, sql: &str) -> Result<Vec<RecordBatch>> {
         let full_sql = format!("{sql} FORMAT ArrowStream");
-        debug!(sql = sql, "DynamicClient SELECT Arrow");
+        debug!(sql_hash = %sql_fingerprint(sql), sql_bytes = sql.len(), "DynamicClient SELECT Arrow");
         let urls = self.select_base_urls();
         let mut last_error = None;
         let mut resp = None;
@@ -264,7 +264,7 @@ impl DynamicClient {
                     break;
                 }
                 Err(error) if select_send_error_is_retryable(&error) && index + 1 < urls.len() => {
-                    tracing::warn!(error = %error, failed_clickhouse_url = %base_url, next_clickhouse_url = %urls[index + 1], "retrying fallback host");
+                    tracing::warn!(error = %error, failed_clickhouse_url = %redact_endpoint(base_url), next_clickhouse_url = %redact_endpoint(&urls[index + 1]), "retrying fallback host");
                     last_error = Some(error);
                 }
                 Err(error) => return Err(ClickHouseError::Http(error)),
@@ -309,7 +309,7 @@ impl DynamicClient {
         let base_urls = self.select_base_urls();
         let user = self.user.clone();
         let password = self.password.clone();
-        debug!(sql = sql, "DynamicClient SELECT Arrow (streaming)");
+        debug!(sql_hash = %sql_fingerprint(sql), sql_bytes = sql.len(), "DynamicClient SELECT Arrow (streaming)");
         let (tx, rx) = mpsc::channel::<std::result::Result<RecordBatch, ClickHouseError>>(32);
 
         spawn_traced("clickhouse-arrow-stream", async move {
@@ -327,7 +327,7 @@ impl DynamicClient {
                         if select_send_error_is_retryable(&error)
                             && index + 1 < base_urls.len() =>
                     {
-                        tracing::warn!(error = %error, failed_clickhouse_url = %base_url, next_clickhouse_url = %base_urls[index + 1], "retrying fallback host");
+                        tracing::warn!(error = %error, failed_clickhouse_url = %redact_endpoint(base_url), next_clickhouse_url = %redact_endpoint(&base_urls[index + 1]), "retrying fallback host");
                         last_error = Some(error);
                     }
                     Err(error) => {
@@ -395,7 +395,7 @@ impl DynamicClient {
     #[deprecated(note = "Use query_arrow for better performance")]
     pub async fn query_json(&self, sql: &str) -> Result<String> {
         let full_sql = format!("{sql} FORMAT JSONEachRow");
-        debug!(sql = sql, "DynamicClient SELECT");
+        debug!(sql_hash = %sql_fingerprint(sql), sql_bytes = sql.len(), "DynamicClient SELECT");
         let urls = self.select_base_urls();
         let mut last_error = None;
         let mut resp = None;
@@ -414,7 +414,7 @@ impl DynamicClient {
                     break;
                 }
                 Err(error) if select_send_error_is_retryable(&error) && index + 1 < urls.len() => {
-                    tracing::warn!(error = %error, failed_clickhouse_url = %base_url, next_clickhouse_url = %urls[index + 1], "retrying fallback host");
+                    tracing::warn!(error = %error, failed_clickhouse_url = %redact_endpoint(base_url), next_clickhouse_url = %redact_endpoint(&urls[index + 1]), "retrying fallback host");
                     last_error = Some(error);
                 }
                 Err(error) => return Err(ClickHouseError::Http(error)),
@@ -439,7 +439,7 @@ impl DynamicClient {
     }
 
     pub async fn execute(&self, sql: &str) -> Result<()> {
-        debug!(sql = sql, "DynamicClient EXECUTE");
+        debug!(sql_hash = %sql_fingerprint(sql), sql_bytes = sql.len(), "DynamicClient EXECUTE");
         let resp = self
             .http
             .post(&self.base_url)
@@ -517,6 +517,21 @@ fn spawn_traced(
     });
 }
 
+fn sql_fingerprint(sql: &str) -> String {
+    blake3::hash(sql.as_bytes()).to_hex().to_string()
+}
+
+fn redact_endpoint(raw: &str) -> String {
+    let Ok(mut url) = reqwest::Url::parse(raw) else {
+        return "<invalid-endpoint>".to_owned();
+    };
+    let _ = url.set_username("");
+    let _ = url.set_password(None);
+    url.set_query(None);
+    url.set_fragment(None);
+    url.to_string()
+}
+
 fn panic_message(payload: &(dyn std::any::Any + Send)) -> std::borrow::Cow<'static, str> {
     if let Some(message) = payload.downcast_ref::<&'static str>() {
         std::borrow::Cow::Borrowed(*message)
@@ -529,7 +544,7 @@ fn panic_message(payload: &(dyn std::any::Any + Send)) -> std::borrow::Cow<'stat
 
 #[cfg(test)]
 mod tests {
-    use super::render_table_identifier;
+    use super::{redact_endpoint, render_table_identifier, sql_fingerprint};
 
     #[test]
     fn table_identifiers_are_segmented_and_quoted() {
@@ -551,5 +566,22 @@ mod tests {
     fn table_identifiers_reject_empty_segments_and_controls() {
         assert!(render_table_identifier("analytics.").is_err());
         assert!(render_table_identifier("analytics\nreadings").is_err());
+    }
+
+    #[test]
+    fn endpoint_logs_drop_credentials_and_query_data() {
+        let redacted =
+            redact_endpoint("https://alice:secret@example.test:8123/query?token=private#fragment");
+        assert_eq!(redacted, "https://example.test:8123/query");
+        assert!(!redacted.contains("alice"));
+        assert!(!redacted.contains("secret"));
+        assert!(!redacted.contains("private"));
+    }
+
+    #[test]
+    fn sql_logs_use_a_fingerprint() {
+        let fingerprint = sql_fingerprint("SELECT secret FROM private_table");
+        assert_eq!(fingerprint.len(), 64);
+        assert!(!fingerprint.contains("secret"));
     }
 }
