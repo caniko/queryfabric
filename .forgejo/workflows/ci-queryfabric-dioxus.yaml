@@ -31,7 +31,7 @@ jobs:
         run: nix flake check
 
       - name: Test
-        run: nix develop -c cargo test -p queryfabric-fetch
+        run: nix develop -c cargo test -p queryfabric-dioxus
 
       - name: Check cargo-audit tool
         run: nix develop -c cargo-audit --version
@@ -55,7 +55,7 @@ jobs:
         run: nix develop -c cargo deny check bans licenses sources
 
       - name: Build docs
-        run: nix develop .#docs -c cargo doc -p queryfabric-fetch --no-deps --all-features
+        run: nix develop .#docs -c cargo doc -p queryfabric-dioxus --no-deps --all-features
 
       - name: Clippy
-        run: nix develop -c cargo clippy -p queryfabric-fetch --all-targets -- --deny warnings
+        run: nix develop -c cargo clippy -p queryfabric-dioxus --all-targets -- --deny warnings
