@@ -1,5 +1,5 @@
 [ci]
-runner = "atlas-nix-trusted"
+runner = "codefloe-global"
 workspace = true
 with_audit = true
 with_deny = true
@@ -7,7 +7,7 @@ with_docs = true
 with_pypi_publish = true
 runtime = "nix"
 with_nextest = true
-provider = "actions"
+provider = "crow"
 platform = "forgejo"
 publish_crates = true
 
