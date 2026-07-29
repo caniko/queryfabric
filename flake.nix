@@ -77,7 +77,7 @@
             namespaceScope = "canix-rust";
             namespaceGeneration = 5;
           };
-          cacheRust = package: buildCache.withRustCache {inherit package;};
+          cacheRust = package: buildCache.withRustCache { inherit package; };
           cross = rs-harbor.lib.mkCross {
             inherit pkgs system;
             enableOsxcross = false;
@@ -156,9 +156,9 @@
             cargoExtraArgs = "-p queryfabric-portability --locked";
           };
           bundleSchemaArtifacts = cacheRust (craneLib.buildDepsOnly bundleSchemaArgs);
-          bundle-schema = cacheRust (craneLib.cargoTest (
-            bundleSchemaArgs // { cargoArtifacts = bundleSchemaArtifacts; }
-          ));
+          bundle-schema = cacheRust (
+            craneLib.cargoTest (bundleSchemaArgs // { cargoArtifacts = bundleSchemaArtifacts; })
+          );
           crossLanguage =
             pkgs.runCommand "queryfabric-cross-language-vectors"
               {
@@ -198,13 +198,15 @@
           # The MSRV gate is a full-workspace compile gate. Runtime tests run
           # under the stable workspace gate; keeping this check compile-only
           # avoids TLS-provider global state in unrelated test binaries.
-          msrv = cacheRust (msrvCraneLib.buildPackage (
-            msrvArgs
-            // {
-              cargoArtifacts = msrvArtifacts;
-              doCheck = false;
-            }
-          ));
+          msrv = cacheRust (
+            msrvCraneLib.buildPackage (
+              msrvArgs
+              // {
+                cargoArtifacts = msrvArtifacts;
+                doCheck = false;
+              }
+            )
+          );
           audit = craneLib.cargoAudit {
             pname = "queryfabric-audit";
             version = "0.2.0";
