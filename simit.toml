@@ -1,5 +1,5 @@
 [ci]
-runner = "codefloe-global"
+runner = "ubuntu-24.04"
 workspace = true
 with_audit = true
 with_deny = true
@@ -7,8 +7,8 @@ with_docs = true
 with_pypi_publish = true
 runtime = "nix"
 with_nextest = true
-provider = "crow"
-platform = "forgejo"
+provider = "actions"
+platform = "github"
 publish_crates = true
 
 [ci.pages]
