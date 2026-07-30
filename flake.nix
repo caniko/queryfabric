@@ -22,7 +22,7 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
     rs-harbor = {
-      url = "git+https://codeberg.org/caniko/rs-harbor.git?ref=trunk&rev=b40cd4c4fdf6133962f67bd68a48bfd5d554d47f";
+      url = "git+https://codeberg.org/caniko/rs-harbor.git?ref=trunk&rev=c26b735eede8078f795651c4a9cbf0be8733b221";
       inputs.nixpkgs.follows = "nixpkgs";
       inputs.crane.follows = "crane";
       inputs.rust-overlay.follows = "rust-overlay";
@@ -68,7 +68,8 @@
             overlays = [ (import rust-overlay) ];
           };
           lib = pkgs.lib;
-          craneLib = crane.mkLib pkgs;
+          toolchain = rs-harbor.lib.mkToolchain { toolchainProfile = "nightly"; };
+          craneLib = (crane.mkLib pkgs).overrideToolchain toolchain;
           sccachePackage = rs-harbor.packages.${system}.sccache;
           buildCache = rs-harbor.lib.mkBuildCachePolicy {
             inherit pkgs sccachePackage;
