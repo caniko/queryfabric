@@ -169,7 +169,7 @@
     },
     "flake-utils_4": {
       "inputs": {
-        "systems": "systems_4"
+        "systems": "systems_5"
       },
       "locked": {
         "lastModified": 1731533236,
@@ -187,7 +187,7 @@
     },
     "flake-utils_5": {
       "inputs": {
-        "systems": "systems_5"
+        "systems": "systems_6"
       },
       "locked": {
         "lastModified": 1731533236,
@@ -269,6 +269,28 @@
         "url": "https://codeberg.org/caniko/meta-harbor.git"
       }
     },
+    "nix-bundle": {
+      "inputs": {
+        "nixpkgs": [
+          "rs-harbor",
+          "nixpkgs"
+        ],
+        "utils": "utils"
+      },
+      "locked": {
+        "lastModified": 1756736056,
+        "narHash": "sha256-8YFhvulVX3iS4TYnKisA9zSImJeFN21G75HOUUFjzuE=",
+        "owner": "nix-community",
+        "repo": "nix-bundle",
+        "rev": "eff01593f62794d458ec714090091419194ab64d",
+        "type": "github"
+      },
+      "original": {
+        "owner": "nix-community",
+        "repo": "nix-bundle",
+        "type": "github"
+      }
+    },
     "nix-opencode-lsp": {
       "inputs": {
         "flake-utils": "flake-utils_4",
@@ -284,11 +306,11 @@
         "rev": "a45718d96cdde0101ef8c20942fada0b188745f0",
         "revCount": 1,
         "type": "git",
-        "url": "ssh://git@codeberg.org/caniko/nix-opencode-lsp.git"
+        "url": "https://codeberg.org/caniko/nix-opencode-lsp.git"
       },
       "original": {
         "type": "git",
-        "url": "ssh://git@codeberg.org/caniko/nix-opencode-lsp.git"
+        "url": "https://codeberg.org/caniko/nix-opencode-lsp.git"
       }
     },
     "nix-pklx": {
@@ -535,6 +557,7 @@
         ],
         "flake-parts": "flake-parts_2",
         "meta-harbor": "meta-harbor",
+        "nix-bundle": "nix-bundle",
         "nix-opencode-lsp": "nix-opencode-lsp",
         "nixpkgs": [
           "nixpkgs"
@@ -545,19 +568,18 @@
         ]
       },
       "locked": {
-        "lastModified": 1784370889,
-        "narHash": "sha256-GgFEdnCBL2AFLiG2uVjGqBK0tSQk0jAZC0+GzX2DSgA=",
-        "ref": "trunk",
-        "rev": "b40cd4c4fdf6133962f67bd68a48bfd5d554d47f",
-        "revCount": 144,
-        "type": "git",
-        "url": "https://codeberg.org/caniko/rs-harbor.git"
+        "lastModified": 1785620000,
+        "narHash": "sha256-23NN2Ofxx8rHSWp9JgJGcU7Y2jnyOomZFvJy5Ew3Hao=",
+        "owner": "caniko",
+        "repo": "rs-harbor",
+        "rev": "0c84aec036b911883c2549b8f82a773c849b6b9e",
+        "type": "github"
       },
       "original": {
-        "ref": "trunk",
-        "rev": "b40cd4c4fdf6133962f67bd68a48bfd5d554d47f",
-        "type": "git",
-        "url": "https://codeberg.org/caniko/rs-harbor.git"
+        "owner": "caniko",
+        "repo": "rs-harbor",
+        "rev": "0c84aec036b911883c2549b8f82a773c849b6b9e",
+        "type": "github"
       }
     },
     "rust-overlay": {
@@ -700,6 +722,21 @@
         "type": "github"
       }
     },
+    "systems_6": {
+      "locked": {
+        "lastModified": 1681028828,
+        "narHash": "sha256-Vy1rq5AaRuLzOxct8nz4T6wlgyUR7zLU309k9mBC768=",
+        "owner": "nix-systems",
+        "repo": "default",
+        "rev": "da67096a3b9bf56a91d16901293e51ba5b49a27e",
+        "type": "github"
+      },
+      "original": {
+        "owner": "nix-systems",
+        "repo": "default",
+        "type": "github"
+      }
+    },
     "tex-harbor": {
       "inputs": {
         "nixpkgs": [
@@ -738,6 +775,24 @@
       "original": {
         "owner": "numtide",
         "repo": "treefmt-nix",
+        "type": "github"
+      }
+    },
+    "utils": {
+      "inputs": {
+        "systems": "systems_4"
+      },
+      "locked": {
+        "lastModified": 1731533236,
+        "narHash": "sha256-l0KFg5HjrsfsO/JpG+r7fRrqm12kzFHyUHqHCVpMMbI=",
+        "owner": "numtide",
+        "repo": "flake-utils",
+        "rev": "11707dc2f618dd54ca8739b309ec4fc024de578b",
+        "type": "github"
+      },
+      "original": {
+        "owner": "numtide",
+        "repo": "flake-utils",
         "type": "github"
       }
     }

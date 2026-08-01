@@ -22,7 +22,7 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
     rs-harbor = {
-      url = "git+https://codeberg.org/caniko/rs-harbor.git?ref=trunk&rev=c26b735eede8078f795651c4a9cbf0be8733b221";
+      url = "github:caniko/rs-harbor/0c84aec036b911883c2549b8f82a773c849b6b9e";
       inputs.nixpkgs.follows = "nixpkgs";
       inputs.crane.follows = "crane";
       inputs.rust-overlay.follows = "rust-overlay";
@@ -68,8 +68,8 @@
             overlays = [ (import rust-overlay) ];
           };
           lib = pkgs.lib;
-          toolchain = rs-harbor.lib.mkToolchain { toolchainProfile = "nightly"; };
-          craneLib = (crane.mkLib pkgs).overrideToolchain toolchain;
+          toolchain = rs-harbor.lib.mkToolchain { inherit pkgs; toolchainProfile = "nightly"; };
+          craneLib = toolchain.craneLib;
           sccachePackage = rs-harbor.packages.${system}.sccache;
           buildCache = rs-harbor.lib.mkBuildCachePolicy {
             inherit pkgs sccachePackage;
@@ -92,6 +92,12 @@
               inherit pkgs;
               treefmtWrapper = treefmtEval.config.build.wrapper;
               rustToolchain = pkgs.rustc;
+            };
+          };
+          atticAdapter = rs-harbor.lib.mkAdapter {
+            attic = {
+              endpoint = "https://attic.candee.baby";
+              cache = "canix";
             };
           };
           nixSources = lib.fileset.toSource {
@@ -434,6 +440,11 @@
           };
 
           apps = {
+            push-flake-inputs = rs-harbor.lib.mkAtticPush {
+              inherit pkgs;
+              adapter = atticAdapter;
+              flake = ".";
+            };
             deploy-pages = plinth.lib.${system}.mkDeployPagesApp {
               domain = "queryfabric.tartanoglu.com";
             };
