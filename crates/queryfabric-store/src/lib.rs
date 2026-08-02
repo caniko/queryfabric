@@ -104,8 +104,7 @@ impl ObjectStore {
     #[must_use]
     pub fn memory() -> Self {
         let op = Operator::new(opendal::services::Memory::default())
-            .expect("memory backend has no fallible configuration")
-            .finish();
+            .expect("memory backend has no fallible configuration");
         Self::new(op)
     }
 
@@ -125,9 +124,7 @@ impl ObjectStore {
         if let Some(root) = &config.root {
             builder = builder.root(root);
         }
-        let op = Operator::new(builder)
-            .map_err(|source| StoreError::Configuration { source })?
-            .finish();
+        let op = Operator::new(builder).map_err(|source| StoreError::Configuration { source })?;
         Ok(Self::new(op))
     }
 
@@ -145,7 +142,7 @@ impl ObjectStore {
     }
 
     fn require_presign(&self, write: bool) -> Result<(), StoreError> {
-        let capability = self.op.info().full_capability();
+        let capability = self.op.info().capability();
         let supported = if write {
             capability.presign_write
         } else {
