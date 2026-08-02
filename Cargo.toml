@@ -79,7 +79,7 @@ tracing = "0.1"
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 serde_jcs = "0.2.0"
-arrow = { version = "58", default-features = false }
+arrow = { version = "59", default-features = false }
 async-trait = "0.1"
 futures = "0.3"
 miette = { version = "7", features = ["fancy"] }

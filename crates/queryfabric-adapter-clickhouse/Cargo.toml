@@ -14,7 +14,7 @@ categories = ["database", "science"]
 
 [dependencies]
 arrow = { workspace = true }
-arrow-ipc = { version = "58", features = ["lz4", "zstd"] }
+arrow-ipc = { version = "59", features = ["lz4", "zstd"] }
 async-trait = { workspace = true }
 clickhouse = "0.15"
 futures = { workspace = true }

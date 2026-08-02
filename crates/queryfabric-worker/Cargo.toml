@@ -12,7 +12,7 @@ rust-version.workspace = true
 
 [dependencies]
 arrow = { workspace = true }
-arrow-flight = "58"
+arrow-flight = "59"
 async-trait = { workspace = true }
 futures = { workspace = true }
 queryfabric = { workspace = true }
