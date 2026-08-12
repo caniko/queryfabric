@@ -131,7 +131,7 @@ Useful audits:
 ```bash
 rg -n 'syndb|SyndbTable|neurometa|GraphTrainingSet|SYNDB_' crates
 rg -n 'struct DynamicClient|enum ChType|struct ClickHouseConfig' \
-  /data/nvme0/can/canix/projects/repos/owned/github.com/memorycircuits/SynDB/crates
+  /data/can/canix/projects/repos/owned/github.com/memorycircuits/SynDB/crates
 ```
 
 Matches in docs, migration shims, or explicit fixtures need a written

@@ -108,7 +108,7 @@ claim.
   approved values). Validate from that checkout with:
 
   ```bash
-  nix develop /data/nvme0/can/canix/projects/repos/owned/codeberg.org/caniko/queryfabric -c reuse lint
+  nix develop /data/can/canix/projects/repos/owned/codeberg.org/caniko/queryfabric -c reuse lint
   ```
 - The Python crate now keeps PyO3's `extension-module` feature behind the
   maturin-only `extension-module` feature, so its four Rust unit tests run in

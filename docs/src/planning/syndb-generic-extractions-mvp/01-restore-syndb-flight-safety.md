@@ -88,7 +88,7 @@ behavior that Phase 05's generic skeleton must preserve. Include:
 - [ ] Focused tests pass:
 
   ```bash
-  cd /data/nvme0/can/canix/projects/repos/owned/github.com/memorycircuits/SynDB
+  cd /data/can/canix/projects/repos/owned/github.com/memorycircuits/SynDB
   nix develop . -c cargo test -p flight --locked
   ```
 

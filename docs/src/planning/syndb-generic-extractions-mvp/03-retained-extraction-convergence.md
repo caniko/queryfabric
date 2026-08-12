@@ -6,7 +6,7 @@ Finish adoption of the generic work worth keeping, remove its proven
 duplicates, and leave domain-bound SynDB behavior in SynDB.
 
 All SynDB paths below are relative to
-`/data/nvme0/can/canix/projects/repos/owned/github.com/memorycircuits/SynDB`.
+`/data/can/canix/projects/repos/owned/github.com/memorycircuits/SynDB`.
 
 This is a non-grant product prerequisite by default. Branch reconciliation,
 duplicate removal, and consumer cutover are maintenance/adoption work, not the
@@ -123,7 +123,7 @@ separate disposition in Phase 07.
 
   ```bash
   rg -n 'syndb|SyndbTable|neurometa|GraphTrainingSet|SYNDB_' \
-    /data/nvme0/can/canix/projects/repos/owned/codeberg.org/caniko/queryfabric/crates
+    /data/can/canix/projects/repos/owned/codeberg.org/caniko/queryfabric/crates
   ```
 
   Every remaining match is documented as migration compatibility, test data,

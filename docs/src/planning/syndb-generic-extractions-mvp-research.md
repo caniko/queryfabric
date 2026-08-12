@@ -12,7 +12,7 @@
 Plan which SynDB components should become generic QueryFabric components and
 design the work still required for an honest MVP. The source inventory is the
 owned GitHub workspace at
-`/data/nvme0/can/canix/projects/repos/owned/github.com`, with SynDB at
+`/data/can/canix/projects/repos/owned/github.com`, with SynDB at
 `memorycircuits/SynDB`.
 
 This dossier replaces assumption-driven extraction with evidence from both
@@ -325,7 +325,7 @@ An extraction is complete only when all of these are true:
 - **Validation:**
 
   ```bash
-  cd /data/nvme0/can/canix/projects/repos/owned/codeberg.org/caniko/queryfabric
+  cd /data/can/canix/projects/repos/owned/codeberg.org/caniko/queryfabric
   nix develop -c cargo build --workspace --locked
   nix develop -c cargo clippy --workspace --locked -- -D warnings
   nix develop -c cargo test --workspace --locked
@@ -353,7 +353,7 @@ An extraction is complete only when all of these are true:
 - **Validation:**
 
   ```bash
-  cd /data/nvme0/can/canix/projects/repos/owned/github.com/memorycircuits/SynDB
+  cd /data/can/canix/projects/repos/owned/github.com/memorycircuits/SynDB
   nix flake check --no-build
   ```
 
@@ -372,7 +372,7 @@ An extraction is complete only when all of these are true:
 - **Validation:**
 
   ```bash
-  cd /data/nvme0/can/canix/projects/repos/owned/github.com/memorycircuits/SynDB
+  cd /data/can/canix/projects/repos/owned/github.com/memorycircuits/SynDB
   nix develop . -c uv sync --locked
   ```
 
@@ -392,9 +392,9 @@ An extraction is complete only when all of these are true:
 - **Validation:**
 
   ```bash
-  git -C /data/nvme0/can/canix/projects/repos/owned/github.com/memorycircuits/SynDB \
+  git -C /data/can/canix/projects/repos/owned/github.com/memorycircuits/SynDB \
     submodule status vendor/queryfabric
-  git -C /data/nvme0/can/canix/projects/repos/owned/github.com/memorycircuits/SynDB \
+  git -C /data/can/canix/projects/repos/owned/github.com/memorycircuits/SynDB \
     show HEAD:flake.lock | jq -r '.nodes.queryfabric.locked.rev'
   ```
 
@@ -402,7 +402,7 @@ An extraction is complete only when all of these are true:
   canonical ref and prove ancestry rather than using `ls-remote` with a SHA:
 
   ```bash
-  cd /data/nvme0/can/canix/projects/repos/owned/github.com/memorycircuits/SynDB
+  cd /data/can/canix/projects/repos/owned/github.com/memorycircuits/SynDB
   revision="$(jq -r '.nodes.queryfabric.locked.rev' flake.lock)"
   git -C vendor/queryfabric fetch origin trunk
   git -C vendor/queryfabric merge-base --is-ancestor "$revision" origin/trunk
@@ -422,7 +422,7 @@ An extraction is complete only when all of these are true:
 - **Validation:**
 
   ```bash
-  cd /data/nvme0/can/canix/projects/repos/owned/github.com/memorycircuits/SynDB
+  cd /data/can/canix/projects/repos/owned/github.com/memorycircuits/SynDB
   nix develop . -c cargo test -p flight --locked
   ```
 
@@ -468,8 +468,8 @@ owned by QueryFabric and must not require an untracked SynDB chart or image.
 - **Validation:**
 
   ```bash
-  nix develop /data/nvme0/can/canix/projects/repos/owned/codeberg.org/caniko/queryfabric \
-    -c bash -lc 'cd /data/nvme0/can/canix/projects/personal/professional/applications && reuse lint'
+  nix develop /data/can/canix/projects/repos/owned/codeberg.org/caniko/queryfabric \
+    -c bash -lc 'cd /data/can/canix/projects/personal/professional/applications && reuse lint'
   ```
 
 ### B08: Proposal-use GenAI provenance is not preserved in the repository

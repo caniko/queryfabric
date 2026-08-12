@@ -187,7 +187,7 @@ the vendored topic lineage.
 - [ ] SynDB pure and Python inputs validate:
 
   ```bash
-  cd /data/nvme0/can/canix/projects/repos/owned/github.com/memorycircuits/SynDB
+  cd /data/can/canix/projects/repos/owned/github.com/memorycircuits/SynDB
   nix flake check --no-build
   nix develop . -c uv sync --locked
   ```
