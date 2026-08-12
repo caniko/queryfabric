@@ -22,7 +22,7 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
     rs-harbor = {
-      url = "git+https://codeberg.org/caniko/rs-harbor.git?ref=trunk&rev=c26b735eede8078f795651c4a9cbf0be8733b221";
+      url = "git+https://codefloe.com/caniko/rs-harbor.git?ref=trunk&rev=7fa1c2104dab4e1dbaa1aaa6df84bba815aa282d";
       inputs.nixpkgs.follows = "nixpkgs";
       inputs.crane.follows = "crane";
       inputs.rust-overlay.follows = "rust-overlay";
@@ -68,8 +68,8 @@
             overlays = [ (import rust-overlay) ];
           };
           lib = pkgs.lib;
-          toolchain = rs-harbor.lib.mkToolchain { toolchainProfile = "nightly"; };
-          craneLib = (crane.mkLib pkgs).overrideToolchain toolchain;
+          toolchain = rs-harbor.lib.mkToolchain { inherit pkgs; toolchainProfile = "nightly"; };
+          craneLib = toolchain.craneLib;
           sccachePackage = rs-harbor.packages.${system}.sccache;
           buildCache = rs-harbor.lib.mkBuildCachePolicy {
             inherit pkgs sccachePackage;
@@ -134,6 +134,8 @@
               ];
             };
             strictDeps = true;
+            nativeCheckInputs = [ pkgs.cacert ];
+            SSL_CERT_FILE = "${pkgs.cacert}/etc/ssl/certs/ca-bundle.crt";
             cargoExtraArgs = "-p queryfabric-demo --locked";
             meta = {
               description = "QueryFabric self-host demonstrator service";
@@ -141,7 +143,10 @@
               mainProgram = "queryfabric-demo";
             };
           };
-          queryfabric-demo = cacheRust (craneLib.buildPackage queryfabricDemoArgs);
+          queryfabricDemoArtifacts = cacheRust (craneLib.buildDepsOnly queryfabricDemoArgs);
+          queryfabric-demo = cacheRust (craneLib.buildPackage (
+            queryfabricDemoArgs // { cargoArtifacts = queryfabricDemoArtifacts; }
+          ));
           bundleSchemaArgs = {
             pname = "queryfabric-portability-schema-fixtures";
             version = "0.2.0";
