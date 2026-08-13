@@ -21,6 +21,7 @@ pub fn SyqlEditor(
     name: Option<String>,
     value: Option<String>,
     rows: Option<u16>,
+    required: Option<bool>,
     catalog_url: Option<String>,
     validate_url: Option<String>,
 ) -> Element {
@@ -29,6 +30,7 @@ pub fn SyqlEditor(
     let name = name.unwrap_or_else(|| DEFAULT_NAME.to_owned());
     let value = value.unwrap_or_else(|| DEFAULT_VALUE.to_owned());
     let rows = rows.unwrap_or(12);
+    let required = required.unwrap_or(false);
     let catalog_url = catalog_url.unwrap_or_else(|| DEFAULT_CATALOG_URL.to_owned());
     let validate_url = validate_url.unwrap_or_else(|| DEFAULT_VALIDATE_URL.to_owned());
 
@@ -38,11 +40,12 @@ pub fn SyqlEditor(
             name: name,
             class: class,
             rows: rows,
+            required: required,
             spellcheck: "false",
             "data-queryfabric-syql-editor": "true",
             "data-queryfabric-catalog-url": catalog_url,
             "data-queryfabric-validate-url": validate_url,
-            "{value}"
+            value: value,
         }
     }
 }
@@ -73,7 +76,9 @@ mod tests {
         assert!(html.contains("data-queryfabric-syql-editor=\"true\""));
         assert!(html.contains("data-queryfabric-catalog-url=\"/static/queryfabric_catalog.json\""));
         assert!(html.contains("data-queryfabric-validate-url=\"/_ui/query/syql/validate\""));
-        assert!(html.contains(">FROM records LIMIT 10</textarea>"));
+        assert!(html.contains("value=\"FROM records LIMIT 10\""));
+        assert!(!html.contains(">FROM records LIMIT 10</textarea>"));
+        assert!(!html.contains("required"));
     }
 
     #[test]
@@ -85,6 +90,7 @@ mod tests {
                 name: "custom-name".to_owned(),
                 value: "FROM samples LIMIT 3".to_owned(),
                 rows: 8,
+                required: true,
                 catalog_url: "/catalog.json".to_owned(),
                 validate_url: "/validate".to_owned(),
             }
@@ -94,9 +100,10 @@ mod tests {
         assert!(html.contains("id=\"custom-id\""));
         assert!(html.contains("name=\"custom-name\""));
         assert!(html.contains("rows=8"));
+        assert!(html.contains("required"));
         assert!(html.contains("data-queryfabric-catalog-url=\"/catalog.json\""));
         assert!(html.contains("data-queryfabric-validate-url=\"/validate\""));
-        assert!(html.contains(">FROM samples LIMIT 3</textarea>"));
+        assert!(html.contains("value=\"FROM samples LIMIT 3\""));
     }
 
     #[test]

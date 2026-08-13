@@ -5,13 +5,13 @@
  * `data-queryfabric-syql-editor` and upgrades them into a CodeMirror editor.
  */
 
-import { EditorView, basicSetup } from "https://esm.sh/codemirror@6.65.7";
+import { basicSetup } from "https://esm.sh/codemirror@6.0.1";
 import { sql, SQLDialect } from "https://esm.sh/@codemirror/lang-sql";
 import { autocompletion } from "https://esm.sh/@codemirror/autocomplete";
 import { oneDark } from "https://esm.sh/@codemirror/theme-one-dark";
 import { linter, lintGutter } from "https://esm.sh/@codemirror/lint";
 import { EditorState, Compartment } from "https://esm.sh/@codemirror/state";
-import { keymap } from "https://esm.sh/@codemirror/view";
+import { EditorView, keymap } from "https://esm.sh/@codemirror/view";
 
 const DEFAULT_CATALOG_URL = "/static/queryfabric_catalog.json";
 const DEFAULT_VALIDATE_URL = "/_ui/query/syql/validate";
@@ -263,6 +263,7 @@ async function initEditor(textarea) {
   const catalogUrl = textarea.dataset.queryfabricCatalogUrl || DEFAULT_CATALOG_URL;
   const validateUrl = textarea.dataset.queryfabricValidateUrl || DEFAULT_VALIDATE_URL;
   const catalogData = await loadCatalogData(catalogUrl);
+  const initialValue = textarea.value || textarea.getAttribute("value") || "";
 
   const wrapper = document.createElement("div");
   wrapper.className = "queryfabric-syql-cm-wrapper";
@@ -312,10 +313,15 @@ async function initEditor(textarea) {
 
   const view = new EditorView({
     state: EditorState.create({
-      doc: textarea.value || "",
+      doc: initialValue,
       extensions,
     }),
     parent: wrapper,
+  });
+
+  textarea.addEventListener("invalid", (event) => {
+    event.preventDefault();
+    view.focus();
   });
 
   const themeObserver = new MutationObserver(() => {
