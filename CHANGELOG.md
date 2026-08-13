@@ -32,6 +32,8 @@
 
 ### Changed
 
+- Upgrade OpenDAL dependencies to 0.58
+- Upgrade Apache Arrow, Arrow Flight, and Parquet dependencies to 59.1.0
 - CI: migrate all workflow runners from Codeberg shared runners to self-hosted `atlas` with Nix-based tooling
 - Publish: migrate all crate publish workflows to Nix-based atlas runner with flake checks and audit/deny gates
 - Flake: add `rust-overlay` input and pin input-follows for `plinth`, `treefmt-nix`, and `git-hooks`

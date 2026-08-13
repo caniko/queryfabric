@@ -22,7 +22,7 @@ required-features = ["integration-k8s"]
 
 [dependencies]
 arrow = { workspace = true }
-arrow-flight = "58"
+arrow-flight = "59"
 async-trait = { workspace = true }
 futures = { workspace = true }
 k8s-openapi = { version = "0.26.0", features = ["v1_34"] }

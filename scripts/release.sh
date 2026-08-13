@@ -172,7 +172,7 @@ run_check() {
   log "uv venv (queryfabric Python binding)"
   (
     cd packages/queryfabric
-    uv venv "$venv_dir"
+    uv venv --python "$PYO3_PYTHON" "$venv_dir"
   )
 
   log "maturin build (queryfabric Python binding)"
@@ -186,6 +186,7 @@ run_check() {
     cd packages/queryfabric
     export VIRTUAL_ENV="$venv_dir"
     export PATH="${VIRTUAL_ENV}/bin:${PATH}"
+    export PYO3_PYTHON="${VIRTUAL_ENV}/bin/python"
     maturin develop --uv --features extension-module
   )
 
@@ -194,7 +195,7 @@ run_check() {
     cd packages/queryfabric
     export VIRTUAL_ENV="$venv_dir"
     export PATH="${VIRTUAL_ENV}/bin:${PATH}"
-    uv run --active python -c \
+    uv run --active --no-sync python -c \
       "import queryfabric; parsed = queryfabric.parse_syql('FROM records'); assert parsed.table == 'records'"
   )
 
@@ -203,7 +204,7 @@ run_check() {
     cd packages/queryfabric
     export VIRTUAL_ENV="$venv_dir"
     export PATH="${VIRTUAL_ENV}/bin:${PATH}"
-    uv run --active pytest tests
+    uv run --active --no-sync pytest tests
   )
 }
 

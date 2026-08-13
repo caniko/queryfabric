@@ -12,11 +12,11 @@ rust-version.workspace = true
 
 [dependencies]
 arrow = { workspace = true, optional = true }
-arrow-flight = { version = "58", optional = true }
+arrow-flight = { version = "59", optional = true }
 base64 = "0.22"
 dirs = "6"
 futures = { workspace = true, optional = true }
-parquet = { version = "58", default-features = false, features = ["arrow"], optional = true }
+parquet = { version = "59", default-features = false, features = ["arrow"], optional = true }
 miette = { workspace = true }
 polars = { version = "0.53", default-features = false, features = ["parquet", "lazy", "ipc"], optional = true }
 reqwest = { version = "0.13", default-features = false, features = [
