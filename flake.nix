@@ -22,7 +22,7 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
     rs-harbor = {
-      url = "git+https://codefloe.com/caniko/rs-harbor.git?ref=trunk&rev=7fa1c2104dab4e1dbaa1aaa6df84bba815aa282d";
+      url = "git+ssh://git@codeberg.org/caniko/rs-harbor.git?ref=trunk&rev=f209ddbca3fdbb0dc31fa3886ccc2ff7369c18ac";
       inputs.nixpkgs.follows = "nixpkgs";
       inputs.crane.follows = "crane";
       inputs.rust-overlay.follows = "rust-overlay";
@@ -68,12 +68,8 @@
             overlays = [ (import rust-overlay) ];
           };
           lib = pkgs.lib;
-toolchain =
-            (rs-harbor.lib.mkToolchain {
-              inherit pkgs;
-              toolchainProfile = "nightly";
-            }).rustToolchain;
-          craneLib = (crane.mkLib pkgs).overrideToolchain toolchain;
+          toolchain = rs-harbor.lib.mkToolchain { inherit pkgs; toolchainProfile = "nightly"; };
+          craneLib = toolchain.craneLib;
           sccachePackage = rs-harbor.packages.${system}.sccache;
           buildCache = rs-harbor.lib.mkBuildCachePolicy {
             inherit pkgs sccachePackage;
@@ -82,7 +78,7 @@ toolchain =
             namespaceScope = "canix-rust";
             namespaceGeneration = 5;
           };
-          cacheRust = package: buildCache.withRustCache { inherit package; };
+          cacheRust = package: buildCache.withRustCache {inherit package;};
           cross = rs-harbor.lib.mkCross {
             inherit pkgs system;
             enableOsxcross = false;
@@ -166,9 +162,9 @@ toolchain =
             cargoExtraArgs = "-p queryfabric-portability --locked";
           };
           bundleSchemaArtifacts = cacheRust (craneLib.buildDepsOnly bundleSchemaArgs);
-          bundle-schema = cacheRust (
-            craneLib.cargoTest (bundleSchemaArgs // { cargoArtifacts = bundleSchemaArtifacts; })
-          );
+          bundle-schema = cacheRust (craneLib.cargoTest (
+            bundleSchemaArgs // { cargoArtifacts = bundleSchemaArtifacts; }
+          ));
           crossLanguage =
             pkgs.runCommand "queryfabric-cross-language-vectors"
               {
@@ -208,15 +204,13 @@ toolchain =
           # The MSRV gate is a full-workspace compile gate. Runtime tests run
           # under the stable workspace gate; keeping this check compile-only
           # avoids TLS-provider global state in unrelated test binaries.
-          msrv = cacheRust (
-            msrvCraneLib.buildPackage (
-              msrvArgs
-              // {
-                cargoArtifacts = msrvArtifacts;
-                doCheck = false;
-              }
-            )
-          );
+          msrv = cacheRust (msrvCraneLib.buildPackage (
+            msrvArgs
+            // {
+              cargoArtifacts = msrvArtifacts;
+              doCheck = false;
+            }
+          ));
           audit = craneLib.cargoAudit {
             pname = "queryfabric-audit";
             version = "0.2.0";
@@ -438,7 +432,6 @@ toolchain =
             ++ pre-commit-check.enabledPackages;
 
             shellHook = pre-commit-check.shellHook + ''
-              export PYO3_PYTHON=${pkgs.python3}/bin/python3
               echo "QueryFabric dev shell"
               echo "Website: plinth-project dev --config website/plinth-project.toml"
               echo "Documentation: cd docs && mdbook serve"
