@@ -1,6 +1,6 @@
 [package]
 name = "queryfabric-dioxus"
-description = "Dioxus components for QueryFabric SyQL editors"
+description = "Dioxus components and web support for QueryFabric SyQL"
 version.workspace = true
 publish = false
 edition.workspace = true
@@ -10,16 +10,22 @@ homepage.workspace = true
 documentation.workspace = true
 rust-version.workspace = true
 readme = "README.md"
-keywords = ["sql", "dioxus", "web", "frontend", "science"]
-categories = ["web-programming", "gui", "science"]
+keywords = ["sql", "dioxus", "web", "validation", "analytics", "science"]
+categories = ["web-programming", "gui", "database", "science"]
 
 [features]
 default = []
 web = ["dioxus/web"]
-server = ["dioxus/fullstack", "dioxus/server"]
+server = [
+  "dioxus/fullstack",
+  "dioxus/server",
+  "dep:queryfabric-web",
+  "queryfabric-web/ssr",
+]
 
 [dependencies]
 dioxus = { workspace = true }
+queryfabric-web = { workspace = true, optional = true }
 web-sys = { workspace = true }
 
 [dev-dependencies]

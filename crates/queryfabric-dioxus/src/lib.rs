@@ -1,11 +1,18 @@
-//! Dioxus components for the QueryFabric SyQL editor.
+//! Dioxus components and web support for QueryFabric SyQL.
 //!
-//! The component surface mirrors `queryfabric-leptos` deliberately. Query
-//! validation, catalog loading, and editor behavior remain in the existing
-//! QueryFabric web contract and JavaScript asset; this crate only renders the
-//! host elements and their stable data attributes.
+//! The browser-facing component surface preserves the QueryFabric textarea
+//! contract. Server-only SSR helpers are re-exported from `queryfabric-web`.
 
 use dioxus::prelude::*;
+
+#[cfg(feature = "server")]
+pub use queryfabric_web::{
+    Flash, FlashKind, StaticAsset, SyqlValidateRequest, SyqlValidateResponse, append_query,
+    next_query_value, safe_local_redirect, static_assets, validate_syql,
+};
+
+#[cfg(feature = "server")]
+pub use queryfabric_web::ssr;
 
 const DEFAULT_CLASS: &str = "form-control syql-editor";
 const DEFAULT_ID: &str = "syql-query";
