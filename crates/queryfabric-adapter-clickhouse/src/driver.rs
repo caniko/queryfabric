@@ -175,7 +175,9 @@ impl DynamicClient {
         let mut urls = Vec::with_capacity(1 + self.fallback_base_urls.len());
         urls.push(self.base_url.clone());
         urls.extend(self.fallback_base_urls.iter().cloned());
-        urls
+        urls.into_iter()
+            .map(|url| with_database(&url, &self.database))
+            .collect()
     }
 
     async fn send_select_to(
@@ -521,6 +523,12 @@ fn sql_fingerprint(sql: &str) -> String {
     blake3::hash(sql.as_bytes()).to_hex().to_string()
 }
 
+fn with_database(base_url: &str, database: &str) -> String {
+    let mut url = reqwest::Url::parse(base_url).expect("ClickHouse base URL is valid");
+    url.query_pairs_mut().append_pair("database", database);
+    url.to_string()
+}
+
 fn redact_endpoint(raw: &str) -> String {
     let Ok(mut url) = reqwest::Url::parse(raw) else {
         return "<invalid-endpoint>".to_owned();
@@ -544,7 +552,19 @@ fn panic_message(payload: &(dyn std::any::Any + Send)) -> std::borrow::Cow<'stat
 
 #[cfg(test)]
 mod tests {
-    use super::{redact_endpoint, render_table_identifier, sql_fingerprint};
+    use super::{redact_endpoint, render_table_identifier, sql_fingerprint, with_database};
+
+    #[test]
+    fn select_endpoint_carries_database() {
+        let url = reqwest::Url::parse(&with_database("http://localhost:8123", "syndb"))
+            .expect("database URL");
+        assert_eq!(
+            url.query_pairs()
+                .find(|(key, _)| key == "database")
+                .map(|(_, value)| value),
+            Some("syndb".into())
+        );
+    }
 
     #[test]
     fn table_identifiers_are_segmented_and_quoted() {
