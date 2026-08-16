@@ -41,11 +41,13 @@
 - README: update CI badge from `managed+extra` to `drift`
 - `queryfabric-runtime` Cargo.toml: add `tokio` and `tracing` deps
 - `queryfabric-adapter-clickhouse` Cargo.toml: add `secrecy`, `serde_json`, `thiserror` deps
+- `queryfabric-dioxus` `server` feature re-exports `queryfabric-web` SSR helpers (`append_query`, `ssr`, static assets, SyQL validation)
 - `queryfabric-cli-toolbelt`: add `flight` and `polars` features
 - `queryfabric-cmd-runner`: add `rmcp` dependency for MCP support
 
 ### Fixed
 
+- `queryfabric-adapter-clickhouse::driver` — attach the configured `database` query parameter to every select endpoint
 - `queryfabric-adapter-clickhouse::driver` — replace 3 `.expect()` in retry loop with safe error propagation
 
 ### Added
