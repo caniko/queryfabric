@@ -21,6 +21,7 @@ const DEFAULT_VALUE: &str = "FROM records LIMIT 10";
 const DEFAULT_CATALOG_URL: &str = "/static/queryfabric_catalog.json";
 const DEFAULT_VALIDATE_URL: &str = "/_ui/query/syql/validate";
 
+/// Render the QueryFabric SyQL editor textarea.
 #[component]
 pub fn SyqlEditor(
     class: Option<String>,
@@ -57,6 +58,7 @@ pub fn SyqlEditor(
     }
 }
 
+/// Include the packaged QueryFabric SyQL editor module.
 #[component]
 pub fn SyqlEditorScript() -> Element {
     rsx! {
