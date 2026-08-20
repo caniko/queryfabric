@@ -131,6 +131,24 @@
         "type": "github"
       }
     },
+    "flake-parts_4": {
+      "inputs": {
+        "nixpkgs-lib": "nixpkgs-lib_4"
+      },
+      "locked": {
+        "lastModified": 1782949081,
+        "narHash": "sha256-vp6Y/Grm98ESt6ceOkWiHWyZRDV3J1RID4w+6NWK9yA=",
+        "owner": "hercules-ci",
+        "repo": "flake-parts",
+        "rev": "17c9d6cdfc60c64f4ee8d306f9bc0b4ccb51481e",
+        "type": "github"
+      },
+      "original": {
+        "owner": "hercules-ci",
+        "repo": "flake-parts",
+        "type": "github"
+      }
+    },
     "flake-utils": {
       "inputs": {
         "systems": "systems"
@@ -269,6 +287,29 @@
         "url": "ssh://git@codeberg.org/caniko/meta-harbor.git"
       }
     },
+    "meta-harbor_2": {
+      "inputs": {
+        "flake-parts": "flake-parts_4",
+        "nixpkgs": [
+          "tex-harbor",
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1787224113,
+        "narHash": "sha256-7Xz0gzc0Gg1DKamnT/eoytl6xUyGIfY1nZUTjQcaXjA=",
+        "ref": "trunk",
+        "rev": "519bc9305b5ba78f37c3226a9d8427c8f635afb8",
+        "revCount": 7,
+        "type": "git",
+        "url": "https://github.com/caniko/meta-harbor.git"
+      },
+      "original": {
+        "ref": "trunk",
+        "type": "git",
+        "url": "https://github.com/caniko/meta-harbor.git"
+      }
+    },
     "nix-bundle": {
       "inputs": {
         "nixpkgs": [
@@ -362,6 +403,22 @@
         "type": "github"
       }
     },
+    "nixpkgs-darwin": {
+      "locked": {
+        "lastModified": 1785067121,
+        "narHash": "sha256-rdJdWxAcg5fnntU4DjPivPdVEN4F+VJavw+UWpEMeUI=",
+        "owner": "NixOS",
+        "repo": "nixpkgs",
+        "rev": "329c3d2af6d1b618705150ea39f72c15eb4e613e",
+        "type": "github"
+      },
+      "original": {
+        "owner": "NixOS",
+        "ref": "nixpkgs-26.05-darwin",
+        "repo": "nixpkgs",
+        "type": "github"
+      }
+    },
     "nixpkgs-lib": {
       "locked": {
         "lastModified": 1782614948,
@@ -393,6 +450,21 @@
       }
     },
     "nixpkgs-lib_3": {
+      "locked": {
+        "lastModified": 1782614948,
+        "narHash": "sha256-ePjCwr1sNm9NYUqywL7QfK3JnlS015msC+eBu2zKlp8=",
+        "owner": "nix-community",
+        "repo": "nixpkgs.lib",
+        "rev": "db3f255737b94216eb71cce308e2912cf6bc2d7c",
+        "type": "github"
+      },
+      "original": {
+        "owner": "nix-community",
+        "repo": "nixpkgs.lib",
+        "type": "github"
+      }
+    },
+    "nixpkgs-lib_4": {
       "locked": {
         "lastModified": 1782614948,
         "narHash": "sha256-ePjCwr1sNm9NYUqywL7QfK3JnlS015msC+eBu2zKlp8=",
@@ -739,16 +811,18 @@
     },
     "tex-harbor": {
       "inputs": {
+        "meta-harbor": "meta-harbor_2",
         "nixpkgs": [
           "nixpkgs"
-        ]
+        ],
+        "nixpkgs-darwin": "nixpkgs-darwin"
       },
       "locked": {
-        "lastModified": 1784482677,
-        "narHash": "sha256-xbhrLSm/WkJBivTpc6hUzgVEpBrseRmhFvo9KBkOSTw=",
+        "lastModified": 1787224145,
+        "narHash": "sha256-Un1lCQq1Co1nV4s+gFJOsmfOkpjbXaMifEtMpD03OgU=",
         "ref": "trunk",
-        "rev": "af6d76fd4379dae20114888ec8d4538d32b873a0",
-        "revCount": 2,
+        "rev": "ce6151d2dfb550692b85c70a56e5fe5012253ab2",
+        "revCount": 11,
         "type": "git",
         "url": "https://codeberg.org/caniko/tex-harbor.git"
       },
