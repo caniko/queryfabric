@@ -13,8 +13,8 @@ pub use rusty_paseto;
 mod typed;
 
 pub use typed::{
-    AuthError, AuthUser, DelegationClaims, Email, EmailParseError, UserType, UserTypeParseError,
-    mint_delegation_token, validate_delegation_token, validate_paseto_token,
+    AuthError, AuthUser, DelegationClaims, DelegationOperation, Email, EmailParseError, UserType,
+    UserTypeParseError, mint_delegation_token, validate_delegation_token, validate_paseto_token,
 };
 
 /// Errors that can occur during PASETO token validation.
