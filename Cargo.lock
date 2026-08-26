@@ -7464,7 +7464,10 @@ name = "queryfabric-flight-pool"
 version = "0.2.0"
 dependencies = [
  "arrow-flight",
+ "blake3",
  "papaya",
+ "secrecy",
+ "thiserror 2.0.18",
  "tokio",
  "tonic",
  "tracing",
