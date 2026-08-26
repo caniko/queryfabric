@@ -347,6 +347,26 @@ pub struct DelegationClaims {
     pub dataset_ids: Vec<Uuid>,
     /// QueryFabric table discriminant the delegation authorizes.
     pub table_id: i32,
+    /// Operation the delegation authorizes.
+    pub operation: DelegationOperation,
+}
+
+/// Operation authorized by a delegation token.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum DelegationOperation {
+    /// Read data from the delegated datasets.
+    Read,
+    /// Write data to the delegated dataset.
+    Write,
+}
+
+impl DelegationOperation {
+    const fn as_str(self) -> &'static str {
+        match self {
+            Self::Read => "read",
+            Self::Write => "write",
+        }
+    }
 }
 
 /// Mint a short-lived PASETO v4.local delegation token.
@@ -358,6 +378,7 @@ pub fn mint_delegation_token(
     user: &AuthUser,
     dataset_ids: &[Uuid],
     table_id: i32,
+    operation: DelegationOperation,
     secret: &str,
 ) -> Result<String, AuthError> {
     use rusty_paseto::prelude::*;
@@ -416,6 +437,14 @@ pub fn mint_delegation_token(
                 ))
             })?,
         )
+        .set_claim(
+            CustomClaim::try_from(("operation", operation.as_str())).map_err(|e| {
+                AuthError::TokenParse(format!(
+                    "build delegation claim 'operation' with value {:?}: {e}",
+                    operation.as_str()
+                ))
+            })?,
+        )
         .build(&key)
         .map_err(|e| {
             AuthError::TokenParse(format!(
@@ -428,6 +457,7 @@ pub fn mint_delegation_token(
     tracing::debug!(
         dataset_count = dataset_ids.len(),
         table_id,
+        operation = operation.as_str(),
         "Delegation token minted"
     );
 
@@ -485,9 +515,24 @@ pub fn validate_delegation_token(token: &str, secret: &str) -> Result<Delegation
         }
     })?;
 
+    let operation = match claims["operation"]
+        .as_str()
+        .ok_or_else(|| AuthError::MissingDelegationClaim("operation".to_owned()))?
+    {
+        "read" => DelegationOperation::Read,
+        "write" => DelegationOperation::Write,
+        value => {
+            return Err(AuthError::InvalidDelegationClaim {
+                field: "operation".to_owned(),
+                reason: format!("unsupported operation {value:?}"),
+            });
+        }
+    };
+
     tracing::debug!(
         dataset_count = dataset_ids.len(),
         table_id,
+        operation = operation.as_str(),
         "Delegation token validated"
     );
 
@@ -496,6 +541,7 @@ pub fn validate_delegation_token(token: &str, secret: &str) -> Result<Delegation
         email,
         dataset_ids,
         table_id,
+        operation,
     })
 }
 
