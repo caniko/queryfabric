@@ -15,6 +15,9 @@ arrow-flight = "59"
 tonic = { version = "0.14", features = ["tls-ring", "tls-native-roots"] }
 papaya = { workspace = true }
 tracing = { workspace = true }
+blake3 = { workspace = true }
+secrecy = { workspace = true }
+thiserror = { workspace = true }
 
 [dev-dependencies]
 tokio = { workspace = true }
