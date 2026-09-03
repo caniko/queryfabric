@@ -92,21 +92,6 @@ pub struct SyqlValidateResponse {
     pub predicate_count: usize,
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub struct StaticAsset {
-    pub path: &'static str,
-    pub content_type: &'static str,
-    pub content: &'static str,
-}
-
-const QUERYFABRIC_SYQL_EDITOR_JS: StaticAsset = StaticAsset {
-    path: "queryfabric_syql_editor.js",
-    content_type: "text/javascript",
-    content: include_str!("../assets/queryfabric_syql_editor.js"),
-};
-
-const STATIC_ASSETS: &[StaticAsset] = &[QUERYFABRIC_SYQL_EDITOR_JS];
-
 pub fn validate_syql(
     query: &str,
     catalog: &dyn queryfabric_catalog::Catalog,
@@ -141,10 +126,6 @@ pub fn validate_syql(
         table: summary.primary_relation,
         predicate_count: summary.predicate_count,
     }
-}
-
-pub fn static_assets() -> &'static [StaticAsset] {
-    STATIC_ASSETS
 }
 
 #[cfg(test)]
@@ -278,20 +259,5 @@ mod tests {
     fn append_query_preserves_existing_query_and_encodes_values() {
         assert_eq!(append_query("/path", "key", "val ue"), "/path?key=val%20ue");
         assert_eq!(append_query("/path?a=1", "b", "2"), "/path?a=1&b=2");
-    }
-
-    #[test]
-    fn static_asset_is_packaged() {
-        let assets = static_assets();
-        assert_eq!(assets.len(), 1);
-        let asset = &assets[0];
-        assert_eq!(asset.path, "queryfabric_syql_editor.js");
-        assert_eq!(asset.content_type, "text/javascript");
-
-        let content = asset.content;
-        assert!(content.contains("data-queryfabric-syql-editor"));
-        assert!(content.contains("/_ui/query/syql/validate"));
-        assert!(content.contains("/static/queryfabric_catalog.json"));
-        assert!(!content.contains("location.pathname.includes(\"/query/syql\")"));
     }
 }
