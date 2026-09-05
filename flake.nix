@@ -22,7 +22,7 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
     rs-harbor = {
-      url = "git+https://github.com/caniko/rs-harbor.git?ref=trunk&rev=f209ddbca3fdbb0dc31fa3886ccc2ff7369c18ac";
+      url = "git+https://github.com/caniko/rs-harbor.git?ref=trunk&rev=606d6a6af370b5d5d18ad325975c270ac24f55d1";
       inputs.nixpkgs.follows = "nixpkgs";
       inputs.crane.follows = "crane";
       inputs.rust-overlay.follows = "rust-overlay";
@@ -68,7 +68,10 @@
             overlays = [ (import rust-overlay) ];
           };
           lib = pkgs.lib;
-          toolchain = rs-harbor.lib.mkToolchain { inherit pkgs; toolchainProfile = "nightly"; };
+          toolchain = rs-harbor.lib.mkToolchain {
+            inherit pkgs;
+            toolchainProfile = "nightly";
+          };
           craneLib = toolchain.craneLib;
           sccachePackage = rs-harbor.packages.${system}.sccache;
           buildCache = rs-harbor.lib.mkBuildCachePolicy {
@@ -78,7 +81,7 @@
             namespaceScope = "canix-rust";
             namespaceGeneration = 5;
           };
-          cacheRust = package: buildCache.withRustCache {inherit package;};
+          cacheRust = package: buildCache.withRustCache { inherit package; };
           cross = rs-harbor.lib.mkCross {
             inherit pkgs system;
             enableOsxcross = false;
@@ -126,7 +129,6 @@
                 ./crates/queryfabric-portability/src/import.rs
                 ./crates/queryfabric-portability/schema
                 ./crates/queryfabric-portability/fixtures
-                ./crates/queryfabric-web/assets/queryfabric_syql_editor.js
                 ./crates/queryfabric-runtime-k8s/tests/golden/replicated_read_only_job.json
                 ./crates/queryfabric-demo/src/index.html
                 ./capabilities/builtin-capability-manifest.json
@@ -144,9 +146,25 @@
             };
           };
           queryfabricDemoArtifacts = cacheRust (craneLib.buildDepsOnly queryfabricDemoArgs);
-          queryfabric-demo = cacheRust (craneLib.buildPackage (
-            queryfabricDemoArgs // { cargoArtifacts = queryfabricDemoArtifacts; }
-          ));
+          queryfabric-demo = cacheRust (
+            craneLib.buildPackage (queryfabricDemoArgs // { cargoArtifacts = queryfabricDemoArtifacts; })
+          );
+          queryfabricDioxusArgs = builtins.removeAttrs queryfabricDemoArgs [ "meta" ] // {
+            pname = "queryfabric-dioxus-check";
+            cargoExtraArgs = "-p queryfabric-dioxus --all-features --locked";
+          };
+          queryfabricDioxusArtifacts = cacheRust (craneLib.buildDepsOnly queryfabricDioxusArgs);
+          queryfabric-dioxus = cacheRust (
+            craneLib.mkCargoDerivation (
+              queryfabricDioxusArgs
+              // {
+                cargoArtifacts = queryfabricDioxusArtifacts;
+                buildPhaseCargoCommand = "cargo check -p queryfabric-dioxus --all-features --locked";
+                installPhaseCommand = "touch $out";
+                doInstallCargoArtifacts = false;
+              }
+            )
+          );
           bundleSchemaArgs = {
             pname = "queryfabric-portability-schema-fixtures";
             version = "0.2.0";
@@ -162,9 +180,9 @@
             cargoExtraArgs = "-p queryfabric-portability --locked";
           };
           bundleSchemaArtifacts = cacheRust (craneLib.buildDepsOnly bundleSchemaArgs);
-          bundle-schema = cacheRust (craneLib.cargoTest (
-            bundleSchemaArgs // { cargoArtifacts = bundleSchemaArtifacts; }
-          ));
+          bundle-schema = cacheRust (
+            craneLib.cargoTest (bundleSchemaArgs // { cargoArtifacts = bundleSchemaArtifacts; })
+          );
           crossLanguage =
             pkgs.runCommand "queryfabric-cross-language-vectors"
               {
@@ -204,13 +222,15 @@
           # The MSRV gate is a full-workspace compile gate. Runtime tests run
           # under the stable workspace gate; keeping this check compile-only
           # avoids TLS-provider global state in unrelated test binaries.
-          msrv = cacheRust (msrvCraneLib.buildPackage (
-            msrvArgs
-            // {
-              cargoArtifacts = msrvArtifacts;
-              doCheck = false;
-            }
-          ));
+          msrv = cacheRust (
+            msrvCraneLib.buildPackage (
+              msrvArgs
+              // {
+                cargoArtifacts = msrvArtifacts;
+                doCheck = false;
+              }
+            )
+          );
           audit = craneLib.cargoAudit {
             pname = "queryfabric-audit";
             version = "0.2.0";
@@ -361,6 +381,7 @@
               audit
               deny
               accessibility
+              queryfabric-dioxus
               ;
 
             legacyAliasEval =
@@ -407,21 +428,19 @@
             };
           };
 
-          devShells.default = pkgs.mkShell {
+          devShells.default = rs-harbor.lib.mkDevShell {
+            inherit pkgs craneLib cross;
+            enableWindowsEnv = false;
+            enableOsxcrossEnv = false;
+            pkgConfigDeps = [ pkgs.openssl ];
             packages = [
-              pkgs.cargo
               pkgs.cargo-fuzz
-              pkgs.clippy
               pkgs.maturin
               pkgs.mdbook
               plinthProject
               pkgs.reuse
               pkgs.openssl
-              pkgs.pkg-config
               pkgs.python3
-              pkgs.rust-analyzer
-              pkgs.rustc
-              pkgs.rustfmt
               pkgs.uv
               (tex-harbor.lib.mkTexlive {
                 inherit pkgs;
@@ -431,7 +450,7 @@
             ]
             ++ pre-commit-check.enabledPackages;
 
-            shellHook = pre-commit-check.shellHook + ''
+            extraShellHook = pre-commit-check.shellHook + ''
               echo "QueryFabric dev shell"
               echo "Website: plinth-project dev --config website/plinth-project.toml"
               echo "Documentation: cd docs && mdbook serve"

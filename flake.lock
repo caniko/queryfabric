@@ -77,6 +77,38 @@
         "type": "github"
       }
     },
+    "flake-compat_2": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1767039857,
+        "narHash": "sha256-vNpUSpF5Nuw8xvDLj2KCwwksIbjua2LZCqhV1LNRDns=",
+        "owner": "NixOS",
+        "repo": "flake-compat",
+        "rev": "5edf11c44bc78a0d334f6334cdaf7d60d732daab",
+        "type": "github"
+      },
+      "original": {
+        "owner": "NixOS",
+        "repo": "flake-compat",
+        "type": "github"
+      }
+    },
+    "flake-compat_3": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1767039857,
+        "narHash": "sha256-vNpUSpF5Nuw8xvDLj2KCwwksIbjua2LZCqhV1LNRDns=",
+        "owner": "NixOS",
+        "repo": "flake-compat",
+        "rev": "5edf11c44bc78a0d334f6334cdaf7d60d732daab",
+        "type": "github"
+      },
+      "original": {
+        "owner": "NixOS",
+        "repo": "flake-compat",
+        "type": "github"
+      }
+    },
     "flake-parts": {
       "inputs": {
         "nixpkgs-lib": "nixpkgs-lib"
@@ -100,11 +132,11 @@
         "nixpkgs-lib": "nixpkgs-lib_2"
       },
       "locked": {
-        "lastModified": 1782949081,
-        "narHash": "sha256-vp6Y/Grm98ESt6ceOkWiHWyZRDV3J1RID4w+6NWK9yA=",
+        "lastModified": 1787559586,
+        "narHash": "sha256-onL0VLf9vPllmT0H/OlURIU5r5t5WIEl7t4tVNKT0Nw=",
         "owner": "hercules-ci",
         "repo": "flake-parts",
-        "rev": "17c9d6cdfc60c64f4ee8d306f9bc0b4ccb51481e",
+        "rev": "9d0d87172c374f89da73c1cfe6d81ae62feac1f1",
         "type": "github"
       },
       "original": {
@@ -116,6 +148,24 @@
     "flake-parts_3": {
       "inputs": {
         "nixpkgs-lib": "nixpkgs-lib_3"
+      },
+      "locked": {
+        "lastModified": 1785627969,
+        "narHash": "sha256-4dtXQk/NMePegK/nWp5NSeuZKLATItOq61lpEvmXqGw=",
+        "owner": "hercules-ci",
+        "repo": "flake-parts",
+        "rev": "427bf4bd9435fdf21321c8cc628c24efc14c0f7a",
+        "type": "github"
+      },
+      "original": {
+        "owner": "hercules-ci",
+        "repo": "flake-parts",
+        "type": "github"
+      }
+    },
+    "flake-parts_4": {
+      "inputs": {
+        "nixpkgs-lib": "nixpkgs-lib_4"
       },
       "locked": {
         "lastModified": 1782949081,
@@ -225,6 +275,51 @@
         "type": "github"
       }
     },
+    "git-hooks_2": {
+      "inputs": {
+        "flake-compat": "flake-compat_2",
+        "nixpkgs": [
+          "rs-harbor",
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1787424939,
+        "narHash": "sha256-O2tBn84NNuHrnqNVxx/XqsXwfYvS1YwBh+7CBnbCYsk=",
+        "owner": "cachix",
+        "repo": "git-hooks.nix",
+        "rev": "809414f0cdadf82cf11b06c2b29ba9b3168b3297",
+        "type": "github"
+      },
+      "original": {
+        "owner": "cachix",
+        "repo": "git-hooks.nix",
+        "type": "github"
+      }
+    },
+    "git-hooks_3": {
+      "inputs": {
+        "flake-compat": "flake-compat_3",
+        "nixpkgs": [
+          "rs-harbor",
+          "harbor-android",
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1787424939,
+        "narHash": "sha256-O2tBn84NNuHrnqNVxx/XqsXwfYvS1YwBh+7CBnbCYsk=",
+        "owner": "cachix",
+        "repo": "git-hooks.nix",
+        "rev": "809414f0cdadf82cf11b06c2b29ba9b3168b3297",
+        "type": "github"
+      },
+      "original": {
+        "owner": "cachix",
+        "repo": "git-hooks.nix",
+        "type": "github"
+      }
+    },
     "gitignore": {
       "inputs": {
         "nixpkgs": [
@@ -246,27 +341,56 @@
         "type": "github"
       }
     },
-    "meta-harbor": {
+    "harbor-android": {
       "inputs": {
         "flake-parts": "flake-parts_3",
+        "git-hooks": "git-hooks_3",
+        "meta-harbor": [
+          "rs-harbor",
+          "harbor-meta"
+        ],
+        "nixpkgs": [
+          "rs-harbor",
+          "nixpkgs"
+        ],
+        "treefmt-nix": "treefmt-nix"
+      },
+      "locked": {
+        "lastModified": 1787471536,
+        "narHash": "sha256-6sxdlyIxEDSKObl1lHjCAf0y28umgbxp6jsbBzFwvUQ=",
+        "owner": "caniko",
+        "repo": "harbor-android",
+        "rev": "751a9fcc896afa764b690cd0711c80decbdb7173",
+        "type": "github"
+      },
+      "original": {
+        "owner": "caniko",
+        "ref": "trunk",
+        "repo": "harbor-android",
+        "type": "github"
+      }
+    },
+    "harbor-meta": {
+      "inputs": {
+        "flake-parts": "flake-parts_4",
         "nixpkgs": [
           "rs-harbor",
           "nixpkgs"
         ]
       },
       "locked": {
-        "lastModified": 1783765805,
-        "narHash": "sha256-PbZEexzZDxyOXp2v57iBV6D5DGCCkLyEdhjS0bN5Un8=",
+        "lastModified": 1787576641,
+        "narHash": "sha256-LD/NY+EGxp80zrCV6Q88AFLlVEflW5OwG4Cc3p/iksY=",
         "ref": "trunk",
-        "rev": "f3384cf15bc50fdb01c4fce1552e8c9fbad1199d",
-        "revCount": 4,
+        "rev": "61182b8380ff990058fdccb1bbb7a3e7d9575256",
+        "revCount": 10,
         "type": "git",
-        "url": "ssh://git@codeberg.org/caniko/meta-harbor.git"
+        "url": "https://github.com/caniko/harbor-meta.git"
       },
       "original": {
         "ref": "trunk",
         "type": "git",
-        "url": "ssh://git@codeberg.org/caniko/meta-harbor.git"
+        "url": "https://github.com/caniko/harbor-meta.git"
       }
     },
     "nix-bundle": {
@@ -300,16 +424,18 @@
         ]
       },
       "locked": {
-        "lastModified": 1785298780,
-        "narHash": "sha256-hq+/QcdG+pOKugcglqt92n3AwDbZnJB/Z+FCgmM3nwg=",
-        "rev": "38e7ce16c754947a257a00a77682adfe696b6718",
+        "lastModified": 1786574736,
+        "narHash": "sha256-w0UHPwyVbHKMIB/J82XBhG9OSqIn68X6jYOZ5UXgGIM=",
+        "ref": "trunk",
+        "rev": "7e03c2bfd32c35da8c6531a5867dfdb66eeae766",
+        "revCount": 8,
         "type": "git",
-        "url": "ssh://git@github.com/caniko/nix-opencode-lsp.git"
+        "url": "https://github.com/caniko/nix-opencode-lsp.git"
       },
       "original": {
         "ref": "trunk",
         "type": "git",
-        "url": "ssh://git@github.com/caniko/nix-opencode-lsp.git"
+        "url": "https://github.com/caniko/nix-opencode-lsp.git"
       }
     },
     "nix-pklx": {
@@ -379,11 +505,11 @@
     },
     "nixpkgs-lib_2": {
       "locked": {
-        "lastModified": 1782614948,
-        "narHash": "sha256-ePjCwr1sNm9NYUqywL7QfK3JnlS015msC+eBu2zKlp8=",
+        "lastModified": 1785031560,
+        "narHash": "sha256-OmshNvn2vupOFpYinLUu+1Dnpu4n7Q5N3ggGVNHpkUI=",
         "owner": "nix-community",
         "repo": "nixpkgs.lib",
-        "rev": "db3f255737b94216eb71cce308e2912cf6bc2d7c",
+        "rev": "0e79af5e3d4dcfcd676ab5ba3f95d2e3352e078c",
         "type": "github"
       },
       "original": {
@@ -393,6 +519,21 @@
       }
     },
     "nixpkgs-lib_3": {
+      "locked": {
+        "lastModified": 1785031560,
+        "narHash": "sha256-OmshNvn2vupOFpYinLUu+1Dnpu4n7Q5N3ggGVNHpkUI=",
+        "owner": "nix-community",
+        "repo": "nixpkgs.lib",
+        "rev": "0e79af5e3d4dcfcd676ab5ba3f95d2e3352e078c",
+        "type": "github"
+      },
+      "original": {
+        "owner": "nix-community",
+        "repo": "nixpkgs.lib",
+        "type": "github"
+      }
+    },
+    "nixpkgs-lib_4": {
       "locked": {
         "lastModified": 1782614948,
         "narHash": "sha256-ePjCwr1sNm9NYUqywL7QfK3JnlS015msC+eBu2zKlp8=",
@@ -522,7 +663,7 @@
         "rs-harbor": "rs-harbor_2",
         "rust-overlay": "rust-overlay_3",
         "tex-harbor": "tex-harbor",
-        "treefmt-nix": "treefmt-nix"
+        "treefmt-nix": "treefmt-nix_3"
       }
     },
     "rs-harbor": {
@@ -570,7 +711,13 @@
           "crane"
         ],
         "flake-parts": "flake-parts_2",
-        "meta-harbor": "meta-harbor",
+        "git-hooks": "git-hooks_2",
+        "harbor-android": "harbor-android",
+        "harbor-meta": "harbor-meta",
+        "meta-harbor": [
+          "rs-harbor",
+          "harbor-meta"
+        ],
         "nix-bundle": "nix-bundle",
         "nix-opencode-lsp": "nix-opencode-lsp",
         "nixpkgs": [
@@ -579,20 +726,21 @@
         "osxcross": "osxcross_2",
         "rust-overlay": [
           "rust-overlay"
-        ]
+        ],
+        "treefmt-nix": "treefmt-nix_2"
       },
       "locked": {
-        "lastModified": 1786573790,
-        "narHash": "sha256-HNroLml6L6xV7ZS5pS8QYQdxfPqayi6kJYrClxNa3Gs=",
+        "lastModified": 1788585331,
+        "narHash": "sha256-6uUxEWoqK68wA92v0aEeLATxRHDzsvlW1ZpnQZxngfE=",
         "ref": "trunk",
-        "rev": "f209ddbca3fdbb0dc31fa3886ccc2ff7369c18ac",
-        "revCount": 164,
+        "rev": "606d6a6af370b5d5d18ad325975c270ac24f55d1",
+        "revCount": 212,
         "type": "git",
         "url": "https://github.com/caniko/rs-harbor.git"
       },
       "original": {
         "ref": "trunk",
-        "rev": "f209ddbca3fdbb0dc31fa3886ccc2ff7369c18ac",
+        "rev": "606d6a6af370b5d5d18ad325975c270ac24f55d1",
         "type": "git",
         "url": "https://github.com/caniko/rs-harbor.git"
       }
@@ -759,6 +907,49 @@
       }
     },
     "treefmt-nix": {
+      "inputs": {
+        "nixpkgs": [
+          "rs-harbor",
+          "harbor-android",
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1786901030,
+        "narHash": "sha256-WSFCsDSE5ffgD2MqzkM2CYjeFiKhRF/dJUN8uedb6YE=",
+        "owner": "numtide",
+        "repo": "treefmt-nix",
+        "rev": "27b3b12a8e6375f28ebe122f07d230ca5459bbfa",
+        "type": "github"
+      },
+      "original": {
+        "owner": "numtide",
+        "repo": "treefmt-nix",
+        "type": "github"
+      }
+    },
+    "treefmt-nix_2": {
+      "inputs": {
+        "nixpkgs": [
+          "rs-harbor",
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1786901030,
+        "narHash": "sha256-WSFCsDSE5ffgD2MqzkM2CYjeFiKhRF/dJUN8uedb6YE=",
+        "owner": "numtide",
+        "repo": "treefmt-nix",
+        "rev": "27b3b12a8e6375f28ebe122f07d230ca5459bbfa",
+        "type": "github"
+      },
+      "original": {
+        "owner": "numtide",
+        "repo": "treefmt-nix",
+        "type": "github"
+      }
+    },
+    "treefmt-nix_3": {
       "inputs": {
         "nixpkgs": [
           "nixpkgs"
