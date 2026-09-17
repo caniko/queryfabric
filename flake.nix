@@ -21,14 +21,14 @@
       url = "github:oxalica/rust-overlay";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-    rs-harbor = {
-      url = "git+https://github.com/caniko/rs-harbor.git?ref=trunk&rev=606d6a6af370b5d5d18ad325975c270ac24f55d1";
+    harbor-rs = {
+      url = "git+https://github.com/caniko/harbor-rs.git?ref=trunk&rev=606d6a6af370b5d5d18ad325975c270ac24f55d1";
       inputs.nixpkgs.follows = "nixpkgs";
       inputs.crane.follows = "crane";
       inputs.rust-overlay.follows = "rust-overlay";
     };
-    tex-harbor = {
-      url = "git+https://codeberg.org/caniko/tex-harbor.git?ref=trunk";
+    harbor-tex = {
+      url = "git+https://github.com/caniko/harbor-tex.git?ref=trunk";
       inputs.nixpkgs.follows = "nixpkgs";
     };
     advisory-db = {
@@ -47,8 +47,8 @@
       treefmt-nix,
       git-hooks,
       rust-overlay,
-      rs-harbor,
-      tex-harbor,
+      harbor-rs,
+      harbor-tex,
       advisory-db,
       ...
     }:
@@ -68,13 +68,13 @@
             overlays = [ (import rust-overlay) ];
           };
           lib = pkgs.lib;
-          toolchain = rs-harbor.lib.mkToolchain {
+          toolchain = harbor-rs.lib.mkToolchain {
             inherit pkgs;
             toolchainProfile = "nightly";
           };
           craneLib = toolchain.craneLib;
-          sccachePackage = rs-harbor.packages.${system}.sccache;
-          buildCache = rs-harbor.lib.mkBuildCachePolicy {
+          sccachePackage = harbor-rs.packages.${system}.sccache;
+          buildCache = harbor-rs.lib.mkBuildCachePolicy {
             inherit pkgs sccachePackage;
             buildPackageSet = pkgs.buildPackages;
             cacheRoot = null;
@@ -82,7 +82,7 @@
             namespaceGeneration = 5;
           };
           cacheRust = package: buildCache.withRustCache { inherit package; };
-          cross = rs-harbor.lib.mkCross {
+          cross = harbor-rs.lib.mkCross {
             inherit pkgs system;
             enableOsxcross = false;
           };
@@ -276,7 +276,7 @@
                 pathlib.Path(sys.argv[2]).write_text("structural accessibility gate passed\\n")
                 PY
               '';
-          crossPackageSet = rs-harbor.lib.mkCrossPackages (
+          crossPackageSet = harbor-rs.lib.mkCrossPackages (
             {
               inherit pkgs craneLib cross;
               commonArgs = queryfabricDemoArgs;
@@ -288,7 +288,7 @@
             }
             //
               lib.optionalAttrs
-                (builtins.hasAttr "toolchainArgs" (builtins.functionArgs rs-harbor.lib.mkCrossPackages))
+                (builtins.hasAttr "toolchainArgs" (builtins.functionArgs harbor-rs.lib.mkCrossPackages))
                 {
                   toolchainArgs = {
                     channel = "stable";
@@ -428,7 +428,7 @@
             };
           };
 
-          devShells.default = rs-harbor.lib.mkDevShell {
+          devShells.default = harbor-rs.lib.mkDevShell {
             inherit pkgs craneLib cross;
             enableWindowsEnv = false;
             enableOsxcrossEnv = false;
@@ -442,7 +442,7 @@
               pkgs.openssl
               pkgs.python3
               pkgs.uv
-              (tex-harbor.lib.mkTexlive {
+              (harbor-tex.lib.mkTexlive {
                 inherit pkgs;
                 profile = "article";
               })
