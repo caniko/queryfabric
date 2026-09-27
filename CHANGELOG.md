@@ -47,6 +47,9 @@
 
 ### Fixed
 
+- `lag` and `lead` now reject ClickHouse preparation with a named missing-mapping
+  diagnostic instead of emitting unsupported or semantically different SQL;
+  PostgreSQL support remains available.
 - `queryfabric-adapter-clickhouse::driver` — attach the configured `database` query parameter to every select endpoint
 - `queryfabric-adapter-clickhouse::driver` — replace 3 `.expect()` in retry loop with safe error propagation
 
