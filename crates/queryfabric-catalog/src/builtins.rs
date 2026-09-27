@@ -19,8 +19,15 @@ pub fn portable_builtin_functions() -> Vec<FunctionSignature> {
         builtin_window("rank", DataType::Int64),
         builtin_window("dense_rank", DataType::Int64),
         builtin_window("row_number", DataType::Int64),
-        builtin_window("lag", DataType::Unknown),
-        builtin_window("lead", DataType::Unknown),
+        // `lag`/`lead` stay Postgres-only: ClickHouse 24.12 (pinned backend)
+        // has no native `lag` or `lead`, and its `lagInFrame`/`leadInFrame`
+        // differ in frame handling and boundary defaults. Registering an
+        // identity mapping would emit unexecutable SQL; mapping the names
+        // directly would silently change missing predecessors into real
+        // values. With no ClickHouse mapping, preparation fails with an
+        // actionable diagnostic instead.
+        builtin_postgres_window("lag", DataType::Unknown),
+        builtin_postgres_window("lead", DataType::Unknown),
         builtin_window("first_value", DataType::Unknown),
         builtin_window("last_value", DataType::Unknown),
         builtin_clickhouse_aggregate("quantile", DataType::Float64)
@@ -201,6 +208,25 @@ fn builtin_window(name: &str, return_type: DataType) -> FunctionSignature {
     }
 }
 
+fn builtin_postgres_window(name: &str, return_type: DataType) -> FunctionSignature {
+    FunctionSignature {
+        namespace: None,
+        name: name.into(),
+        kind: FunctionKind::Window,
+        volatility: FunctionVolatility::Immutable,
+        arg_types: Vec::new(),
+        return_type,
+        variadic: true,
+        coercions: Vec::new(),
+        backend_mappings: vec![BackendFunctionMapping {
+            backend: "postgres".into(),
+            namespace: None,
+            name: name.into(),
+        }],
+        metadata: BTreeMap::new(),
+    }
+}
+
 trait FunctionSignatureExt {
     fn with_args(self, arg_types: Vec<DataType>) -> Self;
     fn with_metadata_flag(self, key: &str) -> Self;
@@ -243,6 +269,30 @@ mod tests {
         assert_eq!(min.backend_mappings[0].name, "minMerge");
         assert_eq!(min.return_type, DataType::Unknown);
         assert_eq!(min.metadata.get("state").map(String::as_str), Some("true"));
+    }
+
+    #[test]
+    fn clickhouse_lag_lead_have_no_backend_mapping() {
+        // Containment: without a ClickHouse mapping, preparation fails with
+        // an actionable diagnostic instead of emitting unexecutable SQL.
+        for name in ["lag", "lead"] {
+            let signature = builtin_function_signature(None, name).expect("lag/lead builtin");
+            assert!(
+                signature.backend_mapping("clickhouse").is_none(),
+                "{name} must not map to ClickHouse"
+            );
+            let pg = signature
+                .backend_mapping("postgres")
+                .expect("postgres lag/lead mapping");
+            assert_eq!(pg.name, name);
+        }
+
+        let row_number =
+            builtin_function_signature(None, "row_number").expect("row_number builtin");
+        let ch = row_number
+            .backend_mapping("clickhouse")
+            .expect("clickhouse row_number mapping");
+        assert_eq!(ch.name, "row_number");
     }
 
     #[test]
