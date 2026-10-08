@@ -21,11 +21,11 @@ pg_port=""
 
 cleanup() {
   local status=$?
-  if [[ -n "$demo_pid" ]] && kill -0 "$demo_pid" 2>/dev/null; then
+  if [[ -n $demo_pid ]] && kill -0 "$demo_pid" 2>/dev/null; then
     kill "$demo_pid" 2>/dev/null || true
     wait "$demo_pid" 2>/dev/null || true
   fi
-  if [[ "$pg_started" -eq 1 ]]; then
+  if [[ $pg_started -eq 1 ]]; then
     pg_ctl -D "$pgdata" -m fast stop >/dev/null 2>&1 || true
   fi
   rm -rf "$tmp_root"
@@ -120,12 +120,12 @@ start_demo() {
 
 wait_for_healthz() {
   local port=$1
-  local deadline_ms=$(( $(now_ms) + 60000 ))
+  local deadline_ms=$(($(now_ms) + 60000))
   while :; do
     if curl --fail --silent --max-time 1 "http://127.0.0.1:$port/healthz" >/dev/null; then
       return 0
     fi
-    if (( $(now_ms) > deadline_ms )); then
+    if (($(now_ms) > deadline_ms)); then
       echo "demo did not become healthy; last logs:" >&2
       sed -n '1,200p' "$tmp_root/demo.log" >&2
       return 1
@@ -215,13 +215,13 @@ sample_load_peak_rss() {
         live=1
       fi
     done
-    if (( live == 0 )); then
+    if ((live == 0)); then
       break
     fi
     if kill -0 "$demo_pid" 2>/dev/null; then
       local rss
       rss="$(vmrss_kib "$demo_pid")"
-      if [[ -n "$rss" ]] && (( rss > peak )); then
+      if [[ -n $rss ]] && ((rss > peak)); then
         peak=$rss
       fi
     fi
