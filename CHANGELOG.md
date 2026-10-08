@@ -32,6 +32,8 @@
 
 ### Changed
 
+- Simplify Nix flake and service-module expressions, align portability fixture
+  arguments with their callers, and normalize Python and shell tooling.
 - Upgrade OpenDAL dependencies to 0.58
 - Upgrade Apache Arrow, Arrow Flight, and Parquet dependencies to 59.1.0
 - CI: migrate all workflow runners from Codeberg shared runners to self-hosted `atlas` with Nix-based tooling
