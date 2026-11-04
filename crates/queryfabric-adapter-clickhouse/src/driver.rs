@@ -220,8 +220,9 @@ impl DynamicClient {
         user: &str,
         password: &SecretString,
         sql: String,
+        query_id: &str,
     ) -> std::result::Result<Response, reqwest::Error> {
-        http.post(base_url)
+        http.post(select_url(base_url, query_id))
             .basic_auth(user, Some(password.expose_secret()))
             .body(sql)
             .send()
@@ -352,6 +353,7 @@ impl DynamicClient {
         let full_sql = format!("{sql} FORMAT ArrowStream");
         debug!(sql_hash = %sql_fingerprint(sql), sql_bytes = sql.len(), "DynamicClient SELECT Arrow");
         let urls = self.select_base_urls();
+        let query_id = new_query_id();
         let mut last_error = None;
         let mut resp = None;
         for (index, base_url) in urls.iter().enumerate() {
@@ -361,6 +363,7 @@ impl DynamicClient {
                 &self.user,
                 &self.password,
                 full_sql.clone(),
+                &query_id,
             )
             .await
             {
@@ -416,13 +419,23 @@ impl DynamicClient {
         let password = self.password.clone();
         debug!(sql_hash = %sql_fingerprint(sql), sql_bytes = sql.len(), "DynamicClient SELECT Arrow (streaming)");
         let (tx, rx) = mpsc::channel::<std::result::Result<RecordBatch, ClickHouseError>>(32);
+        let query_id = new_query_id();
+        let abort_tx = tx.clone();
+        let abort_query_id = query_id.clone();
 
-        spawn_traced("clickhouse-arrow-stream", async move {
+        let work = async move {
             let mut last_error = None;
             let mut resp = None;
             for (index, base_url) in base_urls.iter().enumerate() {
-                match Self::send_select_to(&http, base_url, &user, &password, full_sql.clone())
-                    .await
+                match Self::send_select_to(
+                    &http,
+                    base_url,
+                    &user,
+                    &password,
+                    full_sql.clone(),
+                    &query_id,
+                )
+                .await
                 {
                     Ok(response) => {
                         resp = Some(response);
@@ -492,6 +505,21 @@ impl DynamicClient {
             } else {
                 debug!("DynamicClient SELECT Arrow streaming complete");
             }
+        };
+
+        // The task only notices a dropped receiver when it next sends a batch,
+        // which a long scan that returns nothing until it finishes never does.
+        // Race the request against the receiver closing: dropping `work` drops
+        // the in-flight HTTP request, closing the connection, and the
+        // `cancel_http_readonly_queries_on_client_close` setting then makes
+        // ClickHouse cancel the query.
+        spawn_traced("clickhouse-arrow-stream", async move {
+            tokio::select! {
+                () = work => {}
+                () = abort_tx.closed() => {
+                    debug!(query_id = %abort_query_id, "receiver dropped; cancelling ClickHouse query");
+                }
+            }
         });
 
         rx
@@ -502,6 +530,7 @@ impl DynamicClient {
         let full_sql = format!("{sql} FORMAT JSONEachRow");
         debug!(sql_hash = %sql_fingerprint(sql), sql_bytes = sql.len(), "DynamicClient SELECT");
         let urls = self.select_base_urls();
+        let query_id = new_query_id();
         let mut last_error = None;
         let mut resp = None;
         for (index, base_url) in urls.iter().enumerate() {
@@ -511,6 +540,7 @@ impl DynamicClient {
                 &self.user,
                 &self.password,
                 full_sql.clone(),
+                &query_id,
             )
             .await
             {
@@ -626,6 +656,33 @@ fn sql_fingerprint(sql: &str) -> String {
     blake3::hash(sql.as_bytes()).to_hex().to_string()
 }
 
+/// Unique id for one SELECT. Tagged on the HTTP request so the query can be
+/// found in `system.processes` / `query_log` and killed with `KILL QUERY`.
+fn new_query_id() -> String {
+    use std::sync::atomic::{AtomicU64, Ordering};
+    static NEXT: AtomicU64 = AtomicU64::new(0);
+    let nanos = std::time::SystemTime::now()
+        .duration_since(std::time::UNIX_EPOCH)
+        .map_or(0, |d| d.as_nanos());
+    format!(
+        "qf-{:x}-{:x}-{:x}",
+        std::process::id(),
+        nanos,
+        NEXT.fetch_add(1, Ordering::Relaxed)
+    )
+}
+
+/// Endpoint for a read-only SELECT: carries the query id, and asks ClickHouse
+/// to cancel the query when the client closes the connection (the server keeps
+/// running a read-only HTTP query after a disconnect by default).
+fn select_url(base_url: &str, query_id: &str) -> String {
+    let mut url = reqwest::Url::parse(base_url).expect("ClickHouse base URL is valid");
+    url.query_pairs_mut()
+        .append_pair("query_id", query_id)
+        .append_pair("cancel_http_readonly_queries_on_client_close", "1");
+    url.to_string()
+}
+
 fn with_database(base_url: &str, database: &str) -> String {
     let mut url = reqwest::Url::parse(base_url).expect("ClickHouse base URL is valid");
     url.query_pairs_mut().append_pair("database", database);
@@ -659,6 +716,77 @@ mod tests {
         INSERT_SEND_ATTEMPTS, arrow_insert_prefix, is_retryable_http_send, redact_endpoint,
         render_table_identifier, should_retry_insert_send, sql_fingerprint, with_database,
     };
+
+    #[test]
+    fn select_url_is_killable_and_cancels_on_client_close() {
+        let a = super::new_query_id();
+        let b = super::new_query_id();
+        assert_ne!(a, b);
+        let url = reqwest::Url::parse(&super::select_url(
+            &with_database("http://localhost:8123", "syndb"),
+            &a,
+        ))
+        .unwrap();
+        let get = |key: &str| {
+            url.query_pairs()
+                .find(|(k, _)| k == key)
+                .map(|(_, v)| v.into_owned())
+        };
+        assert_eq!(get("database").as_deref(), Some("syndb"));
+        assert_eq!(get("query_id").as_deref(), Some(a.as_str()));
+        assert_eq!(
+            get("cancel_http_readonly_queries_on_client_close").as_deref(),
+            Some("1")
+        );
+        assert!(a.bytes().all(|b| b.is_ascii_alphanumeric() || b == b'-'));
+    }
+
+    /// A SELECT that never answers (a long scan) must be abandoned the moment
+    /// the receiver is dropped: the server sees the connection close.
+    #[tokio::test]
+    async fn dropping_the_stream_receiver_closes_the_connection_mid_query() {
+        use tokio::io::AsyncReadExt;
+        let listener = tokio::net::TcpListener::bind("127.0.0.1:0").await.unwrap();
+        let addr = listener.local_addr().unwrap();
+        let (seen_tx, seen_rx) = tokio::sync::oneshot::channel::<String>();
+        let (closed_tx, closed_rx) = tokio::sync::oneshot::channel::<()>();
+        tokio::spawn(async move {
+            let (mut sock, _) = listener.accept().await.unwrap();
+            let mut buf = vec![0u8; 8192];
+            let n = sock.read(&mut buf).await.unwrap();
+            let _ = seen_tx.send(String::from_utf8_lossy(&buf[..n]).into_owned());
+            // Never respond; wait for the client to hang up.
+            loop {
+                match sock.read(&mut buf).await {
+                    Ok(0) | Err(_) => break,
+                    Ok(_) => {}
+                }
+            }
+            let _ = closed_tx.send(());
+        });
+
+        let client = super::DynamicClient::from_config(&super::ClickHouseConfig {
+            host: "127.0.0.1".to_owned(),
+            port: addr.port(),
+            ..Default::default()
+        });
+        let rx = client.query_arrow_stream("SELECT sleep(3)");
+        let request = tokio::time::timeout(std::time::Duration::from_secs(5), seen_rx)
+            .await
+            .expect("request reaches the server")
+            .unwrap();
+        assert!(request.contains("query_id=qf-"), "{request}");
+        assert!(
+            request.contains("cancel_http_readonly_queries_on_client_close=1"),
+            "{request}"
+        );
+
+        drop(rx);
+        tokio::time::timeout(std::time::Duration::from_secs(5), closed_rx)
+            .await
+            .expect("dropping the receiver closes the HTTP connection")
+            .unwrap();
+    }
 
     #[test]
     fn select_endpoint_carries_database() {

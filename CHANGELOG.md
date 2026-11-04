@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+### Fixed
+
+- `queryfabric-adapter-clickhouse::driver` — every SELECT now carries a `query_id` and `cancel_http_readonly_queries_on_client_close=1`, and `query_arrow_stream` abandons its request as soon as the receiver is dropped, so a client that disconnects no longer leaves a long-running scan executing on the server
+
 ### Added
 
 - CI workflows for `queryfabric-release` crate, PyPI publishing, and release orchestration
