@@ -4,7 +4,7 @@
 
 ### Fixed
 
-- `queryfabric-adapter-clickhouse::driver` — every SELECT now carries a `query_id` and `cancel_http_readonly_queries_on_client_close=1`, and `query_arrow_stream` abandons its request as soon as the receiver is dropped, so a client that disconnects no longer leaves a long-running scan executing on the server
+- `queryfabric-adapter-clickhouse::driver` — every SELECT now carries a `query_id`, and when the caller drops a `query_arrow`/`query_json` future or a `query_arrow_stream` receiver before the query finishes, the query is killed by id (`KILL QUERY ON CLUSTER '{cluster}'`, falling back to the node that answers). ClickHouse does not cancel a silent aggregate scan when its client disconnects, so a client that went away used to leave the scan running for minutes
 
 ### Added
 

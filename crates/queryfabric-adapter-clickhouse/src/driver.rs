@@ -201,6 +201,17 @@ impl DynamicClient {
         }
     }
 
+    fn kill_on_drop(&self, query_id: &str) -> KillOnDrop {
+        KillOnDrop {
+            armed: true,
+            http: self.http.clone(),
+            url: self.base_url.clone(),
+            user: self.user.clone(),
+            password: self.password.clone(),
+            query_id: query_id.to_owned(),
+        }
+    }
+
     pub fn database(&self) -> &str {
         &self.database
     }
@@ -350,10 +361,17 @@ impl DynamicClient {
     }
 
     pub async fn query_arrow(&self, sql: &str) -> Result<Vec<RecordBatch>> {
+        let query_id = new_query_id();
+        let guard = self.kill_on_drop(&query_id);
+        let result = self.query_arrow_inner(sql, &query_id).await;
+        guard.disarm();
+        result
+    }
+
+    async fn query_arrow_inner(&self, sql: &str, query_id: &str) -> Result<Vec<RecordBatch>> {
         let full_sql = format!("{sql} FORMAT ArrowStream");
         debug!(sql_hash = %sql_fingerprint(sql), sql_bytes = sql.len(), "DynamicClient SELECT Arrow");
         let urls = self.select_base_urls();
-        let query_id = new_query_id();
         let mut last_error = None;
         let mut resp = None;
         for (index, base_url) in urls.iter().enumerate() {
@@ -363,7 +381,7 @@ impl DynamicClient {
                 &self.user,
                 &self.password,
                 full_sql.clone(),
-                &query_id,
+                query_id,
             )
             .await
             {
@@ -422,6 +440,7 @@ impl DynamicClient {
         let query_id = new_query_id();
         let abort_tx = tx.clone();
         let abort_query_id = query_id.clone();
+        let guard = self.kill_on_drop(&query_id);
 
         let work = async move {
             let mut last_error = None;
@@ -515,9 +534,13 @@ impl DynamicClient {
         // ClickHouse cancel the query.
         spawn_traced("clickhouse-arrow-stream", async move {
             tokio::select! {
-                () = work => {}
+                () = work => guard.disarm(),
                 () = abort_tx.closed() => {
-                    debug!(query_id = %abort_query_id, "receiver dropped; cancelling ClickHouse query");
+                    // Dropping the request is not enough on its own: ClickHouse
+                    // only notices a closed connection when it next writes, and
+                    // a scan that returns nothing until it finishes never does.
+                    // `guard` kills the query by id when it drops here.
+                    debug!(query_id = %abort_query_id, "receiver dropped; killing ClickHouse query");
                 }
             }
         });
@@ -527,10 +550,17 @@ impl DynamicClient {
 
     #[deprecated(note = "Use query_arrow for better performance")]
     pub async fn query_json(&self, sql: &str) -> Result<String> {
+        let query_id = new_query_id();
+        let guard = self.kill_on_drop(&query_id);
+        let result = self.query_json_inner(sql, &query_id).await;
+        guard.disarm();
+        result
+    }
+
+    async fn query_json_inner(&self, sql: &str, query_id: &str) -> Result<String> {
         let full_sql = format!("{sql} FORMAT JSONEachRow");
         debug!(sql_hash = %sql_fingerprint(sql), sql_bytes = sql.len(), "DynamicClient SELECT");
         let urls = self.select_base_urls();
-        let query_id = new_query_id();
         let mut last_error = None;
         let mut resp = None;
         for (index, base_url) in urls.iter().enumerate() {
@@ -540,7 +570,7 @@ impl DynamicClient {
                 &self.user,
                 &self.password,
                 full_sql.clone(),
-                &query_id,
+                query_id,
             )
             .await
             {
@@ -654,6 +684,81 @@ fn spawn_traced(
 
 fn sql_fingerprint(sql: &str) -> String {
     blake3::hash(sql.as_bytes()).to_hex().to_string()
+}
+
+/// Kills a running SELECT by id when its caller goes away before it finishes.
+///
+/// ClickHouse does not cancel a silent query (an aggregate that returns
+/// nothing until it is done) when the client disconnects, even with
+/// `cancel_http_readonly_queries_on_client_close`: it only notices the closed
+/// socket on its next write. Dropping the request or the future is therefore
+/// followed by an explicit `KILL QUERY`.
+struct KillOnDrop {
+    armed: bool,
+    http: Client,
+    url: String,
+    user: String,
+    password: SecretString,
+    query_id: String,
+}
+
+impl KillOnDrop {
+    fn disarm(mut self) {
+        self.armed = false;
+    }
+}
+
+impl Drop for KillOnDrop {
+    fn drop(&mut self) {
+        if !self.armed {
+            return;
+        }
+        let Ok(handle) = tokio::runtime::Handle::try_current() else {
+            return;
+        };
+        let (http, url, user, password, query_id) = (
+            self.http.clone(),
+            self.url.clone(),
+            self.user.clone(),
+            self.password.clone(),
+            self.query_id.clone(),
+        );
+        handle.spawn(async move {
+            kill_query(&http, &url, &user, &password, &query_id).await;
+        });
+    }
+}
+
+/// Best effort. The server behind a load balancer may not be the one running
+/// the query, so ask every replica of the macro-defined cluster first and fall
+/// back to the node that answers. `query_id` is generated by [`new_query_id`]
+/// (alphanumerics and `-`), so it is safe to interpolate.
+async fn kill_query(http: &Client, url: &str, user: &str, password: &SecretString, query_id: &str) {
+    for sql in [
+        format!("KILL QUERY ON CLUSTER '{{cluster}}' WHERE query_id = '{query_id}' ASYNC"),
+        format!("KILL QUERY WHERE query_id = '{query_id}' ASYNC"),
+    ] {
+        let mut endpoint = reqwest::Url::parse(url).expect("ClickHouse base URL is valid");
+        endpoint
+            .query_pairs_mut()
+            .append_pair("distributed_ddl_task_timeout", "0");
+        match http
+            .post(endpoint)
+            .basic_auth(user, Some(password.expose_secret()))
+            .body(sql)
+            .send()
+            .await
+        {
+            Ok(resp) if resp.status().is_success() => return,
+            Ok(resp) => {
+                debug!(query_id, status = %resp.status(), "KILL QUERY refused; trying the next form");
+            }
+            Err(error) => {
+                debug!(query_id, %error, "KILL QUERY request failed");
+                return;
+            }
+        }
+    }
 }
 
 /// Unique id for one SELECT. Tagged on the HTTP request so the query can be
