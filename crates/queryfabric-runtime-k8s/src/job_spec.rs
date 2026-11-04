@@ -137,6 +137,32 @@ pub fn job_name_for(spec: &IsolatedJobSpec) -> String {
     format!("{JOB_NAME_PREFIX}{suffix}")
 }
 
+/// Name for one spawn attempt: the stable query-hash name plus a short unique
+/// suffix.
+///
+/// The stable name alone collides (409 `AlreadyExists`) whenever an earlier
+/// attempt's Job is still around: a failed attempt that was not cleaned up, or
+/// two callers running the same query at once. Each attempt gets its own Job;
+/// the label selector and cleanup go by this full name.
+pub fn job_name_for_attempt(spec: &IsolatedJobSpec, attempt: &str) -> String {
+    format!("{}-{attempt}", job_name_for(spec))
+}
+
+/// Short unique (per process, per call) suffix for [`job_name_for_attempt`]:
+/// eight lowercase hex characters, valid in a DNS label.
+pub fn new_attempt_suffix() -> String {
+    use std::sync::atomic::{AtomicU64, Ordering};
+    static NEXT: AtomicU64 = AtomicU64::new(0);
+    let nanos = std::time::SystemTime::now()
+        .duration_since(std::time::UNIX_EPOCH)
+        .map_or(0, |d| d.as_nanos() as u64);
+    let mixed = nanos.wrapping_mul(0x9E37_79B9_7F4A_7C15).wrapping_add(
+        NEXT.fetch_add(1, Ordering::Relaxed)
+            .wrapping_mul(0xBF58_476D_1CE4_E5B9),
+    ) ^ u64::from(std::process::id()).wrapping_mul(0x94D0_49BB_1331_11EB);
+    format!("{:08x}", (mixed >> 16) as u32)
+}
+
 /// Build the label selector used to find a worker pod for a given Job.
 pub fn job_label_selector(name: &str) -> String {
     format!("app.kubernetes.io/managed-by={MANAGED_BY},{LABEL_ISOLATED_JOB}={name}")
@@ -244,7 +270,7 @@ fn storage_mode(storage: &StorageAccessMode) -> &'static str {
 }
 
 #[cfg(test)]
-mod tests {
+pub(crate) mod tests {
     use std::collections::BTreeMap;
     use std::time::Duration;
 
@@ -256,7 +282,7 @@ mod tests {
     use super::LABEL_COMPONENT;
     use crate::{K8sDriverConfig, job_spec};
 
-    fn test_spec(storage: StorageAccessMode) -> IsolatedJobSpec {
+    pub(crate) fn test_spec(storage: StorageAccessMode) -> IsolatedJobSpec {
         let parsed = ParsedQuery::new("sql", "SELECT 1", "SELECT 1");
         IsolatedJobSpec {
             query: BoundQuery::new(parsed),
@@ -271,7 +297,7 @@ mod tests {
         }
     }
 
-    fn test_config() -> K8sDriverConfig {
+    pub(crate) fn test_config() -> K8sDriverConfig {
         K8sDriverConfig {
             worker_image: "registry.example/syndb/burst-worker:test".to_owned(),
             service_account: "syndb-burst-worker".to_owned(),
@@ -330,6 +356,23 @@ mod tests {
     fn driver_can_be_boxed_as_isolated_execution_driver() {
         let driver = crate::K8sIsolatedDriver::new_for_tests(test_config());
         let _: Box<dyn queryfabric::IsolatedExecutionDriver> = Box::new(driver);
+    }
+
+    #[test]
+    fn attempt_names_are_distinct_valid_dns_labels() {
+        let spec = test_spec(StorageAccessMode::ReplicatedReadOnly);
+        let a = job_spec::job_name_for_attempt(&spec, &job_spec::new_attempt_suffix());
+        let b = job_spec::job_name_for_attempt(&spec, &job_spec::new_attempt_suffix());
+        assert_ne!(a, b, "two attempts of the same query must not collide");
+        assert!(a.starts_with(&job_spec::job_name_for(&spec)));
+        assert!(a.len() <= 40, "{a}");
+        assert!(
+            a.bytes()
+                .all(|c| c.is_ascii_lowercase() || c.is_ascii_digit() || c == b'-')
+        );
+        let many: std::collections::HashSet<_> =
+            (0..1000).map(|_| job_spec::new_attempt_suffix()).collect();
+        assert_eq!(many.len(), 1000);
     }
 
     #[test]

@@ -5,6 +5,8 @@
 ### Fixed
 
 - `queryfabric-adapter-clickhouse::driver` — every SELECT now carries a `query_id`, and when the caller drops a `query_arrow`/`query_json` future or a `query_arrow_stream` receiver before the query finishes, the query is killed by id (`KILL QUERY ON CLUSTER '{cluster}'`, falling back to the node that answers). ClickHouse does not cancel a silent aggregate scan when its client disconnects, so a client that went away used to leave the scan running for minutes
+- `queryfabric-adapter-clickhouse::cost` — the memory estimate of a plain single-table read now honours `LIMIT`/`OFFSET` (floor of one block of rows), so a `LIMIT 1000` scan of a huge table no longer plans as Isolated
+- `queryfabric-runtime-k8s` — each isolated spawn gets its own Job name (query-hash prefix plus a unique suffix) and `spawn` deletes the Job when the worker cannot be reached, so a retry no longer fails with 409 `AlreadyExists` on the failed attempt's Job
 
 ### Added
 
