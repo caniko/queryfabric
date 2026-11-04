@@ -344,6 +344,75 @@ mod tests {
         assert!(estimate.wallclock_estimate_ms > 0, "{estimate:#?}");
     }
 
+    fn memory_estimate(sql: &str) -> u64 {
+        let catalog = catalog();
+        ClickHouseAdapter
+            .estimate(&bind(sql), &catalog)
+            .expect("estimate")
+            .memory_bytes
+    }
+
+    #[test]
+    fn limit_bounds_the_memory_of_a_plain_scan() {
+        let full = memory_estimate("SELECT record_id, score FROM records");
+        let limited = memory_estimate("SELECT record_id, score FROM records LIMIT 1000");
+        // 1,000,000 rows x 96 B scanned; LIMIT 1000 keeps one block of rows.
+        assert_eq!(full, 96_000_000);
+        assert_eq!(limited, 65_536 * 96);
+        assert!(limited < full / 10);
+        // OFFSET counts toward the rows produced before the limit applies.
+        assert_eq!(
+            memory_estimate("SELECT record_id FROM records LIMIT 10 OFFSET 500000"),
+            500_010 * 96
+        );
+        // ORDER BY ... LIMIT keeps a top-N heap, not the table.
+        assert_eq!(
+            memory_estimate("SELECT record_id, score FROM records ORDER BY score LIMIT 1000"),
+            limited
+        );
+    }
+
+    #[test]
+    fn limit_does_not_hide_aggregation_or_distinct_state() {
+        for sql in [
+            "SELECT dataset_id, count(record_id) FROM records GROUP BY dataset_id LIMIT 10",
+            "SELECT DISTINCT record_id FROM records LIMIT 10",
+        ] {
+            let without = sql.replace(" LIMIT 10", "");
+            assert_eq!(memory_estimate(sql), memory_estimate(&without), "{sql}");
+        }
+    }
+
+    #[test]
+    fn a_limited_scan_plans_as_in_process_not_isolated() {
+        use queryfabric_catalog::BackendExecutionLimits;
+        use queryfabric_runtime::{ExecutionRuntimeMode, runtime_mode_for_estimate};
+
+        let catalog = catalog();
+        // Limits below the 96 MB table so an unbounded scan would isolate.
+        let limits = BackendExecutionLimits {
+            interactive_byte_limit: 32 * 1024 * 1024,
+            batch_byte_limit: 64 * 1024 * 1024,
+            ..BackendExecutionLimits::default()
+        };
+        let mode = |sql: &str| {
+            runtime_mode_for_estimate(
+                &ClickHouseAdapter
+                    .estimate(&bind(sql), &catalog)
+                    .expect("estimate"),
+                &limits,
+            )
+        };
+        assert_eq!(
+            mode("SELECT record_id, score FROM records"),
+            ExecutionRuntimeMode::Isolated
+        );
+        assert_eq!(
+            mode("SELECT record_id, score FROM records LIMIT 1000"),
+            ExecutionRuntimeMode::Interactive
+        );
+    }
+
     #[test]
     fn rewrites_mv_projection_and_sets_metadata() {
         let catalog = catalog();

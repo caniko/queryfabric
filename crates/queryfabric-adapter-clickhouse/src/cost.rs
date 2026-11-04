@@ -303,7 +303,49 @@ fn is_literal_expr(expr: &BoundExpr) -> bool {
 }
 
 fn estimate_memory_bytes(plan: &BoundQueryPlan, rows_scanned: u64, bytes_scanned: u64) -> u64 {
-    estimate_set_expr_memory(&plan.body, rows_scanned, bytes_scanned)
+    let memory = estimate_set_expr_memory(&plan.body, rows_scanned, bytes_scanned);
+    match (&plan.body, output_row_bound(plan)) {
+        (BoundSetExpr::Select(select), Some(output_rows)) if streams_rows(select) => memory.min(
+            limited_output_bytes(output_rows, rows_scanned, bytes_scanned),
+        ),
+        _ => memory,
+    }
+}
+
+/// Rows ClickHouse keeps in flight for a plain read is a few blocks; below
+/// this a tiny LIMIT does not shrink the working set further.
+const MIN_LIMITED_ROWS: u64 = 65_536;
+
+/// `LIMIT n [OFFSET m]` as a row count, when both are integer literals.
+fn output_row_bound(plan: &BoundQueryPlan) -> Option<u64> {
+    let literal = |expr: &BoundExpr| match &expr.kind {
+        BoundExprKind::Literal(LiteralValue::Int64(value)) => u64::try_from(*value).ok(),
+        _ => None,
+    };
+    let limit = literal(plan.limit.as_ref()?)?;
+    let offset = match &plan.offset {
+        Some(offset) => literal(offset)?,
+        None => 0,
+    };
+    Some(limit.saturating_add(offset))
+}
+
+/// A select whose memory is just the rows it returns: no aggregation, grouping,
+/// de-duplication or join state, so a LIMIT bounds it (a plain read stops after
+/// about LIMIT rows; with ORDER BY the full scan keeps only a top-N heap).
+fn streams_rows(select: &BoundSelect) -> bool {
+    select.group_by.is_empty()
+        && !select.distinct
+        && select.having.is_none()
+        && select_aggregate_count(select) == 0
+        && select.from.len() == 1
+        && select.from[0].joins.is_empty()
+        && matches!(select.from[0].relation, BoundRelation::Table { .. })
+}
+
+fn limited_output_bytes(output_rows: u64, rows_scanned: u64, bytes_scanned: u64) -> u64 {
+    let row_bytes = bytes_scanned.div_ceil(rows_scanned.max(1)).max(1);
+    output_rows.max(MIN_LIMITED_ROWS).saturating_mul(row_bytes)
 }
 
 fn estimate_set_expr_memory(expr: &BoundSetExpr, rows_scanned: u64, bytes_scanned: u64) -> u64 {
