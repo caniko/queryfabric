@@ -23,7 +23,10 @@ impl Binder<'_> {
                 match scope.resolve_column(relation.as_deref(), name) {
                     ColumnResolution::Local(column) => BoundExpr {
                         kind: BoundExprKind::Column(BoundColumnRef {
-                            relation: column.relation.clone(),
+                            // The output scope used for ORDER BY/LIMIT binding
+                            // is synthetic; its binding name must never render
+                            // as a SQL qualifier.
+                            relation: column.relation.filter(|relation| relation != "__output__"),
                             name: name.clone(),
                         }),
                         data_type: column.field.data_type.clone(),

@@ -4,7 +4,8 @@ SVG is XML; we write it directly.
 """
 
 from __future__ import annotations
-import subprocess, sys, math
+
+import subprocess
 from pathlib import Path
 from xml.etree import ElementTree as ET
 
@@ -121,7 +122,7 @@ def save_svg(svg: ET.Element, name: str):
             )
             print(f"  {png_path.name} (via ImageMagick)")
         except (FileNotFoundError, subprocess.CalledProcessError):
-            print(f"  (PNG conversion skipped — no rsvg-convert or convert)")
+            print("  (PNG conversion skipped — no rsvg-convert or convert)")
 
 
 # ── Figure 1: Architecture ───────────────────────────────────────────

@@ -37,7 +37,9 @@ pub enum QueryFabricError {
     #[diagnostic(help("Review the attached diagnostics for precise remediation."))]
     Bind(Box<BindErrorDetails>),
 
-    #[error("Unsupported feature: {feature}")]
+    // Display includes the detail: it names the missing mapping or
+    // capability, which is what makes the diagnostic actionable downstream.
+    #[error("Unsupported feature: {feature}: {detail}")]
     #[diagnostic(help("{detail}"))]
     UnsupportedFeature { feature: String, detail: String },
 
@@ -90,3 +92,21 @@ impl QueryFabricError {
 }
 
 pub type Result<T> = std::result::Result<T, QueryFabricError>;
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn unsupported_feature_display_preserves_detail() {
+        let err = QueryFabricError::UnsupportedFeature {
+            feature: "clickhouse-emission".to_owned(),
+            detail: "Function `lag` has no `clickhouse` backend mapping.".to_owned(),
+        };
+        let text = err.to_string();
+        assert!(
+            text.contains("clickhouse-emission") && text.contains("backend mapping"),
+            "display must carry both feature and detail: {text}"
+        );
+    }
+}

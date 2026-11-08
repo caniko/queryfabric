@@ -1,5 +1,7 @@
-{ pkgs, nixosModule }:
-let
+{
+  pkgs,
+  nixosModule,
+}: let
   fakePackage = pkgs.writeShellScriptBin "queryfabric-module-test" ''
     set -eu
     test "$QFDEMO_STORE_BACKEND" = memory
@@ -20,24 +22,24 @@ let
     federation.flightPort = flightPort;
   };
 in
-pkgs.testers.runNixOSTest {
-  name = "queryfabric-module";
+  pkgs.testers.runNixOSTest {
+    name = "queryfabric-module";
 
-  nodes.machine = {
-    imports = [ nixosModule ];
-    services.queryfabric.instances = {
-      alpha = instance 8780 50051;
-      beta = instance 8781 50052;
+    nodes.machine = {
+      imports = [nixosModule];
+      services.queryfabric.instances = {
+        alpha = instance 8780 50051;
+        beta = instance 8781 50052;
+      };
     };
-  };
 
-  testScript = ''
-    machine.start()
-    machine.succeed("systemctl start queryfabric-alpha.service queryfabric-beta.service")
-    machine.wait_until_succeeds("systemctl is-active queryfabric-alpha.service")
-    machine.wait_until_succeeds("systemctl is-active queryfabric-beta.service")
-    machine.succeed("systemctl show queryfabric-alpha.service -p DynamicUser --value | grep -qx yes")
-    machine.succeed("systemctl show queryfabric-alpha.service -p NoNewPrivileges --value | grep -qx yes")
-    machine.succeed("systemctl show queryfabric-beta.service -p DynamicUser --value | grep -qx yes")
-  '';
-}
+    testScript = ''
+      machine.start()
+      machine.succeed("systemctl start queryfabric-alpha.service queryfabric-beta.service")
+      machine.wait_until_succeeds("systemctl is-active queryfabric-alpha.service")
+      machine.wait_until_succeeds("systemctl is-active queryfabric-beta.service")
+      machine.succeed("systemctl show queryfabric-alpha.service -p DynamicUser --value | grep -qx yes")
+      machine.succeed("systemctl show queryfabric-alpha.service -p NoNewPrivileges --value | grep -qx yes")
+      machine.succeed("systemctl show queryfabric-beta.service -p DynamicUser --value | grep -qx yes")
+    '';
+  }

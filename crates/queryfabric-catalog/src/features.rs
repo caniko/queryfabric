@@ -53,6 +53,15 @@ pub fn plan_features_from_syntax(query: &SyntaxQuery) -> PlanFeatures {
     for cte in &query.ctes {
         merge_plan_features(&mut features, plan_features_from_syntax(&cte.query));
     }
+    for order_by in &query.order_by {
+        visit_syntax_expr(&order_by.expr, &mut features);
+    }
+    if let Some(limit) = &query.limit {
+        visit_syntax_expr(limit, &mut features);
+    }
+    if let Some(offset) = &query.offset {
+        visit_syntax_expr(offset, &mut features);
+    }
     features
 }
 
@@ -73,6 +82,15 @@ pub fn plan_features_from_bound(query: &BoundQueryPlan, catalog: &dyn Catalog) -
     visit_bound_set_expr(&query.body, &mut features, catalog);
     for cte in &query.ctes {
         merge_plan_features(&mut features, plan_features_from_bound(&cte.query, catalog));
+    }
+    for order_by in &query.order_by {
+        visit_bound_expr(&order_by.expr, &mut features, catalog);
+    }
+    if let Some(limit) = &query.limit {
+        visit_bound_expr(limit, &mut features, catalog);
+    }
+    if let Some(offset) = &query.offset {
+        visit_bound_expr(offset, &mut features, catalog);
     }
     features
 }
@@ -151,6 +169,9 @@ fn visit_syntax_relation(relation: &SyntaxRelation, features: &mut PlanFeatures)
             visit_syntax_relation(&table_with_joins.relation, features);
             for join in &table_with_joins.joins {
                 visit_syntax_relation(&join.relation, features);
+                if let Some(on) = &join.on {
+                    visit_syntax_expr(on, features);
+                }
             }
         }
         SyntaxRelation::Table { .. } | SyntaxRelation::Unsupported { .. } => {}
@@ -181,6 +202,17 @@ fn visit_syntax_expr(expr: &SyntaxExpr, features: &mut PlanFeatures) {
             }
             for arg in &function.args {
                 visit_syntax_expr(arg, features);
+            }
+            if let Some(filter) = &function.filter {
+                visit_syntax_expr(filter, features);
+            }
+            if let Some(over) = &function.over {
+                for expr in &over.partition_by {
+                    visit_syntax_expr(expr, features);
+                }
+                for order_by in &over.order_by {
+                    visit_syntax_expr(&order_by.expr, features);
+                }
             }
         }
         SyntaxExprKind::Case {
@@ -295,6 +327,9 @@ fn visit_bound_relation(
             visit_bound_relation(&table_with_joins.relation, features, catalog);
             for join in &table_with_joins.joins {
                 visit_bound_relation(&join.relation, features, catalog);
+                if let Some(on) = &join.on {
+                    visit_bound_expr(on, features, catalog);
+                }
             }
         }
         BoundRelation::Table { .. } | BoundRelation::Unsupported { .. } => {}
@@ -333,6 +368,17 @@ fn visit_bound_expr(expr: &BoundExpr, features: &mut PlanFeatures, catalog: &dyn
             }
             for arg in &function.args {
                 visit_bound_expr(arg, features, catalog);
+            }
+            if let Some(filter) = &function.filter {
+                visit_bound_expr(filter, features, catalog);
+            }
+            if let Some(over) = &function.over {
+                for expr in &over.partition_by {
+                    visit_bound_expr(expr, features, catalog);
+                }
+                for order_by in &over.order_by {
+                    visit_bound_expr(&order_by.expr, features, catalog);
+                }
             }
         }
         BoundExprKind::Case {

@@ -117,8 +117,42 @@ fn render_table_identifier(table_fqn: &str) -> Result<String> {
         .map(|segments| segments.join("."))
 }
 
+const INSERT_SEND_ATTEMPTS: usize = 3;
+const INSERT_RETRY_BASE_DELAY_MS: u64 = 250;
+
+fn is_retryable_http_send(has_status: bool, is_body: bool, is_decode: bool) -> bool {
+    !has_status && !is_body && !is_decode
+}
+
 fn select_send_error_is_retryable(error: &reqwest::Error) -> bool {
-    error.status().is_none() && !error.is_body() && !error.is_decode()
+    is_retryable_http_send(error.status().is_some(), error.is_body(), error.is_decode())
+}
+
+fn should_retry_insert_send(attempt: usize, retryable: bool) -> bool {
+    retryable && attempt + 1 < INSERT_SEND_ATTEMPTS
+}
+
+fn arrow_insert_prefix(table: &str, deduplication_token: Option<&str>) -> Result<String> {
+    let settings = if let Some(token) = deduplication_token {
+        if token.is_empty()
+            || !token
+                .bytes()
+                .all(|byte| byte.is_ascii_alphanumeric() || matches!(byte, b'-' | b'_' | b':'))
+        {
+            return Err(ClickHouseError::InvalidIdentifier(
+                "insert deduplication tokens may contain only ASCII letters, digits, '-', '_', and ':'"
+                    .into(),
+            ));
+        }
+        format!(
+            " SETTINGS insert_distributed_sync=1,insert_deduplicate=1,deduplicate_blocks_in_dependent_materialized_views=1,insert_deduplication_token='{token}'"
+        )
+    } else {
+        String::new()
+    };
+    Ok(format!(
+        "INSERT INTO {table}{settings} FORMAT ArrowStream\n"
+    ))
 }
 
 async fn check_response(resp: reqwest::Response, context: &str) -> Result<reqwest::Response> {
@@ -167,6 +201,17 @@ impl DynamicClient {
         }
     }
 
+    fn kill_on_drop(&self, query_id: &str) -> KillOnDrop {
+        KillOnDrop {
+            armed: true,
+            http: self.http.clone(),
+            url: self.base_url.clone(),
+            user: self.user.clone(),
+            password: self.password.clone(),
+            query_id: query_id.to_owned(),
+        }
+    }
+
     pub fn database(&self) -> &str {
         &self.database
     }
@@ -186,8 +231,9 @@ impl DynamicClient {
         user: &str,
         password: &SecretString,
         sql: String,
+        query_id: &str,
     ) -> std::result::Result<Response, reqwest::Error> {
-        http.post(base_url)
+        http.post(select_url(base_url, query_id))
             .basic_auth(user, Some(password.expose_secret()))
             .body(sql)
             .send()
@@ -210,6 +256,30 @@ impl DynamicClient {
     }
 
     pub async fn insert_arrow(&self, table_fqn: &str, batches: &[RecordBatch]) -> Result<()> {
+        self.insert_arrow_impl(table_fqn, batches, None).await
+    }
+
+    /// Insert Arrow batches with a stable ClickHouse deduplication token.
+    ///
+    /// Only this idempotent variant retries transport failures: an un-tokenized
+    /// insert cannot distinguish a failed request from a committed response
+    /// that was lost in transit.
+    pub async fn insert_arrow_idempotent(
+        &self,
+        table_fqn: &str,
+        batches: &[RecordBatch],
+        deduplication_token: &str,
+    ) -> Result<()> {
+        self.insert_arrow_impl(table_fqn, batches, Some(deduplication_token))
+            .await
+    }
+
+    async fn insert_arrow_impl(
+        &self,
+        table_fqn: &str,
+        batches: &[RecordBatch],
+        deduplication_token: Option<&str>,
+    ) -> Result<()> {
         let table = render_table_identifier(table_fqn)?;
         if batches.is_empty() {
             return Ok(());
@@ -218,7 +288,7 @@ impl DynamicClient {
         let batches: &[RecordBatch] = &batches;
         let schema = batches[0].schema();
         let total_rows: usize = batches.iter().map(|b| b.num_rows()).sum();
-        let sql_prefix = format!("INSERT INTO {table} FORMAT ArrowStream\n");
+        let sql_prefix = arrow_insert_prefix(&table, deduplication_token)?;
         let mut body = sql_prefix.into_bytes();
         {
             let mut writer = StreamWriter::try_new(&mut body, &schema)?;
@@ -233,19 +303,72 @@ impl DynamicClient {
             ipc_bytes = body.len(),
             "DynamicClient INSERT Arrow"
         );
-        let resp = self
-            .http
-            .post(&self.base_url)
-            .basic_auth(&self.user, Some(self.password.expose_secret()))
-            .header("Content-Type", "application/octet-stream")
-            .body(body)
-            .send()
-            .await?;
+        let mut last_send_error = None;
+        let mut resp = None;
+        let attempts = if deduplication_token.is_some() {
+            INSERT_SEND_ATTEMPTS
+        } else {
+            1
+        };
+        for attempt in 0..attempts {
+            match self
+                .http
+                .post(&self.base_url)
+                .basic_auth(&self.user, Some(self.password.expose_secret()))
+                .header("Content-Type", "application/octet-stream")
+                .body(body.clone())
+                .send()
+                .await
+            {
+                Ok(response) => {
+                    resp = Some(response);
+                    break;
+                }
+                Err(error)
+                    if deduplication_token.is_some()
+                        && should_retry_insert_send(
+                            attempt,
+                            select_send_error_is_retryable(&error),
+                        ) =>
+                {
+                    tracing::warn!(
+                        error = %error,
+                        attempt = attempt + 1,
+                        max_attempts = INSERT_SEND_ATTEMPTS,
+                        clickhouse_url = %redact_endpoint(&self.base_url),
+                        "retrying insert on same host"
+                    );
+                    last_send_error = Some(error);
+                    tokio::time::sleep(std::time::Duration::from_millis(
+                        INSERT_RETRY_BASE_DELAY_MS.saturating_mul(1u64 << attempt.min(4)),
+                    ))
+                    .await;
+                }
+                Err(error) => return Err(ClickHouseError::Http(error)),
+            }
+        }
+        let resp = match resp {
+            Some(resp) => resp,
+            None => {
+                return Err(last_send_error.map_or_else(
+                    || ClickHouseError::Other("insert send exhausted with retryable errors".into()),
+                    ClickHouseError::Http,
+                ));
+            }
+        };
         check_response(resp, "INSERT Arrow failed").await?;
         Ok(())
     }
 
     pub async fn query_arrow(&self, sql: &str) -> Result<Vec<RecordBatch>> {
+        let query_id = new_query_id();
+        let guard = self.kill_on_drop(&query_id);
+        let result = self.query_arrow_inner(sql, &query_id).await;
+        guard.disarm();
+        result
+    }
+
+    async fn query_arrow_inner(&self, sql: &str, query_id: &str) -> Result<Vec<RecordBatch>> {
         let full_sql = format!("{sql} FORMAT ArrowStream");
         debug!(sql_hash = %sql_fingerprint(sql), sql_bytes = sql.len(), "DynamicClient SELECT Arrow");
         let urls = self.select_base_urls();
@@ -258,6 +381,7 @@ impl DynamicClient {
                 &self.user,
                 &self.password,
                 full_sql.clone(),
+                query_id,
             )
             .await
             {
@@ -313,13 +437,24 @@ impl DynamicClient {
         let password = self.password.clone();
         debug!(sql_hash = %sql_fingerprint(sql), sql_bytes = sql.len(), "DynamicClient SELECT Arrow (streaming)");
         let (tx, rx) = mpsc::channel::<std::result::Result<RecordBatch, ClickHouseError>>(32);
+        let query_id = new_query_id();
+        let abort_tx = tx.clone();
+        let abort_query_id = query_id.clone();
+        let guard = self.kill_on_drop(&query_id);
 
-        spawn_traced("clickhouse-arrow-stream", async move {
+        let work = async move {
             let mut last_error = None;
             let mut resp = None;
             for (index, base_url) in base_urls.iter().enumerate() {
-                match Self::send_select_to(&http, base_url, &user, &password, full_sql.clone())
-                    .await
+                match Self::send_select_to(
+                    &http,
+                    base_url,
+                    &user,
+                    &password,
+                    full_sql.clone(),
+                    &query_id,
+                )
+                .await
                 {
                     Ok(response) => {
                         resp = Some(response);
@@ -389,6 +524,25 @@ impl DynamicClient {
             } else {
                 debug!("DynamicClient SELECT Arrow streaming complete");
             }
+        };
+
+        // The task only notices a dropped receiver when it next sends a batch,
+        // which a long scan that returns nothing until it finishes never does.
+        // Race the request against the receiver closing: dropping `work` drops
+        // the in-flight HTTP request, closing the connection, and the
+        // `cancel_http_readonly_queries_on_client_close` setting then makes
+        // ClickHouse cancel the query.
+        spawn_traced("clickhouse-arrow-stream", async move {
+            tokio::select! {
+                () = work => guard.disarm(),
+                () = abort_tx.closed() => {
+                    // Dropping the request is not enough on its own: ClickHouse
+                    // only notices a closed connection when it next writes, and
+                    // a scan that returns nothing until it finishes never does.
+                    // `guard` kills the query by id when it drops here.
+                    debug!(query_id = %abort_query_id, "receiver dropped; killing ClickHouse query");
+                }
+            }
         });
 
         rx
@@ -396,6 +550,14 @@ impl DynamicClient {
 
     #[deprecated(note = "Use query_arrow for better performance")]
     pub async fn query_json(&self, sql: &str) -> Result<String> {
+        let query_id = new_query_id();
+        let guard = self.kill_on_drop(&query_id);
+        let result = self.query_json_inner(sql, &query_id).await;
+        guard.disarm();
+        result
+    }
+
+    async fn query_json_inner(&self, sql: &str, query_id: &str) -> Result<String> {
         let full_sql = format!("{sql} FORMAT JSONEachRow");
         debug!(sql_hash = %sql_fingerprint(sql), sql_bytes = sql.len(), "DynamicClient SELECT");
         let urls = self.select_base_urls();
@@ -408,6 +570,7 @@ impl DynamicClient {
                 &self.user,
                 &self.password,
                 full_sql.clone(),
+                query_id,
             )
             .await
             {
@@ -523,6 +686,108 @@ fn sql_fingerprint(sql: &str) -> String {
     blake3::hash(sql.as_bytes()).to_hex().to_string()
 }
 
+/// Kills a running SELECT by id when its caller goes away before it finishes.
+///
+/// ClickHouse does not cancel a silent query (an aggregate that returns
+/// nothing until it is done) when the client disconnects, even with
+/// `cancel_http_readonly_queries_on_client_close`: it only notices the closed
+/// socket on its next write. Dropping the request or the future is therefore
+/// followed by an explicit `KILL QUERY`.
+struct KillOnDrop {
+    armed: bool,
+    http: Client,
+    url: String,
+    user: String,
+    password: SecretString,
+    query_id: String,
+}
+
+impl KillOnDrop {
+    fn disarm(mut self) {
+        self.armed = false;
+    }
+}
+
+impl Drop for KillOnDrop {
+    fn drop(&mut self) {
+        if !self.armed {
+            return;
+        }
+        let Ok(handle) = tokio::runtime::Handle::try_current() else {
+            return;
+        };
+        let (http, url, user, password, query_id) = (
+            self.http.clone(),
+            self.url.clone(),
+            self.user.clone(),
+            self.password.clone(),
+            self.query_id.clone(),
+        );
+        handle.spawn(async move {
+            kill_query(&http, &url, &user, &password, &query_id).await;
+        });
+    }
+}
+
+/// Best effort. The server behind a load balancer may not be the one running
+/// the query, so ask every replica of the macro-defined cluster first and fall
+/// back to the node that answers. `query_id` is generated by [`new_query_id`]
+/// (alphanumerics and `-`), so it is safe to interpolate.
+async fn kill_query(http: &Client, url: &str, user: &str, password: &SecretString, query_id: &str) {
+    for sql in [
+        format!("KILL QUERY ON CLUSTER '{{cluster}}' WHERE query_id = '{query_id}' ASYNC"),
+        format!("KILL QUERY WHERE query_id = '{query_id}' ASYNC"),
+    ] {
+        let mut endpoint = reqwest::Url::parse(url).expect("ClickHouse base URL is valid");
+        endpoint
+            .query_pairs_mut()
+            .append_pair("distributed_ddl_task_timeout", "0");
+        match http
+            .post(endpoint)
+            .basic_auth(user, Some(password.expose_secret()))
+            .body(sql)
+            .send()
+            .await
+        {
+            Ok(resp) if resp.status().is_success() => return,
+            Ok(resp) => {
+                debug!(query_id, status = %resp.status(), "KILL QUERY refused; trying the next form");
+            }
+            Err(error) => {
+                debug!(query_id, %error, "KILL QUERY request failed");
+                return;
+            }
+        }
+    }
+}
+
+/// Unique id for one SELECT. Tagged on the HTTP request so the query can be
+/// found in `system.processes` / `query_log` and killed with `KILL QUERY`.
+fn new_query_id() -> String {
+    use std::sync::atomic::{AtomicU64, Ordering};
+    static NEXT: AtomicU64 = AtomicU64::new(0);
+    let nanos = std::time::SystemTime::now()
+        .duration_since(std::time::UNIX_EPOCH)
+        .map_or(0, |d| d.as_nanos());
+    format!(
+        "qf-{:x}-{:x}-{:x}",
+        std::process::id(),
+        nanos,
+        NEXT.fetch_add(1, Ordering::Relaxed)
+    )
+}
+
+/// Endpoint for a read-only SELECT: carries the query id, and asks ClickHouse
+/// to cancel the query when the client closes the connection (the server keeps
+/// running a read-only HTTP query after a disconnect by default).
+fn select_url(base_url: &str, query_id: &str) -> String {
+    let mut url = reqwest::Url::parse(base_url).expect("ClickHouse base URL is valid");
+    url.query_pairs_mut()
+        .append_pair("query_id", query_id)
+        .append_pair("cancel_http_readonly_queries_on_client_close", "1");
+    url.to_string()
+}
+
 fn with_database(base_url: &str, database: &str) -> String {
     let mut url = reqwest::Url::parse(base_url).expect("ClickHouse base URL is valid");
     url.query_pairs_mut().append_pair("database", database);
@@ -552,7 +817,81 @@ fn panic_message(payload: &(dyn std::any::Any + Send)) -> std::borrow::Cow<'stat
 
 #[cfg(test)]
 mod tests {
-    use super::{redact_endpoint, render_table_identifier, sql_fingerprint, with_database};
+    use super::{
+        INSERT_SEND_ATTEMPTS, arrow_insert_prefix, is_retryable_http_send, redact_endpoint,
+        render_table_identifier, should_retry_insert_send, sql_fingerprint, with_database,
+    };
+
+    #[test]
+    fn select_url_is_killable_and_cancels_on_client_close() {
+        let a = super::new_query_id();
+        let b = super::new_query_id();
+        assert_ne!(a, b);
+        let url = reqwest::Url::parse(&super::select_url(
+            &with_database("http://localhost:8123", "syndb"),
+            &a,
+        ))
+        .unwrap();
+        let get = |key: &str| {
+            url.query_pairs()
+                .find(|(k, _)| k == key)
+                .map(|(_, v)| v.into_owned())
+        };
+        assert_eq!(get("database").as_deref(), Some("syndb"));
+        assert_eq!(get("query_id").as_deref(), Some(a.as_str()));
+        assert_eq!(
+            get("cancel_http_readonly_queries_on_client_close").as_deref(),
+            Some("1")
+        );
+        assert!(a.bytes().all(|b| b.is_ascii_alphanumeric() || b == b'-'));
+    }
+
+    /// A SELECT that never answers (a long scan) must be abandoned the moment
+    /// the receiver is dropped: the server sees the connection close.
+    #[tokio::test]
+    async fn dropping_the_stream_receiver_closes_the_connection_mid_query() {
+        use tokio::io::AsyncReadExt;
+        let listener = tokio::net::TcpListener::bind("127.0.0.1:0").await.unwrap();
+        let addr = listener.local_addr().unwrap();
+        let (seen_tx, seen_rx) = tokio::sync::oneshot::channel::<String>();
+        let (closed_tx, closed_rx) = tokio::sync::oneshot::channel::<()>();
+        tokio::spawn(async move {
+            let (mut sock, _) = listener.accept().await.unwrap();
+            let mut buf = vec![0u8; 8192];
+            let n = sock.read(&mut buf).await.unwrap();
+            let _ = seen_tx.send(String::from_utf8_lossy(&buf[..n]).into_owned());
+            // Never respond; wait for the client to hang up.
+            loop {
+                match sock.read(&mut buf).await {
+                    Ok(0) | Err(_) => break,
+                    Ok(_) => {}
+                }
+            }
+            let _ = closed_tx.send(());
+        });
+
+        let client = super::DynamicClient::from_config(&super::ClickHouseConfig {
+            host: "127.0.0.1".to_owned(),
+            port: addr.port(),
+            ..Default::default()
+        });
+        let rx = client.query_arrow_stream("SELECT sleep(3)");
+        let request = tokio::time::timeout(std::time::Duration::from_secs(5), seen_rx)
+            .await
+            .expect("request reaches the server")
+            .unwrap();
+        assert!(request.contains("query_id=qf-"), "{request}");
+        assert!(
+            request.contains("cancel_http_readonly_queries_on_client_close=1"),
+            "{request}"
+        );
+
+        drop(rx);
+        tokio::time::timeout(std::time::Duration::from_secs(5), closed_rx)
+            .await
+            .expect("dropping the receiver closes the HTTP connection")
+            .unwrap();
+    }
 
     #[test]
     fn select_endpoint_carries_database() {
@@ -603,5 +942,30 @@ mod tests {
         let fingerprint = sql_fingerprint("SELECT secret FROM private_table");
         assert_eq!(fingerprint.len(), 64);
         assert!(!fingerprint.contains("secret"));
+    }
+
+    #[test]
+    fn insert_send_retries_transport_failures_on_same_host() {
+        assert!(is_retryable_http_send(false, false, false));
+        assert!(!is_retryable_http_send(true, false, false));
+        assert!(!is_retryable_http_send(false, true, false));
+        assert!(!is_retryable_http_send(false, false, true));
+        assert!(should_retry_insert_send(0, true));
+        assert!(should_retry_insert_send(INSERT_SEND_ATTEMPTS - 2, true));
+        assert!(!should_retry_insert_send(INSERT_SEND_ATTEMPTS - 1, true));
+        assert!(!should_retry_insert_send(0, false));
+    }
+
+    #[test]
+    fn idempotent_arrow_insert_uses_validated_token() {
+        let prefix = arrow_insert_prefix("db.rows", Some("upload-id:7")).unwrap();
+        assert!(prefix.contains("insert_distributed_sync=1"));
+        assert!(prefix.contains("insert_deduplicate=1"));
+        assert!(prefix.contains("insert_deduplication_token='upload-id:7'"));
+        assert!(arrow_insert_prefix("db.rows", Some("bad'token")).is_err());
+        assert_eq!(
+            arrow_insert_prefix("db.rows", None).unwrap(),
+            "INSERT INTO db.rows FORMAT ArrowStream\n"
+        );
     }
 }
