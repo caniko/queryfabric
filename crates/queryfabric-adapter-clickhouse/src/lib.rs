@@ -370,6 +370,23 @@ mod tests {
             memory_estimate("SELECT record_id, score FROM records ORDER BY score LIMIT 1000"),
             limited
         );
+        // A bound `LIMIT :n` is the same bound as the literal.
+        let catalog = catalog();
+        let parsed = GenericSqlDialect
+            .parse("SELECT record_id, score FROM records LIMIT :n")
+            .expect("parse");
+        let mut parameters = QueryParameters::default();
+        parameters
+            .named
+            .insert("n".into(), queryfabric_ir::ParameterValue::Int64(1000));
+        let bound = bind_and_validate(&parsed, &catalog, &parameters).expect("bind");
+        assert_eq!(
+            ClickHouseAdapter
+                .estimate(&bound, &catalog)
+                .expect("estimate")
+                .memory_bytes,
+            limited
+        );
     }
 
     #[test]

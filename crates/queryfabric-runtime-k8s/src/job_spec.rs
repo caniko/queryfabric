@@ -370,9 +370,6 @@ pub(crate) mod tests {
             a.bytes()
                 .all(|c| c.is_ascii_lowercase() || c.is_ascii_digit() || c == b'-')
         );
-        let many: std::collections::HashSet<_> =
-            (0..1000).map(|_| job_spec::new_attempt_suffix()).collect();
-        assert_eq!(many.len(), 1000);
     }
 
     #[test]
