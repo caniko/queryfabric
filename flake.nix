@@ -6,7 +6,7 @@
     flake-parts.url = "github:hercules-ci/flake-parts";
     crane.url = "github:ipetkov/crane";
     plinth = {
-      url = "git+https://codeberg.org/caniko/plinth";
+      url = "git+https://github.com/caniko/plinth";
       inputs.nixpkgs.follows = "nixpkgs";
     };
     treefmt-nix = {
@@ -349,6 +349,7 @@
             cp -r public/. "$out/"
             mkdir -p "$out/docs"
             cp -r ${docs}/. "$out/docs/"
+            printf '%s\n' "queryfabric.tartanoglu.com" > "$out/.domains"
           '';
         };
       in {
