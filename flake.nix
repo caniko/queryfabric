@@ -349,6 +349,7 @@
             cp -r public/. "$out/"
             mkdir -p "$out/docs"
             cp -r ${docs}/. "$out/docs/"
+            printf '%s\n' queryfabric.tartanoglu.com > "$out/.domains"
           '';
         };
       in {
