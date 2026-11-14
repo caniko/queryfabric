@@ -1,4 +1,4 @@
-from queryfabric._queryfabric import (  # noqa: F401
+from queryfabric._queryfabric import (
     BackendAnalysis,
     BoundQuery,
     ColumnSchema,

@@ -33,7 +33,7 @@ pub mod swarm;
 pub use health::{HealthCache, HealthPing, HealthPong, is_delegatable};
 pub use health_monitor::{
     CheckAllClusters, CircuitConfig, CircuitPhase, CircuitState, GetHealth, HealthMonitorActor,
-    HealthMonitorArgs, ResetCircuitBreaker,
+    HealthMonitorArgs, RemoveCluster, ResetCircuitBreaker,
 };
 pub use messages::{
     CatalogAction, CatalogAnnouncement, CatalogRequest, CatalogResponse, EndpointReply, GetEndpoint,

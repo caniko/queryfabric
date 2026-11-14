@@ -13,7 +13,6 @@ import time
 from pathlib import Path
 from urllib.request import urlopen
 
-
 TARGET = "queryfabric/application"
 VISUAL_ROOT = Path("target/visual")
 STATIC_ROOT = Path("crates/queryfabric-demo/src")

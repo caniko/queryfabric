@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+### Fixed
+
+- `queryfabric-adapter-clickhouse::driver` — every SELECT now carries a `query_id`, and when the caller drops a `query_arrow`/`query_json` future or a `query_arrow_stream` receiver before the query finishes, the query is killed by id (`KILL QUERY ON CLUSTER '{cluster}'`, falling back to the node that answers). ClickHouse does not cancel a silent aggregate scan when its client disconnects, so a client that went away used to leave the scan running for minutes
+- `queryfabric-adapter-clickhouse::cost` — the memory estimate of a plain single-table read now honours `LIMIT`/`OFFSET` (floor of one block of rows), so a `LIMIT 1000` scan of a huge table no longer plans as Isolated
+- `queryfabric-runtime-k8s` — each isolated spawn gets its own Job name (query-hash prefix plus a unique suffix) and `spawn` deletes the Job when the worker cannot be reached, so a retry no longer fails with 409 `AlreadyExists` on the failed attempt's Job
+
 ### Added
 
 - CI workflows for `queryfabric-release` crate, PyPI publishing, and release orchestration
@@ -32,6 +38,10 @@
 
 ### Changed
 
+- `queryfabric-adapter-clickhouse` — new `decode_arrow_ipc` decodes a chunked Arrow IPC byte stream into record batches; `DynamicClient::query_arrow_stream` uses it, and `query_arrow` now collects that stream instead of buffering the whole response body
+- `queryfabric-job-queue` — **breaking:** `ResultContent.bytes: Vec<u8>` is now `body: axum::body::Body`, so implementations can stream large results; the unused buffered read path (`ResultStore::read`, `JobExecutor::result_content`) is removed
+- Simplify Nix flake and service-module expressions, align portability fixture
+  arguments with their callers, and normalize Python and shell tooling.
 - Upgrade OpenDAL dependencies to 0.58
 - Upgrade Apache Arrow, Arrow Flight, and Parquet dependencies to 59.1.0
 - CI: migrate all workflow runners from Codeberg shared runners to self-hosted `atlas` with Nix-based tooling
@@ -47,6 +57,9 @@
 
 ### Fixed
 
+- `lag` and `lead` now reject ClickHouse preparation with a named missing-mapping
+  diagnostic instead of emitting unsupported or semantically different SQL;
+  PostgreSQL support remains available.
 - `queryfabric-adapter-clickhouse::driver` — attach the configured `database` query parameter to every select endpoint
 - `queryfabric-adapter-clickhouse::driver` — replace 3 `.expect()` in retry loop with safe error propagation
 

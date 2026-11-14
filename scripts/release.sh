@@ -38,7 +38,7 @@ load_publish_plan() {
     cd "$ROOT_DIR"
     simit release plan --workspace --json | jq -er '.[] | select(.publish == true) | .name'
   )
-  [[ "${#CRATES[@]}" -gt 0 ]] || die "simit returned an empty publish plan"
+  [[ ${#CRATES[@]} -gt 0 ]] || die "simit returned an empty publish plan"
 }
 
 log() {
@@ -75,7 +75,7 @@ crate_index() {
   local target="$1"
   local i
   for i in "${!CRATES[@]}"; do
-    if [[ "${CRATES[$i]}" == "$target" ]]; then
+    if [[ ${CRATES[$i]} == "$target" ]]; then
       printf '%s\n' "$i"
       return 0
     fi
@@ -90,7 +90,7 @@ assert_known_crate() {
 
 require_version_arg() {
   local version="${1:-}"
-  [[ -n "$version" ]] || die "--version is required"
+  [[ -n $version ]] || die "--version is required"
 }
 
 print_publish_plan() {
@@ -109,23 +109,23 @@ run_plan() {
 
   while [[ $# -gt 0 ]]; do
     case "$1" in
-      --from)
-        [[ $# -ge 2 ]] || die "--from requires a crate name"
-        from="$2"
-        shift 2
-        ;;
-      -h|--help)
-        usage
-        exit 0
-        ;;
-      *)
-        die "unknown plan argument '$1'"
-        ;;
+    --from)
+      [[ $# -ge 2 ]] || die "--from requires a crate name"
+      from="$2"
+      shift 2
+      ;;
+    -h | --help)
+      usage
+      exit 0
+      ;;
+    *)
+      die "unknown plan argument '$1'"
+      ;;
     esac
   done
 
   load_publish_plan
-  if [[ -z "$from" ]]; then
+  if [[ -z $from ]]; then
     from="${CRATES[0]}"
   fi
   assert_known_crate "$from"
@@ -235,7 +235,7 @@ publish_step() {
   local manifest
   manifest="$(crate_manifest "$crate")"
 
-  if [[ "$execute" != "yes" ]]; then
+  if [[ $execute != "yes" ]]; then
     log "validating ${crate} ${version} with cargo publish --dry-run --allow-dirty"
     if ! cargo publish --manifest-path "$manifest" --dry-run --allow-dirty; then
       staged_failure_message "$crate" "$version" >&2
@@ -277,27 +277,27 @@ run_publish() {
 
   while [[ $# -gt 0 ]]; do
     case "$1" in
-      --version)
-        [[ $# -ge 2 ]] || die "--version requires a value"
-        version="$2"
-        shift 2
-        ;;
-      --from)
-        [[ $# -ge 2 ]] || die "--from requires a crate name"
-        from="$2"
-        shift 2
-        ;;
-      --execute)
-        execute="yes"
-        shift
-        ;;
-      -h|--help)
-        usage
-        exit 0
-        ;;
-      *)
-        die "unknown publish argument '$1'"
-        ;;
+    --version)
+      [[ $# -ge 2 ]] || die "--version requires a value"
+      version="$2"
+      shift 2
+      ;;
+    --from)
+      [[ $# -ge 2 ]] || die "--from requires a crate name"
+      from="$2"
+      shift 2
+      ;;
+    --execute)
+      execute="yes"
+      shift
+      ;;
+    -h | --help)
+      usage
+      exit 0
+      ;;
+    *)
+      die "unknown publish argument '$1'"
+      ;;
     esac
   done
 
@@ -310,7 +310,7 @@ run_publish() {
   start="$(crate_index "$from")"
   local i
 
-  if [[ "$execute" != "yes" ]]; then
+  if [[ $execute != "yes" ]]; then
     publish_step "${CRATES[$start]}" "$version" "$execute"
     return 0
   fi
@@ -322,28 +322,28 @@ run_publish() {
 
 main() {
   local command="${1:-}"
-  [[ -n "$command" ]] || {
+  [[ -n $command ]] || {
     usage
     exit 1
   }
   shift || true
 
   case "$command" in
-    check)
-      run_check "$@"
-      ;;
-    plan)
-      run_plan "$@"
-      ;;
-    publish)
-      run_publish "$@"
-      ;;
-    -h|--help|help)
-      usage
-      ;;
-    *)
-      die "unknown command '$command'"
-      ;;
+  check)
+    run_check "$@"
+    ;;
+  plan)
+    run_plan "$@"
+    ;;
+  publish)
+    run_publish "$@"
+    ;;
+  -h | --help | help)
+    usage
+    ;;
+  *)
+    die "unknown command '$command'"
+    ;;
   esac
 }
 

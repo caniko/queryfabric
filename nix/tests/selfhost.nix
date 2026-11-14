@@ -9,84 +9,82 @@
 pkgs.testers.runNixOSTest {
   name = "queryfabric-selfhost";
 
-  nodes.machine =
-    { lib, ... }:
-    {
-      imports = [ nixosModule ];
+  nodes.machine = {lib, ...}: {
+    imports = [nixosModule];
 
-      virtualisation.memorySize = 2048;
-      virtualisation.cores = 2;
+    virtualisation.memorySize = 2048;
+    virtualisation.cores = 2;
 
-      services.postgresql = {
-        enable = true;
-        enableTCPIP = true;
-      };
-
-      virtualisation.diskSize = 4096;
-
-      services.garage = {
-        enable = true;
-        package = pkgs.garage_2;
-        settings = {
-          rpc_bind_addr = "127.0.0.1:3901";
-          rpc_public_addr = "127.0.0.1:3901";
-          rpc_secret = "5c1915fa04d0b6739675c61bf5907eb0fe3d9c69850c83820f51b4d25d13868c";
-          replication_factor = 1;
-          consistency_mode = "consistent";
-          s3_api = {
-            s3_region = "us-east-1";
-            api_bind_addr = "127.0.0.1:9000";
-            root_domain = ".s3.garage";
-          };
-        };
-      };
-
-      services.queryfabric.instances.alpha = {
-        listenAddress = "127.0.0.1";
-        port = 8780;
-        database.urlFile = "/root/qfalpha-db-url";
-        auth.secretFile = "/root/qfalpha-auth-secret";
-        store = {
-          backend = "s3";
-          endpoint = "http://127.0.0.1:9000";
-          bucket = "queryfabric-alpha";
-          credentialsFile = "/root/qfalpha-store-creds";
-        };
-        federation = {
-          enable = true;
-          nodeName = "queryfabric-alpha";
-          flightPort = 50051;
-        };
-      };
-
-      services.queryfabric.instances.beta = {
-        listenAddress = "127.0.0.1";
-        port = 8781;
-        database.urlFile = "/root/qfbeta-db-url";
-        auth.secretFile = "/root/qfbeta-auth-secret";
-        store = {
-          backend = "s3";
-          endpoint = "http://127.0.0.1:9000";
-          bucket = "queryfabric-beta";
-          credentialsFile = "/root/qfbeta-store-creds";
-        };
-        federation = {
-          enable = true;
-          nodeName = "queryfabric-beta";
-          flightPort = 50052;
-        };
-      };
-
-      # Secrets are written by the test script after boot; do not start the
-      # services before they exist.
-      systemd.services.queryfabric-alpha.wantedBy = lib.mkForce [ ];
-      systemd.services.queryfabric-beta.wantedBy = lib.mkForce [ ];
-
-      environment.systemPackages = [
-        pkgs.curl
-        pkgs.minio-client
-      ];
+    services.postgresql = {
+      enable = true;
+      enableTCPIP = true;
     };
+
+    virtualisation.diskSize = 4096;
+
+    services.garage = {
+      enable = true;
+      package = pkgs.garage_2;
+      settings = {
+        rpc_bind_addr = "127.0.0.1:3901";
+        rpc_public_addr = "127.0.0.1:3901";
+        rpc_secret = "5c1915fa04d0b6739675c61bf5907eb0fe3d9c69850c83820f51b4d25d13868c";
+        replication_factor = 1;
+        consistency_mode = "consistent";
+        s3_api = {
+          s3_region = "us-east-1";
+          api_bind_addr = "127.0.0.1:9000";
+          root_domain = ".s3.garage";
+        };
+      };
+    };
+
+    services.queryfabric.instances.alpha = {
+      listenAddress = "127.0.0.1";
+      port = 8780;
+      database.urlFile = "/root/qfalpha-db-url";
+      auth.secretFile = "/root/qfalpha-auth-secret";
+      store = {
+        backend = "s3";
+        endpoint = "http://127.0.0.1:9000";
+        bucket = "queryfabric-alpha";
+        credentialsFile = "/root/qfalpha-store-creds";
+      };
+      federation = {
+        enable = true;
+        nodeName = "queryfabric-alpha";
+        flightPort = 50051;
+      };
+    };
+
+    services.queryfabric.instances.beta = {
+      listenAddress = "127.0.0.1";
+      port = 8781;
+      database.urlFile = "/root/qfbeta-db-url";
+      auth.secretFile = "/root/qfbeta-auth-secret";
+      store = {
+        backend = "s3";
+        endpoint = "http://127.0.0.1:9000";
+        bucket = "queryfabric-beta";
+        credentialsFile = "/root/qfbeta-store-creds";
+      };
+      federation = {
+        enable = true;
+        nodeName = "queryfabric-beta";
+        flightPort = 50052;
+      };
+    };
+
+    # Secrets are written by the test script after boot; do not start the
+    # services before they exist.
+    systemd.services.queryfabric-alpha.wantedBy = lib.mkForce [];
+    systemd.services.queryfabric-beta.wantedBy = lib.mkForce [];
+
+    environment.systemPackages = [
+      pkgs.curl
+      pkgs.minio-client
+    ];
+  };
 
   testScript = ''
     import json

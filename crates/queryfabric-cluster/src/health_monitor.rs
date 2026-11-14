@@ -37,6 +37,10 @@ pub struct GetHealth<C = NodeId>(pub C);
 #[derive(Debug, Clone)]
 pub struct ResetCircuitBreaker<C = NodeId>(pub C);
 
+/// Remove a cluster from monitoring, routing, and cached health state.
+#[derive(Debug, Clone)]
+pub struct RemoveCluster<C = NodeId>(pub C);
+
 /// Circuit breaker tuning.
 #[derive(Debug, Clone, Copy)]
 pub struct CircuitConfig {
@@ -401,6 +405,26 @@ where
         }
         let guard = self.health_cache.guard();
         self.health_cache.remove(&msg.0, &guard);
+    }
+}
+
+impl<C, P> Message<RemoveCluster<C>> for HealthMonitorActor<C, P>
+where
+    C: Clone + Eq + Hash + Send + Sync + 'static,
+    P: ClusterProbe<C, ClusterRemoteHandle<C>>,
+{
+    type Reply = ();
+
+    async fn handle(
+        &mut self,
+        msg: RemoveCluster<C>,
+        _ctx: &mut Context<Self, Self::Reply>,
+    ) -> Self::Reply {
+        let refs_guard = self.cluster_refs.guard();
+        self.cluster_refs.remove(&msg.0, &refs_guard);
+        let health_guard = self.health_cache.guard();
+        self.health_cache.remove(&msg.0, &health_guard);
+        self.circuits.remove(&msg.0);
     }
 }
 
