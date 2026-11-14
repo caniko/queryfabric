@@ -205,4 +205,37 @@ mod tests {
             "a stream that ends mid-message must not look like an empty result"
         );
     }
+
+    #[tokio::test]
+    async fn a_stream_truncated_after_its_schema_is_an_error_not_an_empty_result() {
+        let (schema, batches) = test_batches();
+        // The schema-only encoding is the schema message plus an 8-byte
+        // end-of-stream marker, so this cut lands inside the first batch.
+        let schema_len = encode(&schema, &[]).len() - 8;
+        let bytes = encode(&schema, &batches);
+        let chunks = chunked(&bytes[..schema_len + 10], 7);
+
+        let decoded: Vec<Result<RecordBatch, ArrowError>> =
+            decode_arrow_ipc(stream::iter(chunks)).collect().await;
+
+        assert!(decoded.iter().any(std::result::Result::is_err));
+        assert!(
+            decoded.iter().all(std::result::Result::is_err),
+            "no schema-bearing empty batch may be synthesized before the error"
+        );
+    }
+
+    #[tokio::test]
+    async fn a_real_zero_row_batch_is_not_duplicated() {
+        let (schema, _) = test_batches();
+        let empty = RecordBatch::new_empty(schema.clone());
+        let chunks = chunked(&encode(&schema, std::slice::from_ref(&empty)), 7);
+
+        let decoded: Vec<RecordBatch> = decode_arrow_ipc(stream::iter(chunks))
+            .try_collect()
+            .await
+            .expect("decode");
+
+        assert_eq!(decoded, vec![empty]);
+    }
 }
