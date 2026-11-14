@@ -233,15 +233,6 @@ mod tests {
             Ok(())
         }
 
-        async fn read(&self, path: &str) -> Result<Vec<u8>, JobQueueError> {
-            self.objects
-                .lock()
-                .await
-                .get(path)
-                .cloned()
-                .ok_or_else(|| JobQueueError::new(QueueErrorKind::ResultMissing, path.to_owned()))
-        }
-
         async fn delete(&self, path: &str) -> Result<(), JobQueueError> {
             self.objects.lock().await.remove(path);
             self.deleted.lock().await.push(path.to_owned());
@@ -275,19 +266,6 @@ mod tests {
             let path = format!("results/{}.json", job.id);
             result_store.write(&path, b"ok".to_vec()).await?;
             Ok(JobExecutionResult::completed(Some(path), Some(1), Some(2)))
-        }
-
-        async fn result_content(
-            &self,
-            job: Record,
-            result_store: &FakeResultStore,
-        ) -> Result<ResultContent, JobQueueError> {
-            let path = format!("results/{}.json", job.id);
-            Ok(ResultContent {
-                bytes: result_store.read(&path).await?,
-                content_type: "application/json".to_owned(),
-                filename: format!("{}.json", job.id),
-            })
         }
     }
 

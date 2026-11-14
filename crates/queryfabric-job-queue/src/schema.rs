@@ -157,11 +157,12 @@ pub struct ListJobsResponse<T = JobStatusResponse> {
     pub total: u64,
 }
 
-/// Downloadable result bytes plus HTTP metadata.
-#[derive(Debug, Clone)]
+/// Downloadable result body plus HTTP metadata.
+#[derive(Debug)]
 pub struct ResultContent {
-    /// Raw result bytes.
-    pub bytes: Vec<u8>,
+    /// Result body. Stream large results (`Body::from_stream`) instead of
+    /// reading them into memory.
+    pub body: axum::body::Body,
     /// HTTP content type for the bytes.
     pub content_type: String,
     /// Suggested download filename.

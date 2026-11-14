@@ -2,7 +2,6 @@
 
 use async_trait::async_trait;
 use axum::Json;
-use axum::body::Body;
 use axum::extract::{FromRequestParts, Path, Query, State};
 use axum::http::StatusCode;
 use axum::response::{IntoResponse, Response};
@@ -57,7 +56,7 @@ pub trait JobApi<StateT>: Clone + Send + Sync + 'static {
         context: Self::Context,
         job_id: Uuid,
     ) -> Result<JobResultManifest, JobQueueError>;
-    /// Return downloadable result bytes for one job id.
+    /// Return the downloadable result body for one job id.
     async fn result(
         state: StateT,
         context: Self::Context,
@@ -167,7 +166,7 @@ where
             "content-disposition",
             format!("attachment; filename=\"{}\"", content.filename),
         )
-        .body(Body::from(content.bytes))
+        .body(content.body)
         .map_err(|e| JobQueueError::internal(format!("failed to build result response: {e}")))
 }
 

@@ -1,13 +1,10 @@
 use std::borrow::Cow;
-use std::io::Cursor;
 use std::sync::Arc;
 
 use arrow::array::Array;
-use arrow::buffer::Buffer;
 use arrow::compute::cast;
 use arrow::datatypes::{DataType, Field, Schema};
 use arrow::record_batch::RecordBatch;
-use arrow_ipc::reader::{StreamDecoder, StreamReader};
 use arrow_ipc::writer::StreamWriter;
 use futures::StreamExt;
 use reqwest::{Client, Response};
@@ -361,68 +358,12 @@ impl DynamicClient {
     }
 
     pub async fn query_arrow(&self, sql: &str) -> Result<Vec<RecordBatch>> {
-        let query_id = new_query_id();
-        let guard = self.kill_on_drop(&query_id);
-        let result = self.query_arrow_inner(sql, &query_id).await;
-        guard.disarm();
-        result
-    }
-
-    async fn query_arrow_inner(&self, sql: &str, query_id: &str) -> Result<Vec<RecordBatch>> {
-        let full_sql = format!("{sql} FORMAT ArrowStream");
-        debug!(sql_hash = %sql_fingerprint(sql), sql_bytes = sql.len(), "DynamicClient SELECT Arrow");
-        let urls = self.select_base_urls();
-        let mut last_error = None;
-        let mut resp = None;
-        for (index, base_url) in urls.iter().enumerate() {
-            match Self::send_select_to(
-                &self.http,
-                base_url,
-                &self.user,
-                &self.password,
-                full_sql.clone(),
-                query_id,
-            )
-            .await
-            {
-                Ok(response) => {
-                    resp = Some(response);
-                    break;
-                }
-                Err(error) if select_send_error_is_retryable(&error) && index + 1 < urls.len() => {
-                    tracing::warn!(error = %error, failed_clickhouse_url = %redact_endpoint(base_url), next_clickhouse_url = %redact_endpoint(&urls[index + 1]), "retrying fallback host");
-                    last_error = Some(error);
-                }
-                Err(error) => return Err(ClickHouseError::Http(error)),
-            }
+        // Dropping the receiver early kills the query, as for the stream.
+        let mut rx = self.query_arrow_stream(sql);
+        let mut batches = Vec::new();
+        while let Some(batch) = rx.recv().await {
+            batches.push(batch?);
         }
-        let resp = match resp {
-            Some(resp) => resp,
-            None => {
-                let error = last_error.map_or_else(
-                    || {
-                        ClickHouseError::Other(
-                            "all ClickHouse URLs exhausted with retryable errors".into(),
-                        )
-                    },
-                    ClickHouseError::Http,
-                );
-                return Err(error);
-            }
-        };
-        let resp = check_response(resp, "Arrow query failed").await?;
-        let bytes = resp.bytes().await?;
-        if bytes.is_empty() {
-            return Ok(Vec::new());
-        }
-        let cursor = Cursor::new(bytes);
-        let reader = StreamReader::try_new(cursor, None)?;
-        let batches: std::result::Result<Vec<_>, _> = reader.collect();
-        let batches = batches?;
-        debug!(
-            batch_count = batches.len(),
-            "DynamicClient SELECT Arrow complete"
-        );
         Ok(batches)
     }
 
@@ -493,37 +434,17 @@ impl DynamicClient {
                     return;
                 }
             };
-            let mut decoder = StreamDecoder::new();
-            let mut byte_stream = resp.bytes_stream();
-            while let Some(chunk_result) = byte_stream.next().await {
-                let chunk = match chunk_result {
-                    Ok(bytes) => bytes,
-                    Err(e) => {
-                        let _ = tx.send(Err(ClickHouseError::Http(e))).await;
-                        return;
-                    }
-                };
-                let mut buf = Buffer::from(chunk);
-                while !buf.is_empty() {
-                    match decoder.decode(&mut buf) {
-                        Ok(Some(batch)) => {
-                            if tx.send(Ok(batch)).await.is_err() {
-                                return;
-                            }
-                        }
-                        Ok(None) => {}
-                        Err(e) => {
-                            let _ = tx.send(Err(ClickHouseError::Arrow(e))).await;
-                            return;
-                        }
-                    }
+            let mut batches = std::pin::pin!(crate::decode_arrow_ipc(
+                resp.bytes_stream()
+                    .map(|chunk| chunk.map_err(ClickHouseError::Http)),
+            ));
+            while let Some(batch) = batches.next().await {
+                let failed = batch.is_err();
+                if tx.send(batch).await.is_err() || failed {
+                    return;
                 }
             }
-            if let Err(e) = decoder.finish() {
-                let _ = tx.send(Err(ClickHouseError::Arrow(e))).await;
-            } else {
-                debug!("DynamicClient SELECT Arrow streaming complete");
-            }
+            debug!("DynamicClient SELECT Arrow streaming complete");
         };
 
         // The task only notices a dropped receiver when it next sends a batch,

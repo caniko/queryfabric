@@ -5,7 +5,7 @@ use tokio_util::sync::CancellationToken;
 use uuid::Uuid;
 
 use crate::error::JobQueueError;
-use crate::schema::{JobPriority, JobRecord, JobResultManifest, JobStatus, ResultContent};
+use crate::schema::{JobPriority, JobRecord, JobResultManifest, JobStatus};
 use crate::storage::ExpiredJob;
 
 /// Result reported by an executor after running a job.
@@ -98,8 +98,6 @@ where
 pub trait ResultStore: Clone + Send + Sync + 'static {
     /// Write result bytes to `path`.
     async fn write(&self, path: &str, bytes: Vec<u8>) -> Result<(), JobQueueError>;
-    /// Read result bytes from `path`.
-    async fn read(&self, path: &str) -> Result<Vec<u8>, JobQueueError>;
     /// Delete result bytes at `path`.
     async fn delete(&self, path: &str) -> Result<(), JobQueueError>;
 }
@@ -120,11 +118,4 @@ where
         result_store: &R,
         cancel_token: &CancellationToken,
     ) -> Result<JobExecutionResult, JobQueueError>;
-
-    /// Produce downloadable result bytes and metadata for a finished job.
-    async fn result_content(
-        &self,
-        job: JobRecord<K, P, U>,
-        result_store: &R,
-    ) -> Result<ResultContent, JobQueueError>;
 }
