@@ -13,11 +13,13 @@ use rewrite::rewrite_query_for_clickhouse;
 
 pub mod arrow;
 pub mod driver;
+mod ipc_stream;
 mod runtime;
 pub mod types;
 
 pub use arrow::{clickhouse_arrow_safe_artifact_sql, clickhouse_arrow_safe_sql};
 pub use driver::{ClickHouseConfig, ClickHouseError, DynamicClient, downcast_view_types};
+pub use ipc_stream::decode_arrow_ipc;
 pub use runtime::{ClickHouseArrowTransport, ClickHouseRuntime};
 pub use types::{ChType, SimpleColumnType};
 

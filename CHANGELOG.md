@@ -38,6 +38,7 @@
 
 ### Changed
 
+- `queryfabric-adapter-clickhouse` — new `decode_arrow_ipc` decodes a chunked Arrow IPC byte stream into record batches; `DynamicClient::query_arrow_stream` uses it, and `query_arrow` now collects that stream instead of buffering the whole response body
 - Simplify Nix flake and service-module expressions, align portability fixture
   arguments with their callers, and normalize Python and shell tooling.
 - Upgrade OpenDAL dependencies to 0.58
