@@ -39,6 +39,7 @@
 ### Changed
 
 - `queryfabric-adapter-clickhouse` — new `decode_arrow_ipc` decodes a chunked Arrow IPC byte stream into record batches; `DynamicClient::query_arrow_stream` uses it, and `query_arrow` now collects that stream instead of buffering the whole response body
+- `queryfabric-job-queue` — **breaking:** `ResultContent.bytes: Vec<u8>` is now `body: axum::body::Body`, so implementations can stream large results; the unused buffered read path (`ResultStore::read`, `JobExecutor::result_content`) is removed
 - Simplify Nix flake and service-module expressions, align portability fixture
   arguments with their callers, and normalize Python and shell tooling.
 - Upgrade OpenDAL dependencies to 0.58
