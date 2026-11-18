@@ -22,7 +22,7 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
     harbor-rs = {
-      url = "git+https://github.com/caniko/harbor-rs.git?ref=trunk&rev=606d6a6af370b5d5d18ad325975c270ac24f55d1";
+      url = "git+https://github.com/caniko/harbor-rs.git?ref=trunk&rev=ed89d0b13fc61dd1b2217bf4bba97f32cec27ba7";
       inputs.nixpkgs.follows = "nixpkgs";
       inputs.crane.follows = "crane";
       inputs.rust-overlay.follows = "rust-overlay";
@@ -80,6 +80,7 @@
             cacheRoot = null;
             namespaceScope = "canix-rust";
             namespaceGeneration = 5;
+            ephemeralFallback = true; # Hosted CI runners have no managed sccache transport.
           };
           cacheRust = package: buildCache.withRustCache { inherit package; };
           cross = harbor-rs.lib.mkCross {
