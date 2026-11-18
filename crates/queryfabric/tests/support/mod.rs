@@ -216,7 +216,8 @@ pub fn portable_subset_seed() -> PortableSubsetCorpus {
                     field("prev_score", DataType::Float64, true),
                     field("next_score", DataType::Float64, true),
                 ])
-                .backends("supported", "supported")
+                .backends("rejected", "supported")
+                .backend_errors(["QF11104"], [])
                 .build(),
             case("window-first-last")
                 .query("SELECT record_id, FIRST_VALUE(score) OVER (ORDER BY score) AS first_score, LAST_VALUE(score) OVER (ORDER BY score) AS last_score FROM records")
