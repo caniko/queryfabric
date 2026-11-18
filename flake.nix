@@ -61,7 +61,7 @@
       ];
 
       perSystem =
-        { system, ... }:
+        { config, system, ... }:
         let
           pkgs = import nixpkgs {
             inherit system;
@@ -443,6 +443,9 @@
               echo "Documentation: cd docs && mdbook serve"
             '';
           };
+
+          # simit's generated `cargo doc` steps run in `nix develop .#docs`.
+          devShells.docs = config.devShells.default;
 
           apps = {
             deploy-pages = plinth.lib.${system}.mkDeployPagesApp {
