@@ -111,6 +111,9 @@ impl ObjectStore {
     /// A store over any S3-compatible backend.
     #[cfg(feature = "s3")]
     pub fn s3(config: S3Config) -> Result<Self, StoreError> {
+        // OpenDAL 0.58 sends HTTP only through an installed transporter; without
+        // `auto-register-services` nothing installs one. First install wins.
+        opendal::install_default();
         let mut builder = opendal::services::S3::default()
             .bucket(&config.bucket)
             .access_key_id(&config.access_key_id)
