@@ -420,6 +420,7 @@
           packages =
             [
               pkgs.cargo-fuzz
+              pkgs.cargo-nextest
               pkgs.maturin
               pkgs.mdbook
               plinthProject
