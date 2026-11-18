@@ -9,8 +9,8 @@
 pkgs.testers.runNixOSTest {
   name = "queryfabric-selfhost";
 
-  nodes.machine = {lib, ...}: {
-    imports = [nixosModule];
+  nodes.machine = { lib, ... }: {
+    imports = [ nixosModule ];
 
     virtualisation.memorySize = 2048;
     virtualisation.cores = 2;
@@ -77,8 +77,8 @@ pkgs.testers.runNixOSTest {
 
     # Secrets are written by the test script after boot; do not start the
     # services before they exist.
-    systemd.services.queryfabric-alpha.wantedBy = lib.mkForce [];
-    systemd.services.queryfabric-beta.wantedBy = lib.mkForce [];
+    systemd.services.queryfabric-alpha.wantedBy = lib.mkForce [ ];
+    systemd.services.queryfabric-beta.wantedBy = lib.mkForce [ ];
 
     environment.systemPackages = [
       pkgs.curl

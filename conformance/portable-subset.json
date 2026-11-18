@@ -472,8 +472,13 @@
         }
       ],
       "expected_backends": {
-        "clickhouse": "supported",
+        "clickhouse": "rejected",
         "postgres": "supported"
+      },
+      "expected_backend_error_codes": {
+        "clickhouse": [
+          "QF11104"
+        ]
       }
     },
     {

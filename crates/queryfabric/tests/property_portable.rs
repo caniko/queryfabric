@@ -573,9 +573,31 @@ fn verify_case(case: PortableCase) {
     let backends: [(&str, &dyn BackendAdapter); 2] =
         [("clickhouse", &clickhouse), ("postgres", &postgres)];
 
+    // ClickHouse has no `lag`/`lead` mapping (see queryfabric-catalog builtins):
+    // both front ends must be rejected the same way there.
+    let postgres_only = matches!(
+        case,
+        PortableCase::Window {
+            kind: WindowKind::Lag | WindowKind::Lead,
+            ..
+        }
+    );
+
     for (backend_name, adapter) in backends {
         let sql_analysis = compiler.analyze(&sql_bound, adapter, &catalog);
         let syql_analysis = compiler.analyze(&syql_bound, adapter, &catalog);
+        if postgres_only && backend_name == "clickhouse" {
+            assert!(
+                !sql_analysis.supported,
+                "sql should be rejected on {backend_name}"
+            );
+            assert!(
+                !syql_analysis.supported,
+                "syql should be rejected on {backend_name}"
+            );
+            assert_eq!(sql_analysis.diagnostics, syql_analysis.diagnostics);
+            continue;
+        }
         assert!(
             sql_analysis.supported,
             "sql should be supported on {backend_name}"

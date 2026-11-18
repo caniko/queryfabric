@@ -2,7 +2,8 @@
   pkgs,
   treefmtWrapper,
   rustToolchain ? null,
-}: {
+}:
+{
   treefmt = {
     enable = true;
     name = "treefmt";
@@ -30,7 +31,7 @@
     enable = true;
     name = "cargo check MSRV";
     entry = "${pkgs.rust-bin.stable."1.94.0".default}/bin/cargo check --workspace --all-features";
-    extraPackages = [pkgs.rust-bin.stable."1.94.0".default];
+    extraPackages = [ pkgs.rust-bin.stable."1.94.0".default ];
     pass_filenames = false;
     stages = [
       "pre-push"
@@ -42,7 +43,7 @@
     enable = true;
     name = "cargo audit";
     entry = "cargo audit";
-    extraPackages = pkgs.lib.optional (rustToolchain != null) rustToolchain ++ [pkgs.cargo-audit];
+    extraPackages = pkgs.lib.optional (rustToolchain != null) rustToolchain ++ [ pkgs.cargo-audit ];
     pass_filenames = false;
   };
 
@@ -50,7 +51,7 @@
     enable = true;
     name = "cargo deny";
     entry = "cargo deny check bans licenses sources";
-    extraPackages = pkgs.lib.optional (rustToolchain != null) rustToolchain ++ [pkgs.cargo-deny];
+    extraPackages = pkgs.lib.optional (rustToolchain != null) rustToolchain ++ [ pkgs.cargo-deny ];
     pass_filenames = false;
   };
 
@@ -58,8 +59,8 @@
     enable = true;
     name = "nix flake check";
     entry = "nix --extra-experimental-features 'nix-command flakes' flake check --cores 0 --max-jobs auto --no-update-lock-file";
-    extraPackages = [pkgs.nix];
+    extraPackages = [ pkgs.nix ];
     pass_filenames = false;
-    stages = ["manual"];
+    stages = [ "manual" ];
   };
 }
