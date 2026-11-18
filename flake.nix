@@ -417,6 +417,8 @@
             enableWindowsEnv = false;
             enableOsxcrossEnv = false;
             pkgConfigDeps = [ pkgs.openssl ];
+            # Per-crate CI runs nextest on trait-only crates with no tests.
+            extraEnv.NEXTEST_NO_TESTS = "warn";
             packages = [
               pkgs.cargo-fuzz
               pkgs.cargo-nextest
