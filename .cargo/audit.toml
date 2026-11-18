@@ -11,9 +11,10 @@ ignore = [
   "RUSTSEC-2026-0119",
   "RUSTSEC-2026-0194",
   "RUSTSEC-2026-0195",
-  # hickory-proto/hickory-resolver 0.25.2, same pin: piying 0.1.1 ->
-  # libp2p 0.56 -> libp2p-mdns 0.48. The fixes are in hickory 0.26.2 or
-  # not yet released; remove once piying moves to libp2p >= 0.57.
+  # hickory 0.25.2 through the workspace's piying ^0.1.1 -> libp2p 0.56:
+  # libp2p-mdns 0.48 builds hickory-proto; libp2p-dns locks hickory-resolver
+  # (lockfile only). Fixes need hickory 0.26.2 or are unreleased. Remove when
+  # the workspace moves to piying 0.2 (libp2p 0.57).
   "RUSTSEC-2026-0487",
   "RUSTSEC-2026-0489",
   "RUSTSEC-2026-0490",
@@ -33,7 +34,4 @@ ignore = [
   # workspace enables only rmcp's `server` and `transport-io` features.
   # Remove on the rmcp >= 3.9 migration.
   "RUSTSEC-2026-0462",
-  # libsqlite3-sys 0.30.1 is locked through sqlx-sqlite but never built
-  # (no workspace feature enables sqlx's sqlite backend).
-  "RUSTSEC-2026-0459",
 ]
