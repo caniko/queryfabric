@@ -23,6 +23,7 @@ queryfabric-paseto = { workspace = true }
 queryfabric-provenance = { workspace = true }
 queryfabric-store = { workspace = true, features = ["memory", "s3"] }
 queryfabric-tenancy = { workspace = true }
+rustls = { workspace = true }
 serde = { workspace = true }
 serde_json = { workspace = true }
 thiserror = { workspace = true }

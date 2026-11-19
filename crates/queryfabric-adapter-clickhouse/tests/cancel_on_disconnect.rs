@@ -40,6 +40,7 @@ async fn dropped_stream_cancels_the_server_side_query() {
         eprintln!("skipping: QF_TEST_CLICKHOUSE_HOST is not set");
         return;
     };
+    let _ = rustls::crypto::ring::default_provider().install_default();
     let client = DynamicClient::from_config(&ClickHouseConfig {
         host,
         port: env("QF_TEST_CLICKHOUSE_PORT").map_or(8123, |p| p.parse().unwrap()),

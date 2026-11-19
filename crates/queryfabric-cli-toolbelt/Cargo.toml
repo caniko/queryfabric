@@ -22,7 +22,7 @@ polars = { version = "0.53", default-features = false, features = ["parquet", "l
 reqwest = { version = "0.13", default-features = false, features = [
   "json",
   "stream",
-  "rustls",
+  "rustls-no-provider",
 ] }
 serde = { workspace = true, features = ["derive"] }
 thiserror = { workspace = true }
@@ -36,7 +36,10 @@ tracing-subscriber = { version = "0.3", default-features = false, features = [
 ] }
 
 [features]
-default = []
+default = ["fancy"]
+# Graphical miette report rendering for CLIs returning `miette::Result`.
+# Libraries and services can opt out with `default-features = false`.
+fancy = ["miette/fancy"]
 flight = ["dep:arrow", "dep:arrow-flight", "dep:futures", "dep:parquet", "dep:tokio", "dep:tonic"]
 polars = ["dep:polars"]
 
@@ -45,4 +48,5 @@ normal = ["thiserror"]
 development = ["tempfile"]
 
 [dev-dependencies]
+rustls = { workspace = true }
 tempfile = "3"

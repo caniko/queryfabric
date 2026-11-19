@@ -772,6 +772,7 @@ mod tests {
     #[tokio::test]
     async fn dropping_the_stream_receiver_closes_the_connection_mid_query() {
         use tokio::io::AsyncReadExt;
+        let _ = rustls::crypto::ring::default_provider().install_default();
         let listener = tokio::net::TcpListener::bind("127.0.0.1:0").await.unwrap();
         let addr = listener.local_addr().unwrap();
         let (seen_tx, seen_rx) = tokio::sync::oneshot::channel::<String>();

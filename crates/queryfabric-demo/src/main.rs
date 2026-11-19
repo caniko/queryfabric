@@ -103,6 +103,10 @@ async fn shutdown_signal() {
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    // reqwest (S3 store, ClickHouse) is built without a bundled crypto provider.
+    rustls::crypto::ring::default_provider()
+        .install_default()
+        .map_err(|_| "a rustls crypto provider was already installed")?;
     tracing_subscriber::fmt()
         .with_env_filter(
             EnvFilter::try_from_default_env().unwrap_or_else(|_| EnvFilter::new("info")),

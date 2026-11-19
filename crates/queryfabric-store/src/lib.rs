@@ -109,11 +109,15 @@ impl ObjectStore {
     }
 
     /// A store over any S3-compatible backend.
+    ///
+    /// The HTTP transport uses rustls without a bundled crypto provider, so the
+    /// process must install one before the first request, e.g.
+    /// `rustls::crypto::ring::default_provider().install_default()`.
     #[cfg(feature = "s3")]
     pub fn s3(config: S3Config) -> Result<Self, StoreError> {
         // OpenDAL 0.58 sends HTTP only through an installed transporter; without
         // `auto-register-services` nothing installs one. First install wins.
-        opendal::install_default();
+        opendal_http_transport_reqwest::install_default();
         let mut builder = opendal::services::S3::default()
             .bucket(&config.bucket)
             .access_key_id(&config.access_key_id)
@@ -315,5 +319,52 @@ mod tests {
             StoreError::Backend { path, .. } => assert_eq!(path, "absent/object"),
             other => panic!("expected Backend error, got {other:?}"),
         }
+    }
+}
+
+#[cfg(all(test, feature = "s3"))]
+mod s3_tests {
+    use super::*;
+    use tokio::io::{AsyncReadExt, AsyncWriteExt};
+
+    /// One real HTTP round trip through the installed OpenDAL transport: a
+    /// missing transporter or crypto provider fails here, not in production.
+    #[tokio::test]
+    async fn s3_get_reaches_http_endpoint() {
+        let _ = rustls::crypto::ring::default_provider().install_default();
+        let listener = tokio::net::TcpListener::bind("127.0.0.1:0")
+            .await
+            .expect("bind");
+        let endpoint = format!("http://{}", listener.local_addr().expect("addr"));
+        let server = tokio::spawn(async move {
+            let (mut conn, _) = listener.accept().await.expect("accept");
+            let mut request = Vec::new();
+            let mut buf = [0u8; 4096];
+            while !request.windows(4).any(|w| w == b"\r\n\r\n") {
+                let n = conn.read(&mut buf).await.expect("read");
+                assert!(n > 0, "client closed before sending headers");
+                request.extend_from_slice(&buf[..n]);
+            }
+            conn.write_all(b"HTTP/1.1 200 OK\r\ncontent-length: 5\r\n\r\nhello")
+                .await
+                .expect("write");
+            String::from_utf8_lossy(&request).into_owned()
+        });
+
+        let store = ObjectStore::s3(S3Config {
+            bucket: "bucket".into(),
+            endpoint: Some(endpoint),
+            region: Some("us-east-1".into()),
+            access_key_id: "key".into(),
+            secret_access_key: "secret".into(),
+            root: None,
+        })
+        .expect("s3 store");
+        assert_eq!(store.get("obj").await.expect("get"), b"hello");
+        let request = server.await.expect("server");
+        assert!(
+            request.starts_with("GET /bucket/obj"),
+            "unexpected request: {request}"
+        );
     }
 }
