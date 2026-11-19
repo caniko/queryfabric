@@ -7634,6 +7634,7 @@ dependencies = [
  "futures-util",
  "reqwest 0.13.4",
  "rustix",
+ "rustls",
  "serde",
  "serde_json",
  "tar",

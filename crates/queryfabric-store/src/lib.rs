@@ -117,6 +117,9 @@ impl ObjectStore {
     pub fn s3(config: S3Config) -> Result<Self, StoreError> {
         // OpenDAL 0.58 sends HTTP only through an installed transporter; without
         // `auto-register-services` nothing installs one. First install wins.
+        // `opendal::install_default` would install it only under the aws-lc
+        // `http-transport-reqwest` feature, so do its two steps here.
+        opendal::init_default_registry();
         opendal_http_transport_reqwest::install_default();
         let mut builder = opendal::services::S3::default()
             .bucket(&config.bucket)
@@ -360,7 +363,12 @@ mod s3_tests {
             root: None,
         })
         .expect("s3 store");
-        assert_eq!(store.get("obj").await.expect("get"), b"hello");
+        // Bounded: an HTTP_PROXY without a loopback exemption would otherwise hang.
+        let body = tokio::time::timeout(std::time::Duration::from_secs(10), store.get("obj"))
+            .await
+            .expect("S3 GET timed out; is HTTP_PROXY set without NO_PROXY=127.0.0.1?")
+            .expect("get");
+        assert_eq!(body, b"hello");
         let request = server.await.expect("server");
         assert!(
             request.starts_with("GET /bucket/obj"),
