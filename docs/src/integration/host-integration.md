@@ -46,3 +46,25 @@ For a host with multiple backends:
 
 The host should not depend on parser internals or adapter-private crate types.
 Use the stable `queryfabric` facade as the contract.
+
+## TLS Crypto Provider
+
+The crates that make HTTP requests (`queryfabric-adapter-clickhouse`,
+`queryfabric-store` with `s3`, `queryfabric-fetch`, `queryfabric-changelog`,
+`queryfabric-cli-toolbelt`, `queryfabric-web` with `ssr`,
+`queryfabric-test-rig`) build reqwest with `rustls-no-provider`, so they do not
+force aws-lc-rs and its C build on the host. The host picks the crypto provider: install
+one at the start of `main`, before any client is built, or reqwest panics with
+"No rustls crypto provider is configured".
+
+```rust,ignore
+rustls::crypto::ring::default_provider()
+    .install_default()
+    .expect("install the rustls crypto provider");
+```
+
+Depend on `rustls = { version = "0.23", default-features = false, features =
+["ring", "std"] }` for this. Tests that build clients need the same call; use
+`let _ = ...install_default();` there, since tests in one process share the
+installed provider. `queryfabric-test-rig` installs ring itself when no
+provider is set.

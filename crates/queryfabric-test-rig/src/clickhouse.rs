@@ -66,6 +66,7 @@ pub async fn execute_ch(port: u16, sql: &str) -> Result<String, String> {
     use std::time::Duration;
 
     let url = format!("http://localhost:{port}/?query={}", url_encode(sql));
+    crate::ensure_crypto_provider();
     let client = reqwest::Client::builder()
         .timeout(Duration::from_secs(30))
         .build()

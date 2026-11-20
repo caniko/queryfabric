@@ -5,7 +5,10 @@ workspace and for external host projects.
 
 ## queryfabric-cli-toolbelt
 
-Reusable CLI utilities that don't depend on any specific QueryFabric backend:
+Reusable CLI utilities that don't depend on any specific QueryFabric backend.
+The default `fancy` feature enables miette's graphical report rendering; a
+service that only links the library parts can turn it off with
+`default-features = false`.
 
 - **`flight`**: Arrow Flight client for `do_get` operations (feature-gated).
 - **`auth`**: Auth token storage (`AuthStore`, `load_auth`, `save_auth`) with
@@ -14,7 +17,8 @@ Reusable CLI utilities that don't depend on any specific QueryFabric backend:
 - **`k8s`**: Kubernetes resource types (`Job`, `Pod`, `Secret`) and kubectl
   helpers. `parse_quantity` handles K8s resource quantity strings.
 - **`process`**: Subprocess execution helpers with miette-friendly errors.
-- **`http`**: Shared HTTP client builder.
+- **`http`**: Shared HTTP client builder. The process must install a rustls
+  crypto provider first; see [Host Integration](host-integration.md#tls-crypto-provider).
 - **`logging`**: Tracing/logging initialisation for CLI binaries.
 
 ```rust,ignore

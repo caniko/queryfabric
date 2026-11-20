@@ -443,6 +443,9 @@ impl TestRig {
     }
 
     async fn build(builder: TestRigBuilder) -> eyre::Result<Self> {
+        // The readiness probes build reqwest clients, which panic without a
+        // rustls provider; install one before any container exists to leak.
+        crate::ensure_crypto_provider();
         let docker = connect_docker()?;
         let network = format!("syndb-test-rig-{}", uuid::Uuid::now_v7().simple());
         ensure_network(&docker, &network).await?;

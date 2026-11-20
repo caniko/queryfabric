@@ -38,6 +38,9 @@
 
 ### Changed
 
+- **breaking:** `queryfabric-adapter-clickhouse`, `-changelog`, `-cli-toolbelt`, `-fetch`, `-store` (`s3`), `-test-rig` and `-web` (`ssr`) build reqwest with `rustls-no-provider` instead of `rustls`, so QueryFabric no longer forces aws-lc-rs and its C build on consumers (a consumer whose own reqwest enables `rustls` still gets it through feature unification). The process must install a rustls crypto provider (e.g. `rustls::crypto::ring::default_provider().install_default()`) before building a client, or reqwest panics; see Host Integration › TLS Crypto Provider. `queryfabric-test-rig` installs ring itself when no provider is set
+- `queryfabric-store` — `ObjectStore::s3` initializes OpenDAL's service registry and installs its reqwest transport directly, since `opendal::install_default` only installs the transport under the aws-lc `http-transport-reqwest` feature
+- The workspace `miette` dependency no longer enables `fancy`, so `queryfabric-ir` and other libraries stop pulling backtrace, textwrap, supports-* and terminal crates into services. `queryfabric-cli-toolbelt` enables it through its new default `fancy` feature
 - `queryfabric-adapter-clickhouse` — `decode_arrow_ipc` yields one zero-row batch carrying the stream's schema when a response holds a schema message and no record batch (what ClickHouse returns for a query that matches no rows), so callers keep ClickHouse's own column types instead of falling back to a static schema
 - `queryfabric-adapter-clickhouse` — new `decode_arrow_ipc` decodes a chunked Arrow IPC byte stream into record batches; `DynamicClient::query_arrow_stream` uses it, and `query_arrow` now collects that stream instead of buffering the whole response body
 - `queryfabric-job-queue` — **breaking:** `ResultContent.bytes: Vec<u8>` is now `body: axum::body::Body`, so implementations can stream large results; the unused buffered read path (`ResultStore::read`, `JobExecutor::result_content`) is removed

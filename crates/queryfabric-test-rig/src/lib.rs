@@ -25,3 +25,14 @@ pub use publish::tag_and_push_image;
 pub use rig::{
     ClickHouseService, MeilisearchService, MinioService, PostgresService, TestRig, TestRigBuilder,
 };
+
+/// Install ring as the process rustls provider unless one is already set.
+///
+/// reqwest is built with `rustls-no-provider` and panics without one. This is
+/// test-harness code, so it installs ring itself rather than leaving a probe
+/// to panic mid-setup; a harness that wants another provider installs it first.
+fn ensure_crypto_provider() {
+    if rustls::crypto::CryptoProvider::get_default().is_none() {
+        let _ = rustls::crypto::ring::default_provider().install_default();
+    }
+}

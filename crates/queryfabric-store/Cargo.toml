@@ -14,16 +14,22 @@ rust-version.workspace = true
 default = ["memory"]
 # In-process backend for tests and the demonstrator host.
 memory = ["opendal/services-memory"]
-# Any S3-compatible backend: AWS, MinIO, Garage, ...
+# Any S3-compatible backend: AWS, MinIO, Garage, ... The reqwest transport
+# uses rustls without a bundled crypto provider: the process must install one
+# (e.g. `rustls::crypto::ring::default_provider().install_default()`).
 s3 = [
     "opendal/services-s3",
-    "opendal/reqwest-rustls-tls",
     "opendal/executors-tokio",
+    "dep:opendal-http-transport-reqwest",
 ]
 
 [dependencies]
 opendal = { version = "0.58", default-features = false }
+# Installed directly: `opendal::install_default` only installs it under
+# `http-transport-reqwest`, which pulls reqwest's aws-lc provider.
+opendal-http-transport-reqwest = { version = "0.58", default-features = false, features = ["rustls-no-provider"], optional = true }
 thiserror = { workspace = true }
 
 [dev-dependencies]
-tokio = { version = "1", default-features = false, features = ["macros", "rt"] }
+rustls = { workspace = true }
+tokio = { version = "1", default-features = false, features = ["macros", "rt", "net", "io-util", "time"] }

@@ -45,6 +45,16 @@ pub fn auth_client(user_agent: &str, token: &str) -> Result<Client> {
 mod tests {
     use super::*;
 
+    fn client(user_agent: &str) -> Result<Client> {
+        let _ = rustls::crypto::ring::default_provider().install_default();
+        super::client(user_agent)
+    }
+
+    fn auth_client(user_agent: &str, token: &str) -> Result<Client> {
+        let _ = rustls::crypto::ring::default_provider().install_default();
+        super::auth_client(user_agent, token)
+    }
+
     #[test]
     fn client_builds() {
         assert!(client("test-cli").is_ok());
